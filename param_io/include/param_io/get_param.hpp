@@ -22,9 +22,29 @@ namespace param_io {
 /*
  * Interfaces:
  *
- * bool   getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param);
- * ParamT getParam(const ros::NodeHandle& nh, const std::string& key);
- * ParamT getParam(const ros::NodeHandle& nh, const std::string& key, bool& success);
+ * 1) bool   getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param);
+ *
+ * 2) ParamT getParam(const ros::NodeHandle& nh, const std::string& key);
+ *
+ * 3) ParamT getParam(const ros::NodeHandle& nh, const std::string& key, bool& success);
+ *
+ *
+ *
+ * Examples:
+ *
+ * 1a) double myParam = 0;
+ *     bool success = getParam(nh, "my_param", myParam);
+ *
+ * 1b) double myParam1 = 0;
+ *     double myParam2 = 0;
+ *     bool success = true;
+ *     success = success && getParam(nh, "my_param1", myParam1);
+ *     success = success && getParam(nh, "my_param2", myParam2);
+ *
+ * 2)  double myParam = getParam<double>(nh, "my_param");
+ *
+ * 3)  bool success = false;
+ *     double myParam = getParam<double>(nh, "my_param", success);
  */
 
 
