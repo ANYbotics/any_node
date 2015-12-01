@@ -43,9 +43,8 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
 template<>
 bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
 {
-  bool success = true;
   int32_t value = 0;
-  success = success && getParam(nh, key, value);
+  bool success = getParam(nh, key, value);
   if (value < 0)
   {
     ROS_ERROR_STREAM("Parameter " << key << " is smaller than 0, cannot be stored inside an unsigned int.");
