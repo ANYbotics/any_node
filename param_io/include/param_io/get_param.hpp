@@ -26,8 +26,6 @@ namespace param_io {
  *
  * 2) ParamT getParam(const ros::NodeHandle& nh, const std::string& key);
  *
- * 3) ParamT getParam(const ros::NodeHandle& nh, const std::string& key, bool& success);
- *
  *
  *
  * Examples:
@@ -42,13 +40,10 @@ namespace param_io {
  *     success = success && getParam(nh, "my_param2", myParam2);
  *
  * 2)  double myParam = getParam<double>(nh, "my_param");
- *
- * 3)  bool success = false;
- *     double myParam = getParam<double>(nh, "my_param", success);
  */
 
 
-// primitive types
+// 1)
 template<typename ParamT>
 bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
 {
@@ -60,6 +55,16 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
   return true;
 }
 
+// 2)
+template<typename ParamT>
+ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
+{
+  ParamT param;
+  getParam(nh, key, param);
+  return param;
+}
+
+// primitive types
 template<>
 bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
 {
@@ -161,21 +166,6 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
   success = success && getParam(nh, key + "/header", param.header);
   success = success && getParam(nh, key + "/twist", param.twist);
   return success;
-}
-
-// alternative function interfaces
-template<typename ParamT>
-ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
-{
-  return getParam<ParamT>(nh, key);
-}
-
-template<typename ParamT>
-ParamT getParam(const ros::NodeHandle& nh, const std::string& key, bool& success)
-{
-  ParamT param;
-  success = getParam(nh, key, param);
-  return param;
 }
 
 
