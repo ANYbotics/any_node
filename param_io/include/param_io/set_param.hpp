@@ -18,7 +18,7 @@ namespace param_io {
 
 
 template<typename ParamT>
-void setParam(const ros::NodeHandle& nh, const std::string& key, const ParamT& param)
+inline void setParam(const ros::NodeHandle& nh, const std::string& key, const ParamT& param)
 {
   nh.setParam(key, param);
 }
