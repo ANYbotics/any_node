@@ -45,7 +45,7 @@ namespace param_io {
 
 // 1)
 template<typename ParamT>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
 {
   if (!nh.getParam(key, param))
   {
@@ -57,7 +57,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
 
 // 2)
 template<typename ParamT>
-ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
+inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
 {
   ParamT param;
   getParam(nh, key, param);
@@ -66,7 +66,7 @@ ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
 
 // primitive types
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
 {
   int32_t value = 0;
   bool success = getParam(nh, key, value);
@@ -81,7 +81,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param
 
 // ros
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, ros::Time& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ros::Time& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/sec", param.sec);
@@ -91,7 +91,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, ros::Time& para
 
 // std_msgs
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, std_msgs::Header& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, std_msgs::Header& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/stamp", param.stamp);
@@ -102,7 +102,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, std_msgs::Heade
 
 // geometry_msgs
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Vector3& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Vector3& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/x", param.x);
@@ -112,7 +112,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Point& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Point& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/x", param.x);
@@ -122,7 +122,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Quaternion& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Quaternion& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/w", param.w);
@@ -133,7 +133,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Pose& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Pose& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/position", param.position);
@@ -142,7 +142,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::PoseStamped& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::PoseStamped& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/header", param.header);
@@ -151,7 +151,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Twist& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Twist& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/linear", param.linear);
@@ -160,7 +160,7 @@ bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::
 }
 
 template<>
-bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::TwistStamped& param)
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::TwistStamped& param)
 {
   bool success = true;
   success = success && getParam(nh, key + "/header", param.header);
