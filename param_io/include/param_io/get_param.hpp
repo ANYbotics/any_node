@@ -11,6 +11,7 @@
 
 // ros
 #include <ros/ros.h>
+#include <XmlRpc.h>
 #include <std_msgs/Header.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -166,6 +167,25 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry
   success = success && getParam(nh, key + "/header", param.header);
   success = success && getParam(nh, key + "/twist", param.twist);
   return success;
+}
+
+template<typename T>
+T getMember(XmlRpc::XmlRpcValue param, const std::string& key)
+{
+  try
+  {
+    if (!param.hasMember(key))
+    {
+      ROS_ERROR_STREAM("XmlRpcValue does not contain member '" << key << "'.");
+      return T();
+    }
+    return static_cast<T>(param[key]);
+  }
+  catch (const XmlRpc::XmlRpcException& exception)
+  {
+    ROS_ERROR_STREAM("Caught an XmlRpc exception while getting member '" << key << "'.");
+    return T();
+  }
 }
 
 
