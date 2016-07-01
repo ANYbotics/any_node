@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package>
+  <name>signal_handler</name>
+  <version>0.1.0</version>
+  <description>System signal handler (SIGINT, ...)</description>
+  
+  <license>BSD</license>
+  <url type="website">https://bitbucket.org/ethz-asl-lr/any_common</url>
+  <maintainer email="pleemann@ethz.ch">Philipp Leemann</maintainer>
+  <author email="pleemann@ethz.ch">Philipp Leemann</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+ 
+</package>
