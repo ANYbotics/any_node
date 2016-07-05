@@ -1,4 +1,0 @@
-# signal_handler
-
-## Overview
-
