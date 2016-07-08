@@ -52,7 +52,7 @@ namespace any_worker {
 class WorkerManager {
 public:
     WorkerManager();
-    ~WorkerManager();
+    virtual ~WorkerManager();
 
 
     template<class T>

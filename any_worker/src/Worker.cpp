@@ -94,7 +94,8 @@ bool Worker::start(const int priority) {
         }
     }
 
-    MELO_INFO("Worker [%s] started", name_.c_str())
+    MELO_INFO("Worker [%s] started", name_.c_str());
+    return true;
 }
 
 void Worker::stop(const bool wait) {
