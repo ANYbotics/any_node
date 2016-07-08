@@ -69,7 +69,7 @@ namespace any_node {
         /*
          * blocking call, executes init, run and cleanup
          * @param nodeName              Name of the nodeName
-         * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics is generally a good idea
+         * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics+services is generally a good idea
          * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...). IF SET TO FALSE, THE USER HAS TO INSTALL HIS OWN SIGNAL HANDLER. Otherwise the program wont be closed in a clean way.
          */
         void start(int argc, char **argv, const std::string nodeName, const unsigned int numSpinners=1, const bool installSignalHandler=true) {

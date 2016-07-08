@@ -48,9 +48,13 @@
 namespace any_worker {
 
 Worker::Worker(const std::string& name, const double timestep, const WorkerCallback& callback):
-    name_(name),
-    timeStep_(timestep),
-    callback_(callback),
+    Worker(WorkerOptions(name, timestep, callback))
+{
+
+}
+
+Worker::Worker(const WorkerOptions& options):
+    options_(options),
     running_(false),
     thread_()
 {
@@ -59,9 +63,7 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 
 
 Worker::Worker(Worker&& other):
-    name_(std::move(other.name_)),
-    timeStep_(std::move(other.timeStep_)),
-    callback_(std::move(other.callback_)),
+    options_(std::move(other.options_)),
     running_(std::move(other.running_.load())),
     thread_(std::move(other.thread_))
 {
@@ -75,10 +77,10 @@ Worker::~Worker() {
 
 
 bool Worker::start(const int priority) {
-    if(timeStep_ < 0.0) {
-        MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", name_.c_str(), timeStep_);
+    if(options_.timeStep_ < 0.0) {
+        MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_);
         return false;
-    }else if(timeStep_ == 0.0) {
+    }else if(options_.timeStep_ == 0.0) {
         running_ = false; // thread loop will exit after first execution
     }else{
         running_ = true;
@@ -86,15 +88,21 @@ bool Worker::start(const int priority) {
 
     thread_ = std::thread(&Worker::run, this);
 
+    sched_param sched;
+    sched.sched_priority = 0;
     if(priority != 0) {
-        sched_param sched;
         sched.sched_priority = priority;
+    }else if(options_.defaultPriority_ != 0) {
+        sched.sched_priority = options_.defaultPriority_;
+    }
+
+    if(sched.sched_priority != 0) {
         if (pthread_setschedparam(thread_.native_handle(), SCHED_FIFO, &sched) != 0) {
-            MELO_WARN("Failed to set thread priority for worker [%s]: %s", name_.c_str(), strerror(errno));
+            MELO_WARN("Failed to set thread priority for worker [%s]: %s", options_.name_.c_str(), strerror(errno));
         }
     }
 
-    MELO_INFO("Worker [%s] started", name_.c_str());
+    MELO_INFO("Worker [%s] started", options_.name_.c_str());
     return true;
 }
 
@@ -110,15 +118,15 @@ void Worker::run() {
     WorkerEvent event;
 
     do {
-        if(!callback_(event)) {
-            MELO_WARN("Worker [%s] callback returned false.", name_.c_str());
+        if(!options_.callback_(event)) {
+            MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
         }
 
-        nextLoop += std::chrono::nanoseconds(static_cast<long int>(timeStep_*1e9));
+        nextLoop += std::chrono::nanoseconds(static_cast<long int>(options_.timeStep_*1e9));
         std::this_thread::sleep_until(nextLoop);
     }while(running_);
 
-    MELO_INFO("Worker [%s] terminated.", name_.c_str());
+    MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
 }
 
 

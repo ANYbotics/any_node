@@ -34,48 +34,39 @@
  */
 
 /*!
- * @file	Worker.hpp
+ * @file	WorkerOptions.hpp
  * @author	Philipp Leemann
- * @date	July, 2016
+ * @date	Jul 8, 2016
  */
 
- #pragma once
-
-#include <functional>
-#include <string>
-#include <atomic>
-#include <thread>
-
-#include "any_worker/WorkerEvent.hpp"
-#include "any_worker/WorkerOptions.hpp"
+#pragma once
 
 namespace any_worker {
 
-class Worker {
-public:
-    Worker() = delete;
-    Worker(const std::string& name, const double timestep, const WorkerCallback& callback); // with a timestep of 0, the callback will be executed only once
-    Worker(const WorkerOptions& options);
-    Worker(const Worker&) = delete; // atomics and threads are non-copyable
-    Worker(Worker&&); // declare custom move constructor to move atomics
+using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 
-    virtual ~Worker();
+struct WorkerOptions {
+    WorkerOptions():
+        name_(),
+        timeStep_(0.0),
+        callback_(),
+        defaultPriority_(0)
+    {
+    }
 
-    bool start(const int priority=0);
-    void stop(const bool wait=true);
+    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
+        name_(name),
+        timeStep_(timestep),
+        callback_(callback),
+        defaultPriority_(priority)
+    {
 
-    const std::string& getName() const { return options_.name_; }
+    }
 
-
-private:
-    void run();
-
-private:
-    const WorkerOptions options_;
-
-    std::atomic<bool> running_;
-
-    std::thread thread_;
+    std::string name_;
+    double timeStep_;
+    WorkerCallback callback_;
+    int defaultPriority_;
 };
 
 } // namespace any_worker

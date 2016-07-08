@@ -46,6 +46,7 @@
 
 
 #include "any_worker/WorkerManager.hpp"
+#include "any_worker/WorkerOptions.hpp"
 #include "any_node/Param.hpp"
 #include "any_node/Topic.hpp"
 
@@ -74,7 +75,11 @@ namespace any_node {
 
         template<class T>
         inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const any_worker::WorkerEvent&), T* obj, const int priority=0) {
-            workerManager_.addWorker(name, timestep, fp, obj, priority);
+            return workerManager_.addWorker(name, timestep, fp, obj, priority);
+        }
+
+        inline bool addWorker(const any_worker::WorkerOptions& options) {
+            return workerManager_.addWorker(options);
         }
 
         inline void stopAllWorkers() {

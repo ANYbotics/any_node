@@ -54,14 +54,23 @@ WorkerManager::~WorkerManager() {
     clearWorkers();
 }
 
-bool WorkerManager::addWorker(const std::string& name, const double timestep, const Worker::WorkerCallback& callback, const int priority) {
-    auto insertedElement = workers_.emplace( name, Worker(name, timestep, callback) );
+bool WorkerManager::addWorker(const WorkerOptions& options) {
+    auto insertedElement = workers_.emplace( options.name_, Worker(options) );
     if(!insertedElement.second) {
-        MELO_ERROR("Failed to create worker [%s]", name.c_str());
+        MELO_ERROR("Failed to create worker [%s]", options.name_.c_str());
         return false;
     }
-    return insertedElement.first->second.start(priority);
+    return insertedElement.first->second.start();
 }
+
+//bool WorkerManager::addWorker(Worker&& worker) {
+//    auto insertedElement = workers_.emplace( worker.getName(), std::move(worker) );
+//    if(!insertedElement.second) {
+//        MELO_ERROR("Failed to move worker [%s]", worker.getName().c_str());
+//        return false;
+//    }
+//    return true;
+//}
 
 void WorkerManager::startWorker(const std::string& name, const int priority) {
     auto worker = workers_.find(name);
