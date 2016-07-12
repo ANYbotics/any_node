@@ -48,59 +48,99 @@
 #include <ros/ros.h>
 
 #include "any_node/SignalHandler.hpp"
+#include "any_node/Param.hpp"
 
 namespace any_node {
+
+    void basicSigintHandler(int sig) {
+        ros::requestShutdown();
+    }
+
 
     template <class NodeImpl>
     class Nodewrap {
     public:
-        Nodewrap():
+        Nodewrap() = delete;
+        Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners=0):
+            nh_(nullptr),
+            spinner_(nullptr),
+            impl_(nullptr),
+            signalHandlerInstalled_(false),
+            isStandalone_(false),
+            timeStep_(0.01),
             running_(false),
             cvRunning_(),
             mutexRunning_()
         {
+            ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
+            nh_ = std::make_shared<ros::NodeHandle>("~");
 
+            isStandalone_ = nh_->param("standalone", false);
+            timeStep_ = nh_->param("time_step", 0.01);
+
+            if(numSpinners == 0) {
+                numSpinners = nh_->param("num_spinners", 2);
+            }
+
+            spinner_ = std::move( std::unique_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(numSpinners)) );
+            impl_ = std::move( std::unique_ptr<NodeImpl>(new NodeImpl(nh_)) );
         }
 
         virtual ~Nodewrap() {
-
+            ros::shutdown();
         }
 
-        /*
+        /*!
          * blocking call, executes init, run and cleanup
          * @param nodeName              Name of the nodeName
          * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics+services is generally a good idea
-         * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...). IF SET TO FALSE, THE USER HAS TO INSTALL HIS OWN SIGNAL HANDLER. Otherwise the program wont be closed in a clean way.
+         * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
          */
-        void start(int argc, char **argv, const std::string nodeName, const unsigned int numSpinners=1, const bool installSignalHandler=true) {
-            ros::init(argc, argv, nodeName, installSignalHandler ? ros::init_options::NoSigintHandler : 0);
-            std::shared_ptr<ros::NodeHandle> nh = std::make_shared<ros::NodeHandle>("~");
-            ros::AsyncSpinner spinner(numSpinners); // use 1 thread
-            spinner.start();
+        void execute(int priority=0, const bool installSignalHandler=true) {
+            init(installSignalHandler);
+            run(priority);
+            cleanup();
+        }
+
+        /*!
+         * Initializes the node
+         * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics+services is generally a good idea
+         * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
+         */
+        void init(const bool installSignalHandler=true) {
+            impl_->init();
+            spinner_->start();
+            running_ = true;
 
             if(installSignalHandler) {
                 SignalHandler::bindAll(&Nodewrap::signalHandler, this);
+                signalHandlerInstalled_ = true;
+            }else{
+                signal(SIGINT, basicSigintHandler);
             }
+        }
 
-            const bool isStandalone = nh->param<bool>("standalone", false);
-            const double timeStep = nh->param<double>("time_step", 0.01);
-
-            running_ = true;
-            NodeImpl impl(nh, isStandalone, timeStep);
-            impl.init();
-
+        /*!
+         * blocking call, returns when the program should shut down
+         */
+        virtual void run(const int priority=0) {
+            if(isStandalone_) {
+                impl_->addWorker("updateWorker", timeStep_, &NodeImpl::update, impl_.get(), priority);
+            }
             // returns if running_ is false
             std::unique_lock<std::mutex> lk(mutexRunning_);
             cvRunning_.wait(lk, [this]{ return !running_; });
+        }
 
-            impl.stopAllWorkers();
-            impl.cleanup();
-
-            if(installSignalHandler) {
+        void cleanup() {
+            if(signalHandlerInstalled_) {
                 SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
             }
 
-            ros::shutdown();
+            spinner_->stop();
+            impl_->stopAllWorkers();
+            impl_->cleanup();
+
         }
 
         void stop() {
@@ -111,9 +151,27 @@ namespace any_node {
 
         void signalHandler(const int signum) {
             stop();
+
+            if (signum == SIGSEGV) {
+                signal(signum, SIG_DFL);
+                kill(getpid(), signum);
+            }
         }
 
-    private:
+
+        void enforceTimestep(const double timestep) { isStandalone_ = true; timeStep_ = timestep; }
+
+
+    protected:
+        std::shared_ptr<ros::NodeHandle> nh_;
+        std::unique_ptr<ros::AsyncSpinner> spinner_;
+        std::unique_ptr<NodeImpl> impl_;
+
+        bool signalHandlerInstalled_;
+
+        bool isStandalone_; // if true, executes update() every timeStep_ seconds
+        double timeStep_; // [s], only used if isStandalone_ is true
+
         std::atomic<bool> running_;
         std::condition_variable cvRunning_;
         std::mutex mutexRunning_;

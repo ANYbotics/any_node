@@ -46,10 +46,8 @@
 
 namespace any_node {
 
-Node::Node(NodeHandlePtr nh, const bool isStandalone, const double timestep):
+Node::Node(NodeHandlePtr nh):
     nh_(nh),
-    isStandalone_(isStandalone),
-    timeStep_(timestep),
     workerManager_()
 {
 
@@ -61,6 +59,16 @@ Node::~Node() {
 
 void Node::shutdown() {
     raise(SIGINT);
+}
+
+bool setProcessPriority(int priority) {
+    sched_param params;
+    params.sched_priority = priority;
+    if(sched_setscheduler(getpid(), SCHED_FIFO, &params) != 0) {
+        MELO_WARN("Failed to set process priority to %d: %s", priority, std::strerror(errno));
+        return false;
+    }
+    return true;
 }
 
 

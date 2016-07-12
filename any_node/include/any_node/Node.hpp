@@ -42,6 +42,8 @@
 #pragma once
 
 #include <memory> // for std::shared_ptr
+#include <sched.h>
+#include <unistd.h> // for getpid()
 #include <ros/ros.h>
 
 
@@ -52,12 +54,14 @@
 
 namespace any_node {
 
+bool setProcessPriority(int priority);
+
     class Node {
     public:
         using NodeHandlePtr = std::shared_ptr<ros::NodeHandle>;
 
         Node() = delete;
-        Node(NodeHandlePtr nh, const bool isStandalone, const double timestep);
+        Node(NodeHandlePtr nh);
         virtual ~Node();
 
         /*
@@ -89,8 +93,6 @@ namespace any_node {
         /*
          * accessors
          */
-        inline bool             isStandalone()  const { return isStandalone_; }
-        inline double           getTimeStep()   const { return timeStep_; }
         inline ros::NodeHandle& getNodeHandle() const { return *nh_; }
 
 
@@ -135,10 +137,13 @@ namespace any_node {
              return any_node::param(*nh_, key, defaultValue);
          }
 
-    protected:
+         template<typename ParamT>
+         inline void setParam(const std::string& key, const ParamT& param) {
+             any_node::setParam(*nh_, key, param);
+         }
+
+    private:
         NodeHandlePtr nh_;
-        bool isStandalone_; // if true, executes update() every timeStep_ seconds
-        double timeStep_; // [s], only used if isStandalone_ is true
 
     private:
         any_worker::WorkerManager workerManager_;
