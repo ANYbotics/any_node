@@ -41,6 +41,8 @@
 
 #pragma once
 
+#include "any_worker/WorkerEvent.hpp"
+
 namespace any_worker {
 
 using WorkerCallback = std::function<bool(const WorkerEvent&)>;

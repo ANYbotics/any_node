@@ -49,6 +49,7 @@
 
 #include "any_node/SignalHandler.hpp"
 #include "any_node/Param.hpp"
+#include "any_worker/WorkerOptions.hpp"
 
 namespace any_node {
 
