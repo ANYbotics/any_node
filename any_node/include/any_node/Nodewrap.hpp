@@ -126,7 +126,7 @@ namespace any_node {
          */
         virtual void run(const int priority=0) {
             if(isStandalone_) {
-                impl_->addWorker("updateWorker", timeStep_, &NodeImpl::update, impl_.get(), priority);
+                impl_->addWorker("updateWorker", timeStep_, static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update), impl_.get(), priority);
             }
             // returns if running_ is false
             std::unique_lock<std::mutex> lk(mutexRunning_);
