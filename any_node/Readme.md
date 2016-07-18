@@ -7,7 +7,7 @@ Implements several convenience classes and functions.
 Forwards to param_io package, which allows to read and write ROS messages from and to the parameter server. Also, it provides param(..) functions which print a warning if a requested parameter was not found.
 
 ### Topic.hpp
-Allows to advertise/subscribe to/from topics/services, whose connection details (topic name, latched, queue_size, ...) are saved as ros parameters.
+Allows to advertise/subscribe to/from topics/services, whose connection details (topic name, latched, queue_size, deactivate, ...) are saved as ros parameters.
 
 ### Node.hpp
 Provides an interface base class any_node::Node, which declares init, cleanup and update functions and has a any_worker::WorkerManager instance.
