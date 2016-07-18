@@ -74,6 +74,9 @@ public:
     void stopWorker(const std::string& name, const bool wait=true);
 
 
+    /*!
+     * Requests all workers to stop, then joins their threads and deletes their instances.
+     */
     void clearWorkers();
 
 private:
