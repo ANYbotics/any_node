@@ -67,11 +67,15 @@ template<class M, class T>
 ros::Subscriber subscribe(ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic,
 		uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints())
 {
-	return nh.subscribe(
+    if(nh.param<bool>("subscribers/"+name+"/deactivate", false)) {
+        return ros::Subscriber(); // return empty subscriber
+    }else{
+        return nh.subscribe(
 			param<std::string>(nh, "subscribers/"+name+"/topic", defaultTopic),
 			param<int>(nh, "subscribers/"+name+"/queue_size", queue_size),
 			fp, obj,
 			transport_hints);
+    }
 }
 
 
