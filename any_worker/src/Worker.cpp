@@ -138,7 +138,7 @@ void Worker::run() {
             if(elapsedTimeNs > timeStepNs*10) {
                 MELO_ERROR("Worker [%s]: Computation took more than 10 times the maximum allowed computation time (%lf s)!", options_.name_.c_str(), options_.timeStep_);
             }else if (elapsedTimeNs > 0) {
-                MELO_WARN_THROTTLE(1.0, "Worker [%s]: Too slow processing! Took %lf s, should have finished in %lf s", options_.name_.c_str(), static_cast<double>(elapsedTimeNs)/1000000000., options_.timeStep_);
+                MELO_WARN_THROTTLE(1.0, "Worker [%s]: Too slow processing! Took %lf s, should have finished in %lf s", options_.name_.c_str(), static_cast<double>(elapsedTimeNs+timeStepNs)/1000000000., options_.timeStep_);
             }
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
         }
