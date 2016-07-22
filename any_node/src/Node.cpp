@@ -65,7 +65,7 @@ bool setProcessPriority(int priority) {
     sched_param params;
     params.sched_priority = priority;
     if(sched_setscheduler(getpid(), SCHED_FIFO, &params) != 0) {
-        MELO_WARN("Failed to set process priority to %d: %s", priority, std::strerror(errno));
+        MELO_WARN("Failed to set process priority to %d: %s. Check /etc/security/limits.conf for the rights.", priority, std::strerror(errno));
         return false;
     }
     return true;

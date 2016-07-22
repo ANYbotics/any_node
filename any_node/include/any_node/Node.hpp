@@ -56,97 +56,98 @@ namespace any_node {
 
 bool setProcessPriority(int priority);
 
-    class Node {
-    public:
-        using NodeHandlePtr = std::shared_ptr<ros::NodeHandle>;
+class Node {
+ public:
+    using NodeHandlePtr = std::shared_ptr<ros::NodeHandle>;
 
-        Node() = delete;
-        Node(NodeHandlePtr nh);
-        virtual ~Node();
+    Node() = delete;
+    Node(NodeHandlePtr nh);
+    virtual ~Node();
 
-        /*
-         * abstract interface functions
-         */
-        virtual void init() = 0;
-        virtual void cleanup() = 0;
-        virtual bool update(const any_worker::WorkerEvent& event) = 0;
-
-
-        /*
-         * general
-         */
-        void shutdown();
-
-        template<class T>
-        inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const any_worker::WorkerEvent&), T* obj, const int priority=0) {
-            return workerManager_.addWorker(name, timestep, fp, obj, priority);
-        }
-
-        inline bool addWorker(const any_worker::WorkerOptions& options) {
-            return workerManager_.addWorker(options);
-        }
-
-        inline void stopAllWorkers() {
-            workerManager_.clearWorkers();
-        }
-
-        /*
-         * accessors
-         */
-        inline ros::NodeHandle& getNodeHandle() const { return *nh_; }
+    /*
+     * abstract interface functions
+     */
+    virtual void init() = 0;
+    virtual void cleanup() = 0;
+    virtual bool update(const any_worker::WorkerEvent& event) = 0;
 
 
-        /*
-         * forwarding to Topic.hpp functions
-         */
-        template<typename msg>
-        inline ros::Publisher advertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false) {
-        	return any_node::advertise<msg>(*nh_, name, defaultTopic, queue_size, latch);
-        }
+    /*
+     * general
+     */
+    void shutdown();
 
-        template<class M, class T>
-        inline ros::Subscriber subscribe(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints()) {
-        	return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
-        }
+    template<class T>
+    inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const any_worker::WorkerEvent&), T* obj, const int priority=0) {
+        return workerManager_.addWorker(name, timestep, fp, obj, priority);
+    }
 
-        template<class T, class MReq, class MRes>
-        inline ros::ServiceServer advertiseService(const std::string& name, const std::string& defaultService, bool(T::*srv_func)(MReq &, MRes &), T *obj) {
-        	return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);
-        }
+    inline bool addWorker(const any_worker::WorkerOptions& options) {
+        return workerManager_.addWorker(options);
+    }
 
-        template<class MReq, class MRes>
-        inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService, const ros::M_string& header_values = ros::M_string()) {
-            return any_node::serviceClient<MReq, MRes>(*nh_, name, defaultService, header_values);
-        }
+    inline void stopAllWorkers() {
+        workerManager_.clearWorkers();
+    }
 
-        template<class Service>
-        inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService, const ros::M_string& header_values = ros::M_string()) {
-            return any_node::serviceClient<Service>(*nh_, name, defaultService, header_values);
-        }
+    /*
+     * accessors
+     */
+    inline ros::NodeHandle& getNodeHandle() const { return *nh_; }
 
-        /*
-         * forwarding to Param.hpp functions
-         */
-         template<typename ParamT>
-         inline bool param(const std::string& key, ParamT& param_val, const ParamT& defaultValue=ParamT()) {
-             return any_node::param(*nh_, key, param_val, defaultValue);
-         }
 
-         template<typename ParamT>
-         inline ParamT param(const std::string& key, const ParamT& defaultValue=ParamT()) {
-             return any_node::param(*nh_, key, defaultValue);
-         }
+    /*
+     * forwarding to Topic.hpp functions
+     */
+    template<typename msg>
+    inline ros::Publisher advertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false) {
+      return any_node::advertise<msg>(*nh_, name, defaultTopic, queue_size, latch);
+    }
 
-         template<typename ParamT>
-         inline void setParam(const std::string& key, const ParamT& param) {
-             any_node::setParam(*nh_, key, param);
-         }
+    template<class M, class T>
+    inline ros::Subscriber subscribe(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints()) {
+      return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
+    }
 
-    private:
-        NodeHandlePtr nh_;
+    template<class T, class MReq, class MRes>
+    inline ros::ServiceServer advertiseService(const std::string& name, const std::string& defaultService, bool(T::*srv_func)(MReq &, MRes &), T *obj) {
+      return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);
+    }
 
-    private:
-        any_worker::WorkerManager workerManager_;
+    template<class MReq, class MRes>
+    inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService, const ros::M_string& header_values = ros::M_string()) {
+        return any_node::serviceClient<MReq, MRes>(*nh_, name, defaultService, header_values);
+    }
 
-    };
+    template<class Service>
+    inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService, const ros::M_string& header_values = ros::M_string()) {
+        return any_node::serviceClient<Service>(*nh_, name, defaultService, header_values);
+    }
+
+    /*
+     * forwarding to Param.hpp functions
+     */
+     template<typename ParamT>
+     inline bool param(const std::string& key, ParamT& param_val, const ParamT& defaultValue=ParamT()) {
+         return any_node::param(*nh_, key, param_val, defaultValue);
+     }
+
+     template<typename ParamT>
+     inline ParamT param(const std::string& key, const ParamT& defaultValue=ParamT()) {
+         return any_node::param(*nh_, key, defaultValue);
+     }
+
+     template<typename ParamT>
+     inline void setParam(const std::string& key, const ParamT& param) {
+         any_node::setParam(*nh_, key, param);
+     }
+
+ private:
+    NodeHandlePtr nh_;
+
+ private:
+    any_worker::WorkerManager workerManager_;
+
+};
+
 } // namespace any_node
