@@ -22,14 +22,14 @@ Convencience template, designed to be used with classes derived from any_node::N
 
 Example:
 
-    class exampleNode : public any_node::Node {
+    class ExampleNode : public any_node::Node {
     public:
-        exampleNode() = delete; // constructor needs to take a shared_ptr to a ros::Nodehandle instance.
-        exampleNode(NodeHandlePtr nh): any_node::Node(nh)
+        ExampleNode() = delete; // constructor needs to take a shared_ptr to a ros::Nodehandle instance.
+        ExampleNode(any_node::Node::NodeHandlePtr nh): any_node::Node(nh)
         {
         }
         
-        virtual ~exampleNode()
+        virtual ~ExampleNode()
         {
         }
         
@@ -49,7 +49,7 @@ Example:
     };
     
     int main(int argc, char **argv) {
-        any_node::Nodewrap<exampleNode> node(argc, argv, "exampleNode", 4); // use 4 spinner threads
+        any_node::Nodewrap<ExampleNode> node(argc, argv, "exampleNode", 4); // use 4 spinner threads
         node.execute(90); // 90=priority of the thread calling the update(..) function (if any)
         // execute blocks until the node was requested to shut down (after reception of a signal (e.g. SIGINT) or after calling the any_node::Node::shutdown() function) 
         return 0;

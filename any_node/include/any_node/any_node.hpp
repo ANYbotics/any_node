@@ -34,53 +34,12 @@
  */
 
 /*!
- * @file	Worker.hpp
- * @author	Philipp Leemann
- * @date	July, 2016
+ * @file  any_node.hpp
+ * @author  Christian Gehring
+ * @date  July, 2016
  */
 
- #pragma once
+#pragma once
 
-#include <functional>
-#include <string>
-#include <atomic>
-#include <thread>
-
-#include "any_worker/WorkerEvent.hpp"
-#include "any_worker/WorkerOptions.hpp"
-
-namespace any_worker {
-
-class Worker {
-public:
-  Worker() = delete;
-
-  /*!
-   * @param name      name of the worker
-   * @param timestep  with a timestep of 0, the callback will be executed only once.
-   * @param callback  std::function pointing to the callback
-   */
-  Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
-  Worker(const WorkerOptions& options);
-  Worker(const Worker&) = delete; // atomics and threads are non-copyable
-  Worker(Worker&&); // declare custom move constructor to move atomics
-
-  virtual ~Worker();
-
-  bool start(const int priority=0);
-  void stop(const bool wait=true);
-
-  const std::string& getName() const { return options_.name_; }
-
-private:
-    void run();
-
-private:
-    const WorkerOptions options_;
-
-    std::atomic<bool> running_;
-
-    std::thread thread_;
-};
-
-} // namespace any_worker
+#include <any_node/Node.hpp>
+#include <any_node/Nodewrap.hpp>
