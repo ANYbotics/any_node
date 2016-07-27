@@ -65,6 +65,27 @@ inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
   return param;
 }
 
+
+template<typename ParamT>
+inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& param_val, const ParamT& defaultValue=ParamT())
+{
+  if (!nh.getParam(key, param_val))
+  {
+    ROS_WARN_STREAM("Could not acquire parameter " << key << " from server. Using default value.");
+    param_val = defaultValue;
+    return false;
+  }
+  return true;
+}
+
+template<typename ParamT>
+inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue=ParamT())
+{
+  ParamT param_val;
+  param(nh, key, param_val, defaultValue);
+  return param_val;
+}
+
 // primitive types
 template<>
 inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
