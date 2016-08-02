@@ -70,13 +70,15 @@ public:
   bool start(const int priority=0);
   void stop(const bool wait=true);
 
+  void setTimestep(const double timeStep);
+
   const std::string& getName() const { return options_.name_; }
 
 private:
     void run();
 
 private:
-    const WorkerOptions options_;
+    WorkerOptions options_;
 
     std::atomic<bool> running_;
 

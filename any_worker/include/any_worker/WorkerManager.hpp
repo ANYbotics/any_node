@@ -73,6 +73,8 @@ public:
     void startWorker(const std::string& name, const int priority=0);
     void stopWorker(const std::string& name, const bool wait=true);
 
+    void setWorkerTimestep(const std::string& name, const double timeStep);
+
 
     /*!
      * Requests all workers to stop, then joins their threads and deletes their instances.

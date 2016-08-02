@@ -88,6 +88,14 @@ void WorkerManager::stopWorker(const std::string& name, const bool wait) {
     worker->second.stop(wait);
 }
 
+void WorkerManager::setWorkerTimestep(const std::string& name, const double timeStep) {
+    auto worker = workers_.find(name);
+    if(worker == workers_.end()) {
+        MELO_ERROR("Cannot change timestep of worker [%s], worker not found", name.c_str());
+    }
+    worker->second.setTimestep(timeStep);
+}
+
 void WorkerManager::clearWorkers() {
     for(auto& worker : workers_) {
         worker.second.stop(false);

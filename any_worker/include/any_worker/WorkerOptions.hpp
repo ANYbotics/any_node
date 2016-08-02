@@ -41,6 +41,9 @@
 
 #pragma once
 
+#include <atomic>
+#include <string>
+
 #include "any_worker/WorkerEvent.hpp"
 
 namespace any_worker {
@@ -65,8 +68,27 @@ struct WorkerOptions {
 
     }
 
+    WorkerOptions(const WorkerOptions& other):
+        name_(other.name_),
+        timeStep_(other.timeStep_.load()),
+        callback_(other.callback_),
+        defaultPriority_(other.defaultPriority_)
+    {
+
+    }
+
+    WorkerOptions(WorkerOptions&& other):
+        name_(std::move(other.name_)),
+        timeStep_(std::move(other.timeStep_.load())),
+        callback_(std::move(other.callback_)),
+        defaultPriority_(other.defaultPriority_)
+    {
+
+    }
+
+
     std::string name_;
-    double timeStep_;
+    std::atomic<double> timeStep_;
     WorkerCallback callback_;
     int defaultPriority_;
 };
