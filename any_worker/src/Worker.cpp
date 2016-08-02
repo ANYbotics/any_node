@@ -118,7 +118,7 @@ void Worker::run() {
     struct timespec   tp;
     long int elapsedTimeNs;
     const long int timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
-    WorkerEvent event;
+    WorkerEvent event(options_.timeStep_);
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
 
