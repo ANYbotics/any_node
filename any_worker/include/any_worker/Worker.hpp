@@ -77,7 +77,7 @@ public:
   /*!
    * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
    */
-  const bool isDestructible() const { return (!thread_.joinable()) && options_.destructWhenDone_; }
+  const bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
 
 private:
     void run();
@@ -86,6 +86,7 @@ private:
     WorkerOptions options_;
 
     std::atomic<bool> running_;
+    std::atomic<bool> done_;
 
     std::thread thread_;
 };

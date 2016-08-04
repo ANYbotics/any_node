@@ -57,6 +57,7 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 Worker::Worker(const WorkerOptions& options):
     options_(options),
     running_(false),
+    done_(false),
     thread_()
 {
 
@@ -66,6 +67,7 @@ Worker::Worker(const WorkerOptions& options):
 Worker::Worker(Worker&& other):
     options_(std::move(other.options_)),
     running_(std::move(other.running_.load())),
+    done_(std::move(other.done_.load())),
     thread_(std::move(other.thread_))
 {
 
@@ -156,6 +158,7 @@ void Worker::run() {
     }while(running_);
 
     MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
+    done_ = true;
 }
 
 
