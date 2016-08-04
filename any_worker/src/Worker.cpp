@@ -41,6 +41,7 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <string.h> // strerror(..)
 
 #include "any_worker/Worker.hpp"
 #include "message_logger/message_logger.hpp"
