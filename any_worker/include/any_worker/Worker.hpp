@@ -74,6 +74,11 @@ public:
 
   const std::string& getName() const { return options_.name_; }
 
+  /*!
+   * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
+   */
+  const bool isDestructible() const { return (!thread_.joinable()) && options_.destructWhenDone_; }
+
 private:
     void run();
 

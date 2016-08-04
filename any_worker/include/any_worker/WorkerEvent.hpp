@@ -51,6 +51,9 @@ struct WorkerEvent {
     WorkerEvent(const double dt): timeStep(dt) {}
     virtual ~WorkerEvent() {}
 
+    /*!
+     * The timestep between consecutive calls of the callback function. 0 if run only once.
+     */
     double timeStep;
 };
 
