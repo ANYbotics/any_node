@@ -88,6 +88,7 @@ bool Worker::start(const int priority) {
     }else{
         running_ = true;
     }
+    done_ = false;
 
     thread_ = std::thread(&Worker::run, this);
 
