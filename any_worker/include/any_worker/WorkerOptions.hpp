@@ -90,9 +90,19 @@ struct WorkerOptions {
 
     }
 
-
+    /*!
+     * The name by which the worker should be identifiable.
+     */
     std::string name_;
+
+    /*!
+     * timestep between consecutive calls of the callback. Set to std::numeric_limits<double>::infinity() to execute only once and 0.0 to execute as fast as possible.
+     */
     std::atomic<double> timeStep_;
+
+    /*!
+     * The callback to be called
+     */
     WorkerCallback callback_;
 
     /*!

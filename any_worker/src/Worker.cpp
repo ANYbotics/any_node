@@ -39,6 +39,8 @@
  * @date	July, 2016
  */
 
+#include <limits>
+
 #include <pthread.h>
 #include <time.h>
 #include <string.h> // strerror(..)
@@ -83,7 +85,7 @@ bool Worker::start(const int priority) {
     if(options_.timeStep_ < 0.0) {
         MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_.load());
         return false;
-    }else if(options_.timeStep_ == 0.0) {
+    }else if(options_.timeStep_ == std::numeric_limits<double>::infinity()) {
         running_ = false; // thread loop will exit after first execution
     }else{
         running_ = true;
@@ -138,7 +140,7 @@ void Worker::run() {
             MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
         }
 
-        if(options_.timeStep_ != 0.0) {
+        if(options_.timeStep_ != 0.0 && options_.timeStep_ != std::numeric_limits<double>::infinity()) {
 
             timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
             ts.tv_nsec += timeStepNs;
@@ -149,11 +151,12 @@ void Worker::run() {
             clock_gettime(CLOCK_MONOTONIC, &tp);
             elapsedTimeNs = (tp.tv_sec-ts.tv_sec)*1000000000 + (tp.tv_nsec-ts.tv_nsec);
             if(elapsedTimeNs > timeStepNs*10) {
-                MELO_ERROR("Worker [%s]: Computation took more than 10 times the maximum allowed computation time (%lf s)!", options_.name_.c_str(), options_.timeStep_.load());
+                MELO_ERROR("Worker [%s] exceeded deadline time by 10 times the specified time (%lf s)!", options_.name_.c_str(), options_.timeStep_.load());
             }else if (elapsedTimeNs > 0) {
                 MELO_WARN_THROTTLE(1.0, "Worker [%s]: Too slow processing! Took %lf s, should have finished in %lf s", options_.name_.c_str(), static_cast<double>(elapsedTimeNs+timeStepNs)/1000000000., options_.timeStep_.load());
+            }else{
+                clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
             }
-            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
         }
 
     }while(running_);
