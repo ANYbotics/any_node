@@ -43,11 +43,18 @@
 
 namespace any_worker {
 
-class WorkerEvent {
-public:
-    WorkerEvent() {}
+/*!
+ * Todo: not every member of this struct is guaranteed to hold an appropriate value. Check the values for your use case!
+ */
+struct WorkerEvent {
+    WorkerEvent(): timeStep(0.0) {}
+    WorkerEvent(const double dt): timeStep(dt) {}
     virtual ~WorkerEvent() {}
 
+    /*!
+     * The timestep between consecutive calls of the callback function. 0 if run only once.
+     */
+    double timeStep;
 };
 
 } // namespace any_worker

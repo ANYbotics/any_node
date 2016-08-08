@@ -41,6 +41,9 @@
 
 #pragma once
 
+#include <atomic>
+#include <string>
+
 #include "any_worker/WorkerEvent.hpp"
 
 namespace any_worker {
@@ -52,23 +55,55 @@ struct WorkerOptions {
         name_(),
         timeStep_(0.0),
         callback_(),
-        defaultPriority_(0)
+        defaultPriority_(0),
+        destructWhenDone_(false)
     {
     }
 
-    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
+    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool destructWhenDone=false):
         name_(name),
         timeStep_(timestep),
         callback_(callback),
-        defaultPriority_(priority)
+        defaultPriority_(priority),
+        destructWhenDone_(destructWhenDone)
     {
 
     }
 
+    WorkerOptions(const WorkerOptions& other):
+        name_(other.name_),
+        timeStep_(other.timeStep_.load()),
+        callback_(other.callback_),
+        defaultPriority_(other.defaultPriority_),
+        destructWhenDone_(other.destructWhenDone_)
+    {
+
+    }
+
+    WorkerOptions(WorkerOptions&& other):
+        name_(std::move(other.name_)),
+        timeStep_(std::move(other.timeStep_.load())),
+        callback_(std::move(other.callback_)),
+        defaultPriority_(other.defaultPriority_),
+        destructWhenDone_(other.destructWhenDone_)
+    {
+
+    }
+
+
     std::string name_;
-    double timeStep_;
+    std::atomic<double> timeStep_;
     WorkerCallback callback_;
+
+    /*!
+     * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
+     */
     int defaultPriority_;
+
+    /*!
+     * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
+     */
+    bool destructWhenDone_;
 };
 
 } // namespace any_worker

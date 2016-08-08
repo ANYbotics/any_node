@@ -41,6 +41,7 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <string.h> // strerror(..)
 
 #include "any_worker/Worker.hpp"
 #include "message_logger/message_logger.hpp"
@@ -56,6 +57,7 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 Worker::Worker(const WorkerOptions& options):
     options_(options),
     running_(false),
+    done_(false),
     thread_()
 {
 
@@ -65,6 +67,7 @@ Worker::Worker(const WorkerOptions& options):
 Worker::Worker(Worker&& other):
     options_(std::move(other.options_)),
     running_(std::move(other.running_.load())),
+    done_(std::move(other.done_.load())),
     thread_(std::move(other.thread_))
 {
 
@@ -78,13 +81,14 @@ Worker::~Worker() {
 
 bool Worker::start(const int priority) {
     if(options_.timeStep_ < 0.0) {
-        MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_);
+        MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_.load());
         return false;
     }else if(options_.timeStep_ == 0.0) {
         running_ = false; // thread loop will exit after first execution
     }else{
         running_ = true;
     }
+    done_ = false;
 
     thread_ = std::thread(&Worker::run, this);
 
@@ -113,21 +117,30 @@ void Worker::stop(const bool wait) {
     }
 }
 
+void Worker::setTimestep(const double timeStep) {
+    if(timeStep <= 0.0) {
+        MELO_ERROR("Cannot change timestep of Worker [%s] to %f, invalid value", options_.name_.c_str(), timeStep);
+        return;
+    }
+    options_.timeStep_ = timeStep;
+}
+
 void Worker::run() {
     struct timespec   ts;
     struct timespec   tp;
     long int elapsedTimeNs;
-    const long int timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
-    WorkerEvent event;
+    long int timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
 
     do {
-        if(!options_.callback_(event)) {
+        if(!options_.callback_( WorkerEvent(options_.timeStep_) )) {
             MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
         }
 
         if(options_.timeStep_ != 0.0) {
+
+            timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
             ts.tv_nsec += timeStepNs;
             ts.tv_sec  += ts.tv_nsec/1000000000;
             ts.tv_nsec  = ts.tv_nsec%1000000000;
@@ -136,9 +149,9 @@ void Worker::run() {
             clock_gettime(CLOCK_MONOTONIC, &tp);
             elapsedTimeNs = (tp.tv_sec-ts.tv_sec)*1000000000 + (tp.tv_nsec-ts.tv_nsec);
             if(elapsedTimeNs > timeStepNs*10) {
-                MELO_ERROR("Worker [%s]: Computation took more than 10 times the maximum allowed computation time (%lf s)!", options_.name_.c_str(), options_.timeStep_);
+                MELO_ERROR("Worker [%s]: Computation took more than 10 times the maximum allowed computation time (%lf s)!", options_.name_.c_str(), options_.timeStep_.load());
             }else if (elapsedTimeNs > 0) {
-                MELO_WARN_THROTTLE(1.0, "Worker [%s]: Too slow processing! Took %lf s, should have finished in %lf s", options_.name_.c_str(), static_cast<double>(elapsedTimeNs+timeStepNs)/1000000000., options_.timeStep_);
+                MELO_WARN_THROTTLE(1.0, "Worker [%s]: Too slow processing! Took %lf s, should have finished in %lf s", options_.name_.c_str(), static_cast<double>(elapsedTimeNs+timeStepNs)/1000000000., options_.timeStep_.load());
             }
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
         }
@@ -146,6 +159,7 @@ void Worker::run() {
     }while(running_);
 
     MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
+    done_ = true;
 }
 
 

@@ -44,6 +44,7 @@
 #include <unordered_map>
 #include <functional> // for std::bind
 #include <string>
+#include <mutex>
 
 #include "any_worker/Worker.hpp"
 #include "any_worker/WorkerOptions.hpp"
@@ -57,12 +58,12 @@ public:
 
 
     template<class T>
-    inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const WorkerEvent&), T* obj, const int priority=0) {
-        return addWorker( WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority) );
+    inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const WorkerEvent&), T* obj, const int priority=0, const bool destructWhenDone=false) {
+        return addWorker( WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority, destructWhenDone) );
     }
 
-    inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0) {
-        return addWorker( WorkerOptions(name, timestep, callback, priority) );
+    inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool destructWhenDone=false) {
+        return addWorker( WorkerOptions(name, timestep, callback, priority, destructWhenDone) );
     }
     bool addWorker(const WorkerOptions& options);
 
@@ -73,14 +74,22 @@ public:
     void startWorker(const std::string& name, const int priority=0);
     void stopWorker(const std::string& name, const bool wait=true);
 
+    void setWorkerTimestep(const std::string& name, const double timeStep);
+
 
     /*!
      * Requests all workers to stop, then joins their threads and deletes their instances.
      */
     void clearWorkers();
 
+    /*!
+     * Removes workers which are destructible (see Worker::isDestructible()) from the map (calling their destructors)
+     */
+    void cleanDestructibleWorkers();
+
 private:
     std::unordered_map<std::string, Worker> workers_;
+    std::mutex mutexWorkers_;
 };
 
 } // namespace any_worker
