@@ -57,7 +57,7 @@ public:
 
   /*!
    * @param name      name of the worker
-   * @param timestep  with a timestep of 0, the callback will be executed only once.
+   * @param timestep  with a timestep of 0, the callback will be executed as fast as possible, with std::numeric_limits<double>::infinity() only once.
    * @param callback  std::function pointing to the callback
    */
   Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
