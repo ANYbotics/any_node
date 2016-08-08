@@ -55,14 +55,14 @@ WorkerManager::~WorkerManager() {
     clearWorkers();
 }
 
-bool WorkerManager::addWorker(const WorkerOptions& options) {
+bool WorkerManager::addWorker(const WorkerOptions& options, const bool autostart) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
     auto insertedElement = workers_.emplace( options.name_, Worker(options) );
     if(!insertedElement.second) {
         MELO_ERROR("Failed to create worker [%s]", options.name_.c_str());
         return false;
     }
-    if(options.autostart_) {
+    if(autostart) {
       return insertedElement.first->second.start();
     }
     return true;

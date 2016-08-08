@@ -56,7 +56,6 @@ struct WorkerOptions {
         timeStep_(0.0),
         callback_(),
         defaultPriority_(0),
-        autostart_(true),
         destructWhenDone_(false)
     {
     }
@@ -66,7 +65,6 @@ struct WorkerOptions {
         timeStep_(timestep),
         callback_(callback),
         defaultPriority_(priority),
-        autostart_(true),
         destructWhenDone_(false)
     {
 
@@ -77,7 +75,6 @@ struct WorkerOptions {
         timeStep_(other.timeStep_.load()),
         callback_(other.callback_),
         defaultPriority_(other.defaultPriority_),
-        autostart_(other.autostart_),
         destructWhenDone_(other.destructWhenDone_)
     {
 
@@ -88,7 +85,6 @@ struct WorkerOptions {
         timeStep_(std::move(other.timeStep_.load())),
         callback_(std::move(other.callback_)),
         defaultPriority_(other.defaultPriority_),
-        autostart_(other.autostart_),
         destructWhenDone_(other.destructWhenDone_)
     {
 
@@ -113,11 +109,6 @@ struct WorkerOptions {
      * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
      */
     int defaultPriority_;
-
-    /*!
-     * If set to true the worker automatically starts when added to a WorkerManager
-     */
-    bool autostart_;
 
     /*!
      * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
