@@ -70,7 +70,7 @@ Worker::Worker(const WorkerOptions& options):
 Worker::Worker(Worker&& other):
     options_(std::move(other.options_)),
     running_(std::move(other.running_.load())),
-    runOnce_(std::move(other.runOnce_.load())),
+    runOnce_(std::move(other.runOnce_)),
     done_(std::move(other.done_.load())),
     thread_(std::move(other.thread_))
 {
