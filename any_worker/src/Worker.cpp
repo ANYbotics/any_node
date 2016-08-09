@@ -84,7 +84,7 @@ Worker::~Worker() {
 
 
 bool Worker::start(const int priority) {
-    if(!running_) {
+    if(running_) {
         MELO_ERROR("Worker [%s] cannot be started, already/still running.", options_.name_.c_str());
         return false;
     }
