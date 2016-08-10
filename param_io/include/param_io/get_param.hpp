@@ -50,7 +50,7 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& 
 {
   if (!nh.getParam(key, param))
   {
-    ROS_WARN_STREAM("Could not acquire parameter " << key << " from server.");
+    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + "/" + key << " from server.");
     return false;
   }
   return true;
@@ -71,7 +71,7 @@ inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& par
 {
   if (!nh.getParam(key, param_val))
   {
-    ROS_WARN_STREAM("Could not acquire parameter " << key << " from server. Using default value.");
+    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + "/" + key << " from server. Using default value.");
     param_val = defaultValue;
     return false;
   }
@@ -94,7 +94,7 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t
   bool success = getParam(nh, key, value);
   if (value < 0)
   {
-    ROS_ERROR_STREAM("Parameter " << key << " is smaller than 0, cannot be stored inside an unsigned int.");
+    ROS_ERROR_STREAM("Parameter " << nh.getNamespace() + "/" + key << " is smaller than 0, cannot be stored inside an unsigned int.");
     return false;
   }
   param = value;
