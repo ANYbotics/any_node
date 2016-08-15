@@ -55,14 +55,17 @@ WorkerManager::~WorkerManager() {
     clearWorkers();
 }
 
-bool WorkerManager::addWorker(const WorkerOptions& options) {
+bool WorkerManager::addWorker(const WorkerOptions& options, const bool autostart) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
     auto insertedElement = workers_.emplace( options.name_, Worker(options) );
     if(!insertedElement.second) {
         MELO_ERROR("Failed to create worker [%s]", options.name_.c_str());
         return false;
     }
-    return insertedElement.first->second.start();
+    if(autostart) {
+      return insertedElement.first->second.start();
+    }
+    return true;
 }
 
 //bool WorkerManager::addWorker(Worker&& worker) {
@@ -84,6 +87,12 @@ void WorkerManager::startWorker(const std::string& name, const int priority) {
     worker->second.start(priority);
 }
 
+void WorkerManager::startWorkers() {
+    for(auto & worker : workers_) {
+      worker.second.start();
+    }
+}
+
 void WorkerManager::stopWorker(const std::string& name, const bool wait) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
     auto worker = workers_.find(name);
@@ -91,6 +100,12 @@ void WorkerManager::stopWorker(const std::string& name, const bool wait) {
         MELO_ERROR("Cannot stop worker [%s], worker not found", name.c_str());
     }
     worker->second.stop(wait);
+}
+
+void WorkerManager::stopWorkers(const bool wait) {
+    for(auto & worker : workers_) {
+      worker.second.stop(wait);
+    }
 }
 
 void WorkerManager::setWorkerTimestep(const std::string& name, const double timeStep) {
