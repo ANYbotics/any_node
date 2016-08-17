@@ -80,6 +80,10 @@ public:
 
     void stopWorkers(const bool wait=true);
 
+    void cancelWorker(const std::string& name, const bool wait=true);
+
+    void cancelWorkers(const bool wait=true);
+
     void setWorkerTimestep(const std::string& name, const double timeStep);
 
 
