@@ -58,21 +58,31 @@ public:
 
 
     template<class T>
-    inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const WorkerEvent&), T* obj, const int priority=0, const bool destructWhenDone=false) {
-        return addWorker( WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority, destructWhenDone) );
+    inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const WorkerEvent&), T* obj, const int priority=0, const bool autostart=true) {
+        return addWorker( WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority), autostart );
     }
 
-    inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool destructWhenDone=false) {
-        return addWorker( WorkerOptions(name, timestep, callback, priority, destructWhenDone) );
+    inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool autostart=true) {
+        return addWorker( WorkerOptions(name, timestep, callback, priority), autostart );
     }
-    bool addWorker(const WorkerOptions& options);
+
+    bool addWorker(const WorkerOptions& options, const bool autostart=true);
 
     // the addWorker variant below is commented out because it can lead to strange behaviour. E.g. when the user wants to move a worker from one workerManager to
     //   another, the old owner may have a unordered_map<std::string, Worker>-entry with an invalid worker.
 //    bool addWorker(Worker&& worker);
 
     void startWorker(const std::string& name, const int priority=0);
+
+    void startWorkers();
+
     void stopWorker(const std::string& name, const bool wait=true);
+
+    void stopWorkers(const bool wait=true);
+
+    void cancelWorker(const std::string& name, const bool wait=true);
+
+    void cancelWorkers(const bool wait=true);
 
     void setWorkerTimestep(const std::string& name, const double timeStep);
 

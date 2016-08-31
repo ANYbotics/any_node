@@ -55,14 +55,17 @@ WorkerManager::~WorkerManager() {
     clearWorkers();
 }
 
-bool WorkerManager::addWorker(const WorkerOptions& options) {
+bool WorkerManager::addWorker(const WorkerOptions& options, const bool autostart) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
     auto insertedElement = workers_.emplace( options.name_, Worker(options) );
     if(!insertedElement.second) {
         MELO_ERROR("Failed to create worker [%s]", options.name_.c_str());
         return false;
     }
-    return insertedElement.first->second.start();
+    if(autostart) {
+      return insertedElement.first->second.start();
+    }
+    return true;
 }
 
 //bool WorkerManager::addWorker(Worker&& worker) {
@@ -80,8 +83,16 @@ void WorkerManager::startWorker(const std::string& name, const int priority) {
     auto worker = workers_.find(name);
     if(worker == workers_.end()) {
         MELO_ERROR("Cannot start worker [%s], worker not found", name.c_str());
+        return;
     }
     worker->second.start(priority);
+}
+
+void WorkerManager::startWorkers() {
+    std::lock_guard<std::mutex> lock(mutexWorkers_);
+    for(auto & worker : workers_) {
+      worker.second.start();
+    }
 }
 
 void WorkerManager::stopWorker(const std::string& name, const bool wait) {
@@ -89,8 +100,33 @@ void WorkerManager::stopWorker(const std::string& name, const bool wait) {
     auto worker = workers_.find(name);
     if(worker == workers_.end()) {
         MELO_ERROR("Cannot stop worker [%s], worker not found", name.c_str());
+        return;
     }
     worker->second.stop(wait);
+}
+
+void WorkerManager::stopWorkers(const bool wait) {
+    std::lock_guard<std::mutex> lock(mutexWorkers_);
+    for(auto & worker : workers_) {
+      worker.second.stop(wait);
+    }
+}
+
+void WorkerManager::cancelWorker(const std::string& name, const bool wait) {
+    std::lock_guard<std::mutex> lock(mutexWorkers_);
+    auto worker = workers_.find(name);
+    if(worker == workers_.end()) {
+        MELO_ERROR("Cannot stop worker [%s], worker not found", name.c_str());
+        return;
+    }
+    worker->second.stop(wait);
+    workers_.erase(worker);
+}
+
+void WorkerManager::cancelWorkers(const bool wait) {
+    std::lock_guard<std::mutex> lock(mutexWorkers_);
+    stopWorkers(wait);
+    workers_.clear();
 }
 
 void WorkerManager::setWorkerTimestep(const std::string& name, const double timeStep) {
@@ -98,6 +134,7 @@ void WorkerManager::setWorkerTimestep(const std::string& name, const double time
     auto worker = workers_.find(name);
     if(worker == workers_.end()) {
         MELO_ERROR("Cannot change timestep of worker [%s], worker not found", name.c_str());
+        return;
     }
     worker->second.setTimestep(timeStep);
 }

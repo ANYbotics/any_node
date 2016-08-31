@@ -60,12 +60,12 @@ struct WorkerOptions {
     {
     }
 
-    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool destructWhenDone=false):
+    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
         name_(name),
         timeStep_(timestep),
         callback_(callback),
         defaultPriority_(priority),
-        destructWhenDone_(destructWhenDone)
+        destructWhenDone_(false)
     {
 
     }
@@ -114,6 +114,8 @@ struct WorkerOptions {
      * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
      */
     bool destructWhenDone_;
+
+
 };
 
 } // namespace any_worker

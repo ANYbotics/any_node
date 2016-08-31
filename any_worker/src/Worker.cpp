@@ -59,6 +59,7 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 Worker::Worker(const WorkerOptions& options):
     options_(options),
     running_(false),
+    runOnce_(false),
     done_(false),
     thread_()
 {
@@ -69,6 +70,7 @@ Worker::Worker(const WorkerOptions& options):
 Worker::Worker(Worker&& other):
     options_(std::move(other.options_)),
     running_(std::move(other.running_.load())),
+    runOnce_(std::move(other.runOnce_)),
     done_(std::move(other.done_.load())),
     thread_(std::move(other.thread_))
 {
@@ -82,14 +84,20 @@ Worker::~Worker() {
 
 
 bool Worker::start(const int priority) {
+    if(running_) {
+        MELO_ERROR("Worker [%s] cannot be started, already/still running.", options_.name_.c_str());
+        return false;
+    }
     if(options_.timeStep_ < 0.0) {
         MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_.load());
         return false;
     }else if(options_.timeStep_ == std::numeric_limits<double>::infinity()) {
-        running_ = false; // thread loop will exit after first execution
+        runOnce_ = true;
     }else{
-        running_ = true;
+        runOnce_ = false;
     }
+
+    running_ = true;
     done_ = false;
 
     thread_ = std::thread(&Worker::run, this);
@@ -159,7 +167,7 @@ void Worker::run() {
             }
         }
 
-    }while(running_);
+    }while(running_ && !runOnce_);
 
     MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
     done_ = true;

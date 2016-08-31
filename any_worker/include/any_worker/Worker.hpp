@@ -86,6 +86,7 @@ private:
     WorkerOptions options_;
 
     std::atomic<bool> running_;
+    bool runOnce_;
     std::atomic<bool> done_;
 
     std::thread thread_;
