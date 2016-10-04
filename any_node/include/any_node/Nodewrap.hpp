@@ -45,11 +45,13 @@
 #include <atomic>
 #include <condition_variable>
 #include <memory>
+#include <chrono>
 #include <ros/ros.h>
 
 #include "any_node/SignalHandler.hpp"
 #include "any_node/Param.hpp"
 #include "any_worker/WorkerOptions.hpp"
+#include "message_logger/message_logger.hpp"
 
 namespace any_node {
 
@@ -84,6 +86,8 @@ public:
 
       spinner_ = std::move( std::unique_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(numSpinners)) );
       impl_ = std::move( std::unique_ptr<NodeImpl>(new NodeImpl(nh_)) );
+
+      checkSteadyClock();
   }
 
   virtual ~Nodewrap() {
@@ -108,8 +112,8 @@ public:
    * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
    */
   void init(const bool installSignalHandler=true) {
-      impl_->init();
       spinner_->start();
+      impl_->init();
       running_ = true;
 
       if(installSignalHandler) {
@@ -137,8 +141,8 @@ public:
           SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
       }
 
-      spinner_->stop();
       impl_->stopAllWorkers();
+      spinner_->stop();
       impl_->cleanup();
 
   }
@@ -160,6 +164,15 @@ public:
 
 
   void enforceTimestep(const double timestep) { isStandalone_ = true; timeStep_ = timestep; }
+
+  static void checkSteadyClock() {
+      if(std::chrono::steady_clock::period::num != 1 || std::chrono::steady_clock::period::den != 1000000000) {
+          MELO_ERROR("std::chrono::steady_clock does not have a nanosecond resolution!")
+      }
+      if(std::chrono::system_clock::period::num != 1 || std::chrono::system_clock::period::den != 1000000000) {
+          MELO_ERROR("std::chrono::system_clock does not have a nanosecond resolution!")
+      }
+  }
 
 
 protected:
