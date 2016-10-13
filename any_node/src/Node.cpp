@@ -54,10 +54,11 @@ Node::Node(NodeHandlePtr nh):
 }
 
 Node::~Node() {
-
 }
 
 void Node::shutdown() {
+    // raise SIGINT, which will be caught by the owner of the node instance and initiates the shutdown
+    // todo: is there a better way?
     raise(SIGINT);
 }
 
