@@ -91,7 +91,8 @@ public:
   }
 
   virtual ~Nodewrap() {
-      ros::shutdown();
+      // not necessary to call ros::shutdown, this is done as soon as the last nodeHandle
+      // is destructed
   }
 
   /*!
