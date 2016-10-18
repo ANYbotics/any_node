@@ -84,8 +84,8 @@ public:
           numSpinners = nh_->param("num_spinners", 2);
       }
 
-      spinner_ = std::move( std::unique_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(numSpinners)) );
-      impl_ = std::move( std::unique_ptr<NodeImpl>(new NodeImpl(nh_)) );
+      spinner_ = new ros::AsyncSpinner(numSpinners);
+      impl_ = new NodeImpl(nh_);
 
       checkSteadyClock();
   }
@@ -93,6 +93,13 @@ public:
   virtual ~Nodewrap() {
       // not necessary to call ros::shutdown, this is done as soon as the last nodeHandle
       // is destructed
+      if(impl_) {
+          delete impl_;
+      }
+
+      if(spinner_) {
+          delete spinner_;
+      }
   }
 
   /*!
@@ -130,7 +137,7 @@ public:
    */
   virtual void run(const int priority=0) {
       if(isStandalone_) {
-          impl_->addWorker("updateWorker", timeStep_, static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update), impl_.get(), priority);
+          impl_->addWorker("updateWorker", timeStep_, static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update), impl_, priority);
       }
       // returns if running_ is false
       std::unique_lock<std::mutex> lk(mutexRunning_);
@@ -178,8 +185,8 @@ public:
 
 protected:
   std::shared_ptr<ros::NodeHandle> nh_;
-  std::unique_ptr<ros::AsyncSpinner> spinner_;
-  std::unique_ptr<NodeImpl> impl_;
+  ros::AsyncSpinner* spinner_;
+  NodeImpl* impl_;
 
   bool signalHandlerInstalled_;
 
