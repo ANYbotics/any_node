@@ -7,7 +7,28 @@ Implements several convenience classes and functions.
 Forwards to param_io package, which allows to read and write ROS messages from and to the parameter server. Also, it provides param(..) functions which print a warning if a requested parameter was not found.
 
 ### Topic.hpp
-Allows to advertise/subscribe to/from topics/services, whose connection details (topic name, latched, queue_size, deactivate, ...) are saved as ros parameters.
+Allows to advertise/subscribe to/from topics/services, whose connection details (topic name, latched, queue_size, deactivate, ...) are saved as ros parameters. Example yaml file:
+
+    publishers:
+      my_publisher_name:
+        topic: /my_publisher_topic_name
+        queue_size: 1
+        latch: false
+
+    subscribers:
+      my_subscriber_name:
+        topic: /my_subscriber_topic_name
+        queue_size: 1
+
+    servers:
+      my_service_server_name:
+        service: my_service_name
+
+    clients:
+      my_service_client_name:
+        service: my_service_name
+        persistent: false
+
 
 ### Node.hpp
 Provides an interface base class any_node::Node, which declares init, cleanup and update functions and has a any_worker::WorkerManager instance.
@@ -35,6 +56,21 @@ Example:
         
         void init() // called on startup
         {
+            // add new workers (threads) like this. The workers are automatically stopped before the cleanup() function is called
+            const double worker_timestep = 0.01;
+            addWorker("my_worker_name", worker_timestep, &ExampleNode::updateWorker, this);
+
+            // to create publishers/subscribers/service clients/servers or read params, use the functions provided by the any_node::Node base class
+            // the name of the publishers/subscribers/.. has to be consistent 
+            // with the names specified in the yaml file (see description of Topic.hpp above)
+            const unsigned int defaultQueueSize = 1;
+            ros::Publisher my_publisher = advertise<my_msg>("my_publisher_name", "/default_topic", defaultQueueSize);
+
+            ros::Subscriber my_subscriber = subscribe("my_subscriber_name", "/default_topic", defaultQueueSize, &ExampleNode::subscriberCallback, this);
+
+            const double defaultParamValue = 5.75;
+            const double myParam = param<double>("myParamName", defaultParamValue);
+
         }
         
         void cleanup() // called on shutdown
@@ -44,6 +80,16 @@ Example:
         bool update(const any_worker::WorkerEvent& event) // called on every update step of the node. The frequency is defined in the time_step rosparam.
         {
             return true;
+        }
+
+        bool updateWorker(const any_worker::WorkerEvent& event) // called by the worker created in init() function
+        {
+
+        }
+
+        void subscriberCallback(const subscriber_msgConstPtr &msg)
+        {
+
         }
         
     };
