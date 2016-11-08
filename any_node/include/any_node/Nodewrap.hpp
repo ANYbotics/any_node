@@ -63,13 +63,13 @@ template <class NodeImpl>
 class Nodewrap {
 public:
   Nodewrap() = delete;
-  Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners = 0, bool isStandalone = false, double timeStep = 0.01):
+  Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners = 0):
       nh_(nullptr),
       spinner_(nullptr),
       impl_(nullptr),
       signalHandlerInstalled_(false),
-      isStandalone_(isStandalone),
-      timeStep_(timeStep),
+      isStandalone_(false),
+      timeStep_(0.01),
       running_(false),
       cvRunning_(),
       mutexRunning_()
@@ -77,8 +77,8 @@ public:
       ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
       nh_ = std::make_shared<ros::NodeHandle>("~");
 
-      isStandalone_ = nh_->param("standalone", isStandalone);
-      timeStep_ = nh_->param("time_step", timeStep);
+      isStandalone_ = nh_->param("standalone", false);
+      timeStep_ = nh_->param("time_step", 0.01);
 
       if(numSpinners == 0) {
           numSpinners = nh_->param("num_spinners", 2);
@@ -88,6 +88,13 @@ public:
       impl_ = new NodeImpl(nh_);
 
       checkSteadyClock();
+  }
+
+  Nodewrap(int argc, char **argv, const std::string nodeName, bool isStandalone, double timeStep = 0.01, int numSpinners = 0):
+      Nodewrap(argc, argv, nodeName, numSpinners)
+  {
+      isStandalone_ = isStandalone;
+      timeStep_ = timeStep;
   }
 
   virtual ~Nodewrap() {
