@@ -209,7 +209,9 @@ public: /// INTERNAL FUNCTIONS
       }
   }
 
-
+  NodeImpl* getImplPtr() {
+    return impl_;
+  }
 protected:
   std::shared_ptr<ros::NodeHandle> nh_;
   ros::AsyncSpinner* spinner_;
