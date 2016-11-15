@@ -63,13 +63,19 @@ template <class NodeImpl>
 class Nodewrap {
 public:
   Nodewrap() = delete;
-  Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners = 0, bool isStandalone = false, double timeStep = 0.01):
+  /*!
+   * @param argc
+   * @param argv
+   * @param nodeName    name of the node
+   * @param numSpinners number of async ros spinners. Set to 0 to get value from ros params.
+   */
+  Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners = 0):
       nh_(nullptr),
       spinner_(nullptr),
       impl_(nullptr),
       signalHandlerInstalled_(false),
-      isStandalone_(isStandalone),
-      timeStep_(timeStep),
+      isStandalone_(false),
+      timeStep_(0.01),
       running_(false),
       cvRunning_(),
       mutexRunning_()
@@ -77,8 +83,8 @@ public:
       ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
       nh_ = std::make_shared<ros::NodeHandle>("~");
 
-      isStandalone_ = nh_->param("standalone", isStandalone);
-      timeStep_ = nh_->param("time_step", timeStep);
+      isStandalone_ = nh_->param("standalone", false);
+      timeStep_ = nh_->param("time_step", 0.01);
 
       if(numSpinners == 0) {
           numSpinners = nh_->param("num_spinners", 2);
@@ -88,6 +94,21 @@ public:
       impl_ = new NodeImpl(nh_);
 
       checkSteadyClock();
+  }
+
+  /*!
+   * @param argc
+   * @param argv
+   * @param nodeName        name of the node
+   * @param isStandalone    Set to true if a worker should be set up, which calls the update function with the given timestep
+   * @param timeStep        Timestep with which the update worker is called. Only used if isStandalone=true
+   * @param numSpinners     number of async ros spinners. Set to 0 to get value from ros params.
+   */
+  Nodewrap(int argc, char **argv, const std::string nodeName, bool isStandalone, double timeStep = 0.01, int numSpinners = 0):
+      Nodewrap(argc, argv, nodeName, numSpinners)
+  {
+      isStandalone_ = isStandalone;
+      timeStep_ = timeStep;
   }
 
   virtual ~Nodewrap() {
@@ -104,9 +125,8 @@ public:
 
   /*!
    * blocking call, executes init, run and cleanup
-   * @param nodeName              Name of the nodeName
-   * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics+services is generally a good idea
-   * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
+   * @param priority                priority of the worker calling the update function. Only used if isStandalone=true
+   * @param installSignalHandler    Enable installing signal handlers (SIGINT, ...).
    */
   void execute(int priority=0, const bool installSignalHandler=true) {
       init(installSignalHandler);
@@ -116,7 +136,6 @@ public:
 
   /*!
    * Initializes the node
-   * @param numSpinners           Number of AsyncSpinners to create. Setting this to the number of subscribed topics+services is generally a good idea
    * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
    */
   void init(const bool installSignalHandler=true) {
@@ -134,6 +153,7 @@ public:
 
   /*!
    * blocking call, returns when the program should shut down
+   * @param priority    priority of the worker calling the update function. Only used if isStandalone=true
    */
   virtual void run(const int priority=0) {
       if(isStandalone_) {
@@ -144,6 +164,9 @@ public:
       cvRunning_.wait(lk, [this]{ return !running_; });
   }
 
+  /*!
+   * Stops the workers, ros spinners and calls cleanup of the underlying instance of any_node::Node
+   */
   void cleanup() {
       if(signalHandlerInstalled_) {
           SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
@@ -155,12 +178,16 @@ public:
 
   }
 
+  /*!
+   * Stops execution of the run(..) function.
+   */
   void stop() {
       std::lock_guard<std::mutex> lk(mutexRunning_);
       running_ = false;
       cvRunning_.notify_all();
   }
 
+public: /// INTERNAL FUNCTIONS
   void signalHandler(const int signum) {
       stop();
 
