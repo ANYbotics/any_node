@@ -71,7 +71,7 @@ inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& par
 {
   if (!nh.getParam(key, param_val))
   {
-    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + "/" + key << " from server. Using default value.");
+    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + key << " from server. Using default value: '" << defaultValue << "'");
     param_val = defaultValue;
     return false;
   }
