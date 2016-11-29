@@ -209,5 +209,28 @@ T getMember(XmlRpc::XmlRpcValue param, const std::string& key)
   }
 }
 
+template<typename T>
+std::ostream& operator << (std::ostream& stream, const std::vector<T>& v) 
+{
+    stream << "[";
+    for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+    {
+        stream << " " << *ii;
+    }
+    stream << "]";
+    return stream;
+}
+
+template<typename T1, typename T2>
+std::ostream &operator << (std::ostream &stream, const std::map<T1, T2>& map)
+{
+  for (typename std::map<T1, T2>::const_iterator it = map.begin();
+       it != map.end();
+       ++it)
+    {
+      stream << (*it).first << " --> " << (*it).second << std::endl;
+    }
+  return stream;
+}
 
 } // param_io
