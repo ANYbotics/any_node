@@ -152,7 +152,8 @@ protected:
 
     void threadedPublish()
     {
-        while (true)
+        // Stop the thread in case of a shutdown.
+        while (!shutdownRequested_)
         {
             // Wait for the notification.
             {
@@ -162,13 +163,9 @@ protected:
                 notifiedThread_ = false;
             }
 
-            // Publish all messages in the buffer.
-            while (true)
+            // Publish all messages in the buffer; stop the thread in case of a shutdown.
+            while (!shutdownRequested_)
             {
-                // Stop the thread in case of a shutdown.
-                if (shutdownRequested_)
-                    break;
-
                 // Execute the publishing with a copied message object.
                 MessageType message;
                 {
@@ -183,10 +180,6 @@ protected:
                     publisher_.publish(message);
                 }
             }
-
-            // Stop the thread in case of a shutdown.
-            if (shutdownRequested_)
-                break;
         }
     }
 };
