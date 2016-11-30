@@ -45,6 +45,7 @@
 // c++
 #include <condition_variable>
 #include <mutex>
+#include <queue>
 #include <thread>
 
 // ros
