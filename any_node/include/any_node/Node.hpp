@@ -105,8 +105,8 @@ class Node {
     }
 
     template<typename msg>
-    inline ThreadedPublisherPtr<msg> threadedAdvertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int messageBufferMaxSize = 10) {
-        return any_node::threadedAdvertise<msg>(*nh_, name, defaultTopic, queue_size, latch, messageBufferMaxSize);
+    inline ThreadedPublisherPtr<msg> threadedAdvertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int maxMessageBufferSize = 10) {
+        return any_node::threadedAdvertise<msg>(*nh_, name, defaultTopic, queue_size, latch, maxMessageBufferSize);
     }
 
     template<class M, class T>

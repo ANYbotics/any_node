@@ -68,20 +68,18 @@ protected:
 
     std::mutex messageBufferMutex_;
     std::queue<MessageType> messageBuffer_;
-    unsigned int messageBufferMaxSize_ = 0;
+    unsigned int maxMessageBufferSize_ = 0;
 
     std::thread thread_;
     std::mutex notifyThreadMutex_;
     std::condition_variable notifyThreadCv_;
-    std::atomic<bool> threadIsReady_;
     std::atomic<bool> notifiedThread_;
     std::atomic<bool> shutdownRequested_;
 
 public:
-    ThreadedPublisher(const ros::Publisher& publisher, unsigned int messageBufferMaxSize = 10)
+    ThreadedPublisher(const ros::Publisher& publisher, unsigned int maxMessageBufferSize = 10)
     :   publisher_(publisher),
-        messageBufferMaxSize_(messageBufferMaxSize),
-        threadIsReady_(false),
+        maxMessageBufferSize_(maxMessageBufferSize),
         notifiedThread_(false),
         shutdownRequested_(false)
     {
@@ -135,7 +133,7 @@ protected:
     {
         {
             std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
-            if (messageBuffer_.size() == messageBufferMaxSize_)
+            if (messageBuffer_.size() == maxMessageBufferSize_)
             {
                 MELO_ERROR("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing.");
                 messageBuffer_.pop();
