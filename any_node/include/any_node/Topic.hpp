@@ -65,9 +65,9 @@ ros::Publisher advertise(ros::NodeHandle& nh, const std::string& name, const std
 }
 
 template<typename msg>
-ThreadedPublisher<msg> threadedAdvertise(ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int messageBufferMaxSize = 10)
+ThreadedPublisherPtr<msg> threadedAdvertise(ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int messageBufferMaxSize = 10)
 {
-    return ThreadedPublisher<msg>(advertise<msg>(nh, name, defaultTopic, queue_size, latch), messageBufferMaxSize);
+    return ThreadedPublisherPtr<msg>(new ThreadedPublisher<msg>(advertise<msg>(nh, name, defaultTopic, queue_size, latch), messageBufferMaxSize));
 }
 
 template<class M, class T>
