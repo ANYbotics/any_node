@@ -178,6 +178,7 @@ protected:
                     if (messageBuffer_.empty())
                         break;
                     message = messageBuffer_.front();
+                    messageBuffer_.pop();
                 }
                 {
                     std::lock_guard<std::mutex> publisherLock(publisherMutex_);
