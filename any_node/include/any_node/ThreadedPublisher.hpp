@@ -192,5 +192,8 @@ protected:
     }
 };
 
+template <typename MessageType>
+using ThreadedPublisherPtr = std::shared_ptr<ThreadedPublisher<MessageType>>;
+
 
 } // any_node
