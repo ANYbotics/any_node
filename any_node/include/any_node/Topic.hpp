@@ -51,6 +51,7 @@
 #include <ros/service_client.h>
 
 #include "any_node/Param.hpp"
+#include "any_node/ThreadedPublisher.hpp"
 
 namespace any_node {
 
@@ -61,6 +62,12 @@ ros::Publisher advertise(ros::NodeHandle& nh, const std::string& name, const std
 			param<std::string>(nh, "publishers/"+name+"/topic", defaultTopic),
 			param<int>(nh, "publishers/"+name+"/queue_size", queue_size),
 			param<bool>(nh, "publishers/"+name+"/latch", latch));
+}
+
+template<typename msg>
+ThreadedPublisher<msg> threadedAdvertise(ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int messageBufferMaxSize = 10)
+{
+    return ThreadedPublisher<msg>(advertise<msg>(nh, name, defaultTopic, queue_size, latch), messageBufferMaxSize);
 }
 
 template<class M, class T>

@@ -101,17 +101,22 @@ class Node {
      */
     template<typename msg>
     inline ros::Publisher advertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false) {
-      return any_node::advertise<msg>(*nh_, name, defaultTopic, queue_size, latch);
+        return any_node::advertise<msg>(*nh_, name, defaultTopic, queue_size, latch);
+    }
+
+    template<typename msg>
+    inline ThreadedPublisher<msg> threadedAdvertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false, unsigned int messageBufferMaxSize = 10) {
+        return any_node::threadedAdvertise<msg>(*nh_, name, defaultTopic, queue_size, latch, messageBufferMaxSize);
     }
 
     template<class M, class T>
     inline ros::Subscriber subscribe(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints()) {
-      return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
+        return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
     }
 
     template<class T, class MReq, class MRes>
     inline ros::ServiceServer advertiseService(const std::string& name, const std::string& defaultService, bool(T::*srv_func)(MReq &, MRes &), T *obj) {
-      return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);
+        return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);
     }
 
     template<class MReq, class MRes>
