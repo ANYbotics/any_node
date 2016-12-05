@@ -58,7 +58,7 @@ Example:
         {
             // add new workers (threads) like this. The workers are automatically stopped before the cleanup() function is called
             const double worker_timestep = 0.01;
-            addWorker("my_worker_name", worker_timestep, &ExampleNode::updateWorker, this);
+            addWorker("my_worker_name", worker_timestep, &ExampleNode::myWorkerFunction, this);
 
             // to create publishers/subscribers/service clients/servers or read params, use the functions provided by the any_node::Node base class
             // the name of the publishers/subscribers/.. has to be consistent 
@@ -77,12 +77,13 @@ Example:
         {
         }
         
-        bool update(const any_worker::WorkerEvent& event) // called on every update step of the node. The frequency is defined in the time_step rosparam.
+        bool update(const any_worker::WorkerEvent& event) // called by the worker which is automatically set up if rosparam standalone == True.
+                                                          // The frequency is defined in the time_step rosparam.
         {
             return true;
         }
 
-        bool updateWorker(const any_worker::WorkerEvent& event) // called by the worker created in init() function
+        bool myWorkerFunction(const any_worker::WorkerEvent& event) // called by the worker created in init() function
         {
 
         }
