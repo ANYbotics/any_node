@@ -69,7 +69,7 @@ public:
    * @param nodeName    name of the node
    * @param numSpinners number of async ros spinners. Set to 0 to get value from ros params.
    */
-  Nodewrap(int argc, char **argv, const std::string nodeName, int numSpinners = 0):
+  Nodewrap(int argc, char **argv, const std::string& nodeName, int numSpinners = 0):
       nh_(nullptr),
       spinner_(nullptr),
       impl_(nullptr),
@@ -104,7 +104,7 @@ public:
    * @param timeStep        Timestep with which the update worker is called. Only used if isStandalone=true
    * @param numSpinners     number of async ros spinners. Set to 0 to get value from ros params.
    */
-  Nodewrap(int argc, char **argv, const std::string nodeName, bool isStandalone, double timeStep = 0.01, int numSpinners = 0):
+  Nodewrap(int argc, char **argv, const std::string& nodeName, bool isStandalone, double timeStep = 0.01, int numSpinners = 0):
       Nodewrap(argc, argv, nodeName, numSpinners)
   {
       isStandalone_ = isStandalone;
@@ -128,7 +128,7 @@ public:
    * @param priority                priority of the worker calling the update function. Only used if isStandalone=true
    * @param installSignalHandler    Enable installing signal handlers (SIGINT, ...).
    */
-  void execute(int priority=0, const bool installSignalHandler=true) {
+  void execute(const int priority=0, const bool installSignalHandler=true) {
       init(installSignalHandler);
       run(priority);
       cleanup();
