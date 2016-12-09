@@ -63,7 +63,7 @@ template <typename MessageType>
 class ThreadedPublisher
 {
 protected:
-    std::mutex publisherMutex_;
+    mutable std::mutex publisherMutex_;
     ros::Publisher publisher_;
 
     std::mutex messageBufferMutex_;
