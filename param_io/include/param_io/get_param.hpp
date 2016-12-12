@@ -23,7 +23,7 @@ namespace param_io {
 /*
  * Interfaces:
  *
- * 1) bool   getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param);
+ * 1) bool   getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter);
  *
  * 2) ParamT getParam(const ros::NodeHandle& nh, const std::string& key);
  *
@@ -37,170 +37,171 @@ namespace param_io {
  * 1b) double myParam1 = 0;
  *     double myParam2 = 0;
  *     bool success = true;
- *     success = success && getParam(nh, "my_param1", myParam1);
- *     success = success && getParam(nh, "my_param2", myParam2);
+ *     success &= getParam(nh, "my_param1", myParam1);
+ *     success &= getParam(nh, "my_param2", myParam2);
  *
  * 2)  double myParam = getParam<double>(nh, "my_param");
  */
 
 
 // 1)
-template<typename ParamT>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& param)
+template <typename ParamT>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter)
 {
-  if (!nh.getParam(key, param))
+  if (!nh.getParam(key, parameter))
   {
-    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + "/" + key << " from server.");
+    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + "/" + key << "' from server.");
     return false;
   }
   return true;
 }
 
 // 2)
-template<typename ParamT>
+template <typename ParamT>
 inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
 {
-  ParamT param;
-  getParam(nh, key, param);
-  return param;
+  ParamT parameter;
+  getParam(nh, key, parameter);
+  return parameter;
 }
 
-
-template<typename ParamT>
-inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& param_val, const ParamT& defaultValue=ParamT())
+// 1) with default value
+template <typename ParamT>
+inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter, const ParamT& defaultValue = ParamT())
 {
-  if (!nh.getParam(key, param_val))
+  if (!nh.getParam(key, parameter))
   {
-    ROS_WARN_STREAM("Could not acquire parameter " << nh.getNamespace() + key << " from server. Using default value: '" << defaultValue << "'");
-    param_val = defaultValue;
+    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + '/' + key << "' from server. Using default value: '" << defaultValue << "'");
+    parameter = defaultValue;
     return false;
   }
   return true;
 }
 
-template<typename ParamT>
-inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue=ParamT())
+// 2) with default value
+template <typename ParamT>
+inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue = ParamT())
 {
-  ParamT param_val;
-  param(nh, key, param_val, defaultValue);
-  return param_val;
+  ParamT parameter;
+  param(nh, key, parameter, defaultValue);
+  return parameter;
 }
 
 // primitive types
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& parameter)
 {
   int32_t value = 0;
   bool success = getParam(nh, key, value);
   if (value < 0)
   {
-    ROS_ERROR_STREAM("Parameter " << nh.getNamespace() + "/" + key << " is smaller than 0, cannot be stored inside an unsigned int.");
+    ROS_ERROR_STREAM("Parameter '" << nh.getNamespace() + "/" + key << "' is smaller than 0, cannot be stored inside an unsigned int.");
     return false;
   }
-  param = value;
+  parameter = value;
   return success;
 }
 
 // ros
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ros::Time& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ros::Time& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/sec", param.sec);
-  success = success && getParam(nh, key + "/nsec", param.nsec);
+  success = success && getParam(nh, key + "/sec", parameter.sec);
+  success = success && getParam(nh, key + "/nsec", parameter.nsec);
   return success;
 }
 
 // std_msgs
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, std_msgs::Header& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, std_msgs::Header& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/stamp", param.stamp);
-  success = success && getParam(nh, key + "/seq", param.seq);
-  success = success && getParam(nh, key + "/frame_id", param.frame_id);
+  success = success && getParam(nh, key + "/stamp", parameter.stamp);
+  success = success && getParam(nh, key + "/seq", parameter.seq);
+  success = success && getParam(nh, key + "/frame_id", parameter.frame_id);
   return success;
 }
 
 // geometry_msgs
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Vector3& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Vector3& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/x", param.x);
-  success = success && getParam(nh, key + "/y", param.y);
-  success = success && getParam(nh, key + "/z", param.z);
+  success = success && getParam(nh, key + "/x", parameter.x);
+  success = success && getParam(nh, key + "/y", parameter.y);
+  success = success && getParam(nh, key + "/z", parameter.z);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Point& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Point& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/x", param.x);
-  success = success && getParam(nh, key + "/y", param.y);
-  success = success && getParam(nh, key + "/z", param.z);
+  success = success && getParam(nh, key + "/x", parameter.x);
+  success = success && getParam(nh, key + "/y", parameter.y);
+  success = success && getParam(nh, key + "/z", parameter.z);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Quaternion& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Quaternion& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/w", param.w);
-  success = success && getParam(nh, key + "/x", param.x);
-  success = success && getParam(nh, key + "/y", param.y);
-  success = success && getParam(nh, key + "/z", param.z);
+  success = success && getParam(nh, key + "/w", parameter.w);
+  success = success && getParam(nh, key + "/x", parameter.x);
+  success = success && getParam(nh, key + "/y", parameter.y);
+  success = success && getParam(nh, key + "/z", parameter.z);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Pose& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Pose& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/position", param.position);
-  success = success && getParam(nh, key + "/orientation", param.orientation);
+  success = success && getParam(nh, key + "/position", parameter.position);
+  success = success && getParam(nh, key + "/orientation", parameter.orientation);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::PoseStamped& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::PoseStamped& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/header", param.header);
-  success = success && getParam(nh, key + "/pose", param.pose);
+  success = success && getParam(nh, key + "/header", parameter.header);
+  success = success && getParam(nh, key + "/pose", parameter.pose);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Twist& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::Twist& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/linear", param.linear);
-  success = success && getParam(nh, key + "/angular", param.angular);
+  success = success && getParam(nh, key + "/linear", parameter.linear);
+  success = success && getParam(nh, key + "/angular", parameter.angular);
   return success;
 }
 
-template<>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::TwistStamped& param)
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry_msgs::TwistStamped& parameter)
 {
   bool success = true;
-  success = success && getParam(nh, key + "/header", param.header);
-  success = success && getParam(nh, key + "/twist", param.twist);
+  success = success && getParam(nh, key + "/header", parameter.header);
+  success = success && getParam(nh, key + "/twist", parameter.twist);
   return success;
 }
 
-template<typename T>
-T getMember(XmlRpc::XmlRpcValue param, const std::string& key)
+template <typename T>
+T getMember(XmlRpc::XmlRpcValue parameter, const std::string& key)
 {
   try
   {
-    if (!param.hasMember(key))
+    if (!parameter.hasMember(key))
     {
       ROS_ERROR_STREAM("XmlRpcValue does not contain member '" << key << "'.");
       return T();
     }
-    return static_cast<T>(param[key]);
+    return static_cast<T>(parameter[key]);
   }
   catch (const XmlRpc::XmlRpcException& exception)
   {
@@ -209,28 +210,29 @@ T getMember(XmlRpc::XmlRpcValue param, const std::string& key)
   }
 }
 
-template<typename T>
-std::ostream& operator << (std::ostream& stream, const std::vector<T>& v) 
+// ostream overloads
+template <typename T>
+std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector) 
 {
-    stream << "[";
-    for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
-    {
-        stream << " " << *ii;
-    }
-    stream << "]";
-    return stream;
+  ostream << "[";
+  for (typename std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it)
+  {
+    ostream << " " << *it;
+  }
+  ostream << "]";
+  return ostream;
 }
 
-template<typename T1, typename T2>
-std::ostream &operator << (std::ostream &stream, const std::map<T1, T2>& map)
+template <typename T1, typename T2>
+std::ostream& operator<<(std::ostream& ostream, const std::map<T1, T2>& map)
 {
-  for (typename std::map<T1, T2>::const_iterator it = map.begin();
-       it != map.end();
-       ++it)
-    {
-      stream << (*it).first << " --> " << (*it).second << std::endl;
-    }
-  return stream;
+  for (typename std::map<T1, T2>::const_iterator it = map.begin(); it != map.end(); ++it)
+  {
+    ostream << it->first << " --> " << it->second << std::endl;
+  }
+  return ostream;
 }
+
 
 } // param_io
+
