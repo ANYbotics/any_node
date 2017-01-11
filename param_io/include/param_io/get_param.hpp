@@ -69,42 +69,10 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& 
 }
 
 template <typename ParamT>
-inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue)
+inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue)
 {
   ParamT parameter;
   getParam(nh, key, parameter, defaultValue);
-  return parameter;
-}
-
-
-// 2) DEPRECATED function -> use getParam() instead
-template <typename ParamT>
-__attribute__((deprecated)) inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
-{
-  ParamT parameter;
-  getParam(nh, key, parameter);
-  return parameter;
-}
-
-// 1) DEPRECATED function -> use getParam() instead
-template <typename ParamT>
-__attribute__((deprecated)) inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter, const ParamT& defaultValue = ParamT())
-{
-  if (!nh.getParam(key, parameter))
-  {
-    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + '/' + key << "' from server. Using default value: '" << defaultValue << "'");
-    parameter = defaultValue;
-    return false;
-  }
-  return true;
-}
-
-// 2) DEPRECATED function -> use getParam() instead
-template <typename ParamT>
-__attribute__((deprecated)) inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue = ParamT())
-{
-  ParamT parameter;
-  param(nh, key, parameter, defaultValue);
   return parameter;
 }
 
