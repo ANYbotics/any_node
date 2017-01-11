@@ -100,7 +100,7 @@ ros::ServiceClient serviceClient(ros::NodeHandle& nh, const std::string& name, c
 {
     return nh.serviceClient<MReq, MRes>(
             param<std::string>(nh, "clients/"+name+"/service", defaultService),
-            param<bool>(nh, "clients/"+name+"/persistent"), header_values);
+            param<bool>(nh, "clients/"+name+"/persistent", false), header_values);
 }
 
 template<class Service>
@@ -108,7 +108,7 @@ ros::ServiceClient serviceClient(ros::NodeHandle& nh, const std::string& name, c
 {
     return nh.serviceClient<Service>(
             param<std::string>(nh, "clients/"+name+"/service", defaultService),
-			param<bool>(nh, "clients/"+name+"/persistent"), header_values);
+			param<bool>(nh, "clients/"+name+"/persistent", false), header_values);
 }
 
 } // namespace any_node
