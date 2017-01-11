@@ -56,9 +56,9 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& 
   return true;
 }
 
-// 2)
+// 2) DEPRECATED function -> use getParam() instead
 template <typename ParamT>
-inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
+__attribute__((deprecated)) inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
 {
   ParamT parameter;
   getParam(nh, key, parameter);
@@ -67,7 +67,7 @@ inline ParamT getParam(const ros::NodeHandle& nh, const std::string& key)
 
 // 1) with default value
 template <typename ParamT>
-inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter, const ParamT& defaultValue = ParamT())
+inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter, const ParamT& defaultValue)
 {
   if (!nh.getParam(key, parameter))
   {
@@ -78,9 +78,9 @@ inline bool param(const ros::NodeHandle& nh, const std::string& key, ParamT& par
   return true;
 }
 
-// 2) with default value
+// 2) DEPRECATED function -> use bool param() instead
 template <typename ParamT>
-inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue = ParamT())
+__attribute__((deprecated)) inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue)
 {
   ParamT parameter;
   param(nh, key, parameter, defaultValue);
