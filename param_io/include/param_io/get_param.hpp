@@ -23,9 +23,9 @@ namespace param_io {
 /*
  * Interfaces:
  *
- * 1) bool   getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter);
+ * 1) bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter);
  *
- * 2) ParamT getParam(const ros::NodeHandle& nh, const std::string& key);
+ * 2) ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultParameter);
  *
  *
  *
@@ -40,41 +40,44 @@ namespace param_io {
  *     success &= getParam(nh, "my_param1", myParam1);
  *     success &= getParam(nh, "my_param2", myParam2);
  *
- * 2)  double myParam = getParam<double>(nh, "my_param");
+ * 2)  double myParamDefault = 1.0;
+ *     double myParam = param<double>(nh, "my_param", myParamDefault);
  */
 
 
-// 1)
+
+/*!
+ * Interface 1:
+ */
 template <typename ParamT>
 inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter)
 {
+  const ParamT defaultParameter = parameter;
   if (!nh.getParam(key, parameter))
   {
-    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + "/" + key << "' from server.");
+    parameter = defaultParameter; // Make sure NodeHandle::getParam() does not modify parameter.
+    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + "/" + key << "' from server. Parameter still contains '" << parameter << "'.");
     return false;
   }
   return true;
 }
 
+/*!
+ * Interface 2:
+ */
 template <typename ParamT>
-inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& parameter, const ParamT& defaultValue)
+inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultParameter)
 {
-  if (!nh.getParam(key, parameter))
-  {
-    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + '/' + key << "' from server. Using default value: '" << defaultValue << "'");
-    parameter = defaultValue;
-    return false;
-  }
-  return true;
-}
-
-template <typename ParamT>
-inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const ParamT& defaultValue)
-{
-  ParamT parameter;
-  getParam(nh, key, parameter, defaultValue);
+  ParamT parameter = defaultParameter;
+  getParam(nh, key, parameter);
   return parameter;
 }
+
+
+
+/*!
+ * Template specializations.
+ */
 
 // primitive types
 template <>
@@ -199,9 +202,14 @@ T getMember(XmlRpc::XmlRpcValue parameter, const std::string& key)
   }
 }
 
-// ostream overloads
+
+
+/*!
+ * Ostream overloads.
+ */
+
 template <typename T>
-std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector) 
+inline std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector)
 {
   ostream << "[";
   for (typename std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it)
@@ -213,12 +221,18 @@ std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector)
 }
 
 template <typename T1, typename T2>
-std::ostream& operator<<(std::ostream& ostream, const std::map<T1, T2>& map)
+inline std::ostream& operator<<(std::ostream& ostream, const std::map<T1, T2>& map)
 {
   for (typename std::map<T1, T2>::const_iterator it = map.begin(); it != map.end(); ++it)
   {
     ostream << it->first << " --> " << it->second << std::endl;
   }
+  return ostream;
+}
+
+inline std::ostream& operator<<(std::ostream& ostream, const XmlRpc::XmlRpcValue& xmlRpcValue)
+{
+  xmlRpcValue.write(ostream);
   return ostream;
 }
 
