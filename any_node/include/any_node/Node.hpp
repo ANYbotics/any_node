@@ -133,8 +133,8 @@ class Node {
      * forwarding to Param.hpp functions
      */
      template<typename ParamT>
-     inline bool getParam(const std::string& key, ParamT& param_val, const ParamT& defaultValue) {
-         return any_node::getParam(*nh_, key, param_val, defaultValue);
+     inline bool getParam(const std::string& key, ParamT& param_val) {
+         return any_node::getParam(*nh_, key, param_val);
      }
 
      template<typename ParamT>
