@@ -13,39 +13,42 @@
 
 #include <param_io/get_param.hpp>
 
+
 TEST(GetParam, getParam_double) {
   ros::NodeHandle nh("~");
-  double testdouble = 0.0;
 
-  testdouble = 3.0;
-  ASSERT_FALSE(param_io::getParam(nh, "double", testdouble));
-  ASSERT_EQ(3.0, testdouble);
-
-  testdouble = 1.0;
-  ASSERT_FALSE(param_io::getParam(nh, "double", testdouble, 4.0));
-  ASSERT_EQ(4.0, testdouble);
-
-  testdouble = 1.0;
-  double testdefault = 100;
-  ASSERT_FALSE(param_io::getParam(nh, "double", testdouble, testdefault));
-  ASSERT_EQ(testdefault, testdouble);
-
-
+  const double testdefault = 3.0;
+  double test = testdefault;
+  ASSERT_FALSE(param_io::getParam(nh, "double", test));
+  ASSERT_EQ(test, testdefault);
 }
+
+
+TEST(GetParam, getParam_bool) {
+  ros::NodeHandle nh("~");
+
+  const bool testdefault = true;
+  bool test = testdefault;
+  ASSERT_FALSE(param_io::getParam(nh, "double", test));
+  ASSERT_EQ(test, testdefault);
+}
+
 
 TEST(GetParam, param_double) {
   ros::NodeHandle nh("~");
   double testdouble = 0.0;
 
+  // Test with const default.
   testdouble = 1.0;
-  testdouble = param_io::param(nh, "double", 2.0);
-  ASSERT_EQ(2.0, testdouble);
+  const double testdefaultconst = 2.0;
+  testdouble = param_io::param(nh, "double", testdefaultconst);
+  ASSERT_EQ(testdefaultconst, testdouble);
 
+  // Test with non-const default.
   testdouble = 1.0;
-  double testdefault = 100;
-  double res = param_io::param(nh, "double", testdefault);
-  ASSERT_EQ(testdefault, res);
-
+  double testdefault = 100.0;
+  testdouble = param_io::param(nh, "double", testdefault);
+  ASSERT_EQ(testdefault, testdouble);
 }
 
 
@@ -53,13 +56,15 @@ TEST(GetParam, param_bool) {
   ros::NodeHandle nh("~");
   bool testbool = true;
 
+  // Test with const default.
   testbool = true;
-  testbool = param_io::param(nh, "bool", false);
-  ASSERT_EQ(false, testbool);
+  const bool testdefaultconst = false;
+  testbool = param_io::param(nh, "bool", testdefaultconst);
+  ASSERT_EQ(testdefaultconst, testbool);
 
+  // Test with non-const default.
   testbool = true;
   bool testdefault = false;
-  bool res = param_io::param(nh, "bool", testdefault);
-  ASSERT_EQ(testdefault, res);
-
+  testbool = param_io::param(nh, "bool", testdefault);
+  ASSERT_EQ(testdefault, testbool);
 }
