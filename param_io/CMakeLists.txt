@@ -17,6 +17,19 @@ catkin_package(
     std_msgs
 )
 
+if (CATKIN_ENABLE_TESTING)
+    include_directories(include)
+    include_directories(${catkin_INCLUDE_DIRS})
+    catkin_add_gtest(test_param_io
+        test/test_main.cpp
+        test/get_param_test.cpp
+    )
+    
+    target_link_libraries(test_param_io
+        ${catkin_LIBRARIES}
+    )
+endif()
+
 #############
 ## Install ##
 #############
@@ -24,3 +37,4 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
+
