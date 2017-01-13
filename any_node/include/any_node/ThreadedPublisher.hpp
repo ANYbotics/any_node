@@ -103,6 +103,9 @@ public:
 
     void shutdown()
     {
+        // Prohibit shutting down twice.
+        if (shutdownRequested_)
+          return;
         shutdownRequested_ = true;
         notifyThread();
         thread_.join();
