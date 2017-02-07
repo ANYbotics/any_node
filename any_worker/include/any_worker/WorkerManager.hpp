@@ -76,6 +76,8 @@ public:
 
     void startWorkers();
 
+    bool hasWorker(const std::string& name);
+
     void stopWorker(const std::string& name, const bool wait=true);
 
     void stopWorkers(const bool wait=true);

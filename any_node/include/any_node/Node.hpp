@@ -86,6 +86,14 @@ class Node {
         return workerManager_.addWorker(options);
     }
 
+    inline bool hasWorker(const std::string& name) {
+        return workerManager_.hasWorker(name);
+    }
+
+    inline void cancelWorker(const std::string& name, const bool wait = true) {
+        workerManager_.cancelWorker(name, wait);
+    }
+
     inline void stopAllWorkers() {
         workerManager_.clearWorkers();
     }
