@@ -2,7 +2,7 @@
 <package format="2">
 
   <name>any_worker</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>The any_worker package</description>
   <maintainer email="pleemann@ethz.ch">Philipp Leemann</maintainer>
   <license>BSD</license>

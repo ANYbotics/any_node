@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>param_io</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>Parameter message conversions</description>
 
   <license>BSD</license>

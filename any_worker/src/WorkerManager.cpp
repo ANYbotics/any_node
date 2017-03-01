@@ -112,6 +112,11 @@ void WorkerManager::stopWorkers(const bool wait) {
     }
 }
 
+bool WorkerManager::hasWorker(const std::string& name) {
+    std::lock_guard<std::mutex> lock(mutexWorkers_);
+    return (workers_.find(name) != workers_.end());
+}
+
 void WorkerManager::cancelWorker(const std::string& name, const bool wait) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
     auto worker = workers_.find(name);
