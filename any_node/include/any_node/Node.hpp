@@ -122,6 +122,11 @@ class Node {
         return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
     }
 
+    template<class M, class T>
+    inline ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, const std::string& name, const std::string& defaultTopic, uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints()) {
+        return any_node::throttledSubscribe<M, T>(timeStep, *nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
+    }
+
     template<class T, class MReq, class MRes>
     inline ros::ServiceServer advertiseService(const std::string& name, const std::string& defaultService, bool(T::*srv_func)(MReq &, MRes &), T *obj) {
         return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);

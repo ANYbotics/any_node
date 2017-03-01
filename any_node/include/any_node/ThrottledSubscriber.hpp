@@ -10,7 +10,6 @@
 #include <functional>
 #include <chrono>
 
-
 // ros
 #include <ros/ros.h>
 
@@ -22,17 +21,26 @@ namespace any_node {
 template <typename MessageType, typename CallbackClass>
 class ThrottledSubscriber
 {
-protected:
-    ros::Subscriber subscriber_;
-
 public:
-    template <typename T>
-    ThrottledSubscriber(const double timeStep, ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic,
-                        uint32_t queue_size, void(T::*fp)(const boost::shared_ptr<MessageType const>&), T* obj,
-                        const ros::TransportHints& transport_hints = ros::TransportHints())
-    :   subscriber_(nh.subscribe())
+    ThrottledSubscriber()
+    :   subscriber_(),
+        fp_(nullptr),
+        obj_(nullptr),
+        lastTime_(),
+        timeStep_()
     {
 
+    }
+
+    ThrottledSubscriber(const double timeStep, ros::NodeHandle& nh, const std::string& topic,
+                        uint32_t queue_size, void(CallbackClass::*fp)(const boost::shared_ptr<MessageType const>&), CallbackClass* obj,
+                        const ros::TransportHints& transport_hints = ros::TransportHints())
+    :    fp_(fp),
+        obj_(obj),
+        lastTime_(ros::TIME_MIN),
+        timeStep_(ros::Duration().fromSec(timeStep))
+    {
+      subscriber_ = nh.subscribe(topic, queue_size, &ThrottledSubscriber<MessageType, CallbackClass>::internalCallback, this, transport_hints);
     }
 
     virtual ~ThrottledSubscriber()
@@ -44,13 +52,26 @@ public:
       subscriber_.shutdown();
     }
 
+    void internalCallback(const boost::shared_ptr<MessageType const>& msg) {
+      ros::Time now = ros::Time::now();
+      if((now - lastTime_) > timeStep_)
+      {
+        (*obj_.*fp_)(msg);
+        lastTime_ = now;
+      }
+    }
 
 protected:
+    ros::Subscriber subscriber_;
+    void(CallbackClass::*fp_)(const boost::shared_ptr<MessageType const>&);
+    CallbackClass* obj_;
+    ros::Time lastTime_;
+    ros::Duration timeStep_;
 
 };
 
-template <typename MessageType>
-using ThreadedPublisherPtr = std::shared_ptr<ThreadedPublisher<MessageType>>;
+template <typename MessageType, typename CallbackClass>
+using ThrottledSubscriberPtr = std::shared_ptr<ThrottledSubscriber<MessageType, CallbackClass>>;
 
 
 } // any_node
