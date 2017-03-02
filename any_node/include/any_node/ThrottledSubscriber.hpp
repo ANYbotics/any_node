@@ -54,7 +54,7 @@ public:
 
     void internalCallback(const boost::shared_ptr<MessageType const>& msg) {
       ros::Time now = ros::Time::now();
-      if((now - lastTime_) > timeStep_)
+      if((now - lastTime_) >= timeStep_)
       {
         (*obj_.*fp_)(msg);
         lastTime_ = now;
