@@ -52,6 +52,7 @@
 
 #include "any_node/Param.hpp"
 #include "any_node/ThreadedPublisher.hpp"
+#include "any_node/ThrottledSubscriber.hpp"
 
 namespace any_node {
 
@@ -85,6 +86,17 @@ ros::Subscriber subscribe(ros::NodeHandle& nh, const std::string& name, const st
     }
 }
 
+template<class M, class T>
+ThrottledSubscriberPtr<M,T> throttledSubscribe(double timeStep, ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic, uint32_t queue_size,
+                                            void(T::*fp)(const boost::shared_ptr<M const>&), T* obj, const ros::TransportHints& transport_hints = ros::TransportHints())
+{
+  if(nh.param<bool>("subscribers/"+name+"/deactivate", false)) {
+      return ThrottledSubscriberPtr<M,T>( new ThrottledSubscriber<M,T>() ); // return empty subscriber
+  }else{
+      return ThrottledSubscriberPtr<M,T>( new ThrottledSubscriber<M,T>(timeStep, nh, param<std::string>(nh, "subscribers/"+name+"/topic", defaultTopic),
+    		  param<int>(nh, "subscribers/"+name+"/queue_size", queue_size), fp, obj, transport_hints));
+  }
+}
 
 template<class T, class MReq, class MRes>
 ros::ServiceServer advertiseService(ros::NodeHandle& nh, const std::string& name, const std::string& defaultService, bool(T::*srv_func)(MReq &, MRes &), T *obj)
