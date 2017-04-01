@@ -8,13 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
   param_io
 )
 
-
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
+  LIBRARIES ${PROJECT_NAME} pthread
   CATKIN_DEPENDS roscpp message_logger any_worker param_io
 )
 
