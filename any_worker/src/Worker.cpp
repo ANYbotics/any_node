@@ -147,7 +147,7 @@ void Worker::run() {
     unsigned int timeoutCounter = 0;
 
     do {
-        if(!options_.callback_( WorkerEvent(options_.timeStep_) )) {
+        if(!options_.callback_( WorkerEvent(options_.timeStep_, ts) )) {
             MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
         }
         if(options_.timeStep_ != 0.0 && options_.timeStep_ != std::numeric_limits<double>::infinity()) {

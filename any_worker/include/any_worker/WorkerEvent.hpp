@@ -41,20 +41,24 @@
 
 #pragma once
 
+#include <sys/time.h>
+
 namespace any_worker {
 
 /*!
  * Todo: not every member of this struct is guaranteed to hold an appropriate value. Check the values for your use case!
  */
 struct WorkerEvent {
-    WorkerEvent(): timeStep(0.0) {}
-    WorkerEvent(const double dt): timeStep(dt) {}
+    WorkerEvent(): timeStep(0.0), timeStamp{0, 0} {}
+    WorkerEvent(const double dt, const timespec& time): timeStep(dt), timeStamp(time) {}
     virtual ~WorkerEvent() {}
 
     /*!
      * The timestep between consecutive calls of the callback function. 0 if run only once.
      */
     double timeStep;
+
+    timespec timeStamp;
 };
 
 } // namespace any_worker
