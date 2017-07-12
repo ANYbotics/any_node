@@ -140,38 +140,45 @@ void Worker::run() {
     timespec timeoutTimestep = ts;
     unsigned int timeoutCounter = 0;
 
-    do {
+    if (options_.timeStep_ == std::numeric_limits<double>::infinity()) {
         if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
             MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
         }
-        if (options_.timeStep_ == std::numeric_limits<double>::infinity()) {
-            break;
-        }else if(options_.timeStep_ != 0.0) {
-
-            timeStepNs = static_cast<long int>(options_.timeStep_*1e9);
-            ts.tv_nsec += timeStepNs;
-            ts.tv_sec  += ts.tv_nsec/1000000000;
-            ts.tv_nsec  = ts.tv_nsec%1000000000;
-
-            // check for too slow processing (or slow system clock)
-            clock_gettime(CLOCK_MONOTONIC, &tp);
-            elapsedTimeNs = (tp.tv_sec-ts.tv_sec)*1000000000 + (tp.tv_nsec-ts.tv_nsec);
-            if(elapsedTimeNs > timeStepNs*10) {
-                MELO_ERROR("Worker [%s] exceeded deadline time by 10 times the specified time (%lf s)!", options_.name_.c_str(), options_.timeStep_.load());
-            }else if (elapsedTimeNs > 0) {
-            	timeoutCounter++;
-            	if(((tp.tv_sec-timeoutTimestep.tv_sec)*1000000000 + (tp.tv_nsec-timeoutTimestep.tv_nsec)) >= 1000000000) {
-            		MELO_WARN("Worker [%s]: Too slow processing (%d times)! Took %lf s, should have finished in %lf s ", options_.name_.c_str(), timeoutCounter, static_cast<double>(elapsedTimeNs+timeStepNs)/1000000000., options_.timeStep_.load());
-
-            		timeoutTimestep = tp;
-            		timeoutCounter = 0;
-            	}
-            }else{
-                clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
+    }else {
+        do {
+            if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
+                MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
             }
-        }
 
-    }while(running_);
+            if (options_.timeStep_ != 0.0) {
+
+                timeStepNs = static_cast<long int>(options_.timeStep_ * 1e9);
+                ts.tv_nsec += timeStepNs;
+                ts.tv_sec += ts.tv_nsec / 1000000000;
+                ts.tv_nsec = ts.tv_nsec % 1000000000;
+
+                // check for too slow processing (or slow system clock)
+                clock_gettime(CLOCK_MONOTONIC, &tp);
+                elapsedTimeNs = (tp.tv_sec - ts.tv_sec) * 1000000000 + (tp.tv_nsec - ts.tv_nsec);
+                if (elapsedTimeNs > timeStepNs * 10) {
+                    MELO_ERROR("Worker [%s] exceeded deadline time by 10 times the specified time (%lf s)!", options_.name_.c_str(),
+                               options_.timeStep_.load());
+                } else if (elapsedTimeNs > 0) {
+                    timeoutCounter++;
+                    if (((tp.tv_sec - timeoutTimestep.tv_sec) * 1000000000 + (tp.tv_nsec - timeoutTimestep.tv_nsec)) >= 1000000000) {
+                        MELO_WARN("Worker [%s]: Too slow processing (%d times)! Took %lf s, should have finished in %lf s ", options_.name_.c_str(),
+                                  timeoutCounter, static_cast<double>(elapsedTimeNs + timeStepNs) / 1000000000., options_.timeStep_.load());
+
+                        timeoutTimestep = tp;
+                        timeoutCounter = 0;
+                    }
+                } else {
+                    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
+                }
+            }
+
+        } while (running_);
+    }
 
     MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
     done_ = true;
