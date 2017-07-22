@@ -68,8 +68,8 @@ Worker::Worker(const WorkerOptions& options):
 
 Worker::Worker(Worker&& other):
     options_(std::move(other.options_)),
-    running_(std::move(other.running_.load())),
-    done_(std::move(other.done_.load())),
+    running_(other.running_.load()),
+    done_(other.done_.load()),
     thread_(std::move(other.thread_))
 {
 
