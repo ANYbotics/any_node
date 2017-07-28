@@ -48,9 +48,9 @@
 #include <chrono>
 #include <ros/ros.h>
 
-#include "any_node/SignalHandler.hpp"
 #include "any_node/Param.hpp"
 #include "any_worker/WorkerOptions.hpp"
+#include "signal_handler/SignalHandler.hpp"
 #include "message_logger/message_logger.hpp"
 
 namespace any_node {
@@ -144,7 +144,7 @@ public:
       running_ = true;
 
       if(installSignalHandler) {
-          SignalHandler::bindAll(&Nodewrap::signalHandler, this);
+          signal_handler::SignalHandler::bindAll(&Nodewrap::signalHandler, this);
           signalHandlerInstalled_ = true;
       }else{
           signal(SIGINT, basicSigintHandler);
@@ -169,7 +169,7 @@ public:
    */
   void cleanup() {
       if(signalHandlerInstalled_) {
-          SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
+          signal_handler::SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
       }
 
       impl_->stopAllWorkers();

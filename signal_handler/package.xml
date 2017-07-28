@@ -2,9 +2,9 @@
 
 <package format="2">
 
-  <name>any_node</name>
+  <name>signal_handler</name>
   <version>0.1.0</version>
-  <description>ROS node wrapper with some convenience functions using *any_worker*.</description>
+  <description>Contains a static signal handling helper class.</description>
   
   <license>BSD</license>
   
@@ -15,10 +15,4 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
-  <depend>any_worker</depend>
-  <depend>message_logger</depend>
-  <depend>param_io</depend>
-  <depend>roscpp</depend>
-  <depend>signal_handler</depend>
-
 </package>
