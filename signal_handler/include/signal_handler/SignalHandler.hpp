@@ -16,7 +16,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
 ******************************************************************************/
 
-/** \file Signal.h
+/** \file Signal.hpp
 * \brief Header file providing the Signal class interface
 */
 
@@ -28,11 +28,10 @@
 #include <functional>
 #include <mutex>
 
-namespace any_node {
-/** \brief Signal handling for the ROS node wrapper
+namespace signal_handler {
+/** \brief Signal handling.
 *
-* This class provides a static interface to bind the cleanup methods of
-* multiple ROS node implementations to a common process signal handler.
+* This class provides a static interface to bind a common process signal handler.
 */
 
 class SignalHandler {
@@ -83,4 +82,4 @@ private:
   static void signaled(int signal);
 };
 
-} // namespace any_node
+} // namespace signal_handler

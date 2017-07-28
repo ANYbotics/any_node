@@ -16,11 +16,9 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
 ******************************************************************************/
 
-#include <ros/ros.h>
+#include "signal_handler/SignalHandler.hpp"
 
-#include "any_node/SignalHandler.hpp"
-
-namespace any_node {
+namespace signal_handler {
 
 /*****************************************************************************/
 /* Static Member Initialization                                              */
@@ -85,4 +83,4 @@ void SignalHandler::signaled(int signal) {
     }
 }
 
-} // namespace any_node
+} // namespace signal_handler
