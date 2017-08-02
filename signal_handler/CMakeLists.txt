@@ -1,14 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(any_node)
+project(signal_handler)
 
-find_package(catkin REQUIRED
-  COMPONENTS
-    any_worker
-    message_logger
-    param_io
-    roscpp
-    signal_handler
-)
+find_package(catkin REQUIRED)
 
 ###################################
 ## catkin specific configuration ##
@@ -18,13 +11,6 @@ catkin_package(
     include
   LIBRARIES
     ${PROJECT_NAME}
-    pthread
-  CATKIN_DEPENDS
-    any_worker
-    message_logger
-    param_io
-    roscpp
-    signal_handler
 )
 
 ###########
@@ -38,8 +24,9 @@ include_directories(
 )
 
 
-add_library(${PROJECT_NAME}
-  src/Node.cpp
+add_library(
+  ${PROJECT_NAME}
+  src/SignalHandler.cpp
 )
 
 #############

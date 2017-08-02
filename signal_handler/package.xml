@@ -2,9 +2,9 @@
 
 <package format="2">
 
-  <name>any_worker</name>
+  <name>signal_handler</name>
   <version>0.1.0</version>
-  <description>High resolution version of the ROS worker.</description>
+  <description>Contains a static signal handling helper class.</description>
   
   <license>BSD</license>
   
@@ -15,6 +15,4 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
-  <depend>message_logger</depend>
-
 </package>

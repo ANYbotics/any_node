@@ -39,7 +39,7 @@
  * @date	July, 2016
  */
 
- #pragma once
+#pragma once
 
 #include <functional>
 #include <string>
@@ -53,31 +53,33 @@ namespace any_worker {
 
 class Worker {
 public:
-  Worker() = delete;
+    Worker() = delete;
 
-  /*!
-   * @param name      name of the worker
-   * @param timestep  with a timestep of 0, the callback will be executed as fast as possible, with std::numeric_limits<double>::infinity() only once.
-   * @param callback  std::function pointing to the callback
-   */
-  Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
-  Worker(const WorkerOptions& options);
-  Worker(const Worker&) = delete; // atomics and threads are non-copyable
-  Worker(Worker&&); // declare custom move constructor to move atomics
+    /*!
+     * @param name      name of the worker
+     * @param timestep  with a timestep of 0, the callback will be executed as fast as possible, with std::numeric_limits<double>::infinity() only once.
+     * @param callback  std::function pointing to the callback
+     */
+    Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
+    Worker(const WorkerOptions& options);
+    Worker(const Worker&) = delete; // atomics and threads are non-copyable
+    Worker(Worker&&); // declare custom move constructor to move atomics
 
-  virtual ~Worker();
+    virtual ~Worker();
 
-  bool start(const int priority=0);
-  void stop(const bool wait=true);
+    bool start(const int priority=0);
+    void stop(const bool wait=true);
 
-  void setTimestep(const double timeStep);
+    void setTimestep(const double timeStep);
 
-  const std::string& getName() const { return options_.name_; }
+    const std::string& getName() const { return options_.name_; }
 
-  /*!
-   * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
-   */
-  const bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
+    bool isRunning() const { return running_; }
+
+    /*!
+     * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
+     */
+    const bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
 
 private:
     void run();
@@ -86,7 +88,6 @@ private:
     WorkerOptions options_;
 
     std::atomic<bool> running_;
-    bool runOnce_;
     std::atomic<bool> done_;
 
     std::thread thread_;

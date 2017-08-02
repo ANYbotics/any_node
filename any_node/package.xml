@@ -1,19 +1,24 @@
 <?xml version="1.0"?>
+
 <package format="2">
 
   <name>any_node</name>
   <version>0.1.0</version>
-  <description>The any_node package</description>
-  <maintainer email="pleemann@ethz.ch">Philipp Leemann</maintainer>
+  <description>ROS node wrapper with some convenience functions using *any_worker*.</description>
+  
   <license>BSD</license>
+  
+  <author email="pleemann@ethz.ch">Philipp Leemann</author>
+  <maintainer email="pleemann@ethz.ch">Philipp Leemann</maintainer>
+  
+  <url type="website">https://bitbucket.org/leggedrobotics/any_common</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>roscpp</depend>
-  <depend>message_logger</depend>
+  
   <depend>any_worker</depend>
+  <depend>message_logger</depend>
   <depend>param_io</depend>
-
-  <export>
-  </export>
+  <depend>roscpp</depend>
+  <depend>signal_handler</depend>
 
 </package>
