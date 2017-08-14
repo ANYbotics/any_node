@@ -49,12 +49,14 @@
 namespace any_worker {
 
 using WorkerCallback = std::function<bool(const WorkerEvent&)>;
+using WorkerReaction = std::function<void(void)>;
 
 struct WorkerOptions {
     WorkerOptions():
         name_(),
         timeStep_(0.0),
         callback_(),
+        reaction_(),
         defaultPriority_(0),
         destructWhenDone_(false)
     {
@@ -64,8 +66,20 @@ struct WorkerOptions {
         name_(name),
         timeStep_(timestep),
         callback_(callback),
+        reaction_([this](){}),
         defaultPriority_(priority),
         destructWhenDone_(false)
+    {
+
+    }
+
+    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const WorkerReaction& reaction, const int priority=0):
+      name_(name),
+      timeStep_(timestep),
+      callback_(callback),
+      reaction_(reaction),
+      defaultPriority_(priority),
+      destructWhenDone_(false)
     {
 
     }
@@ -74,6 +88,7 @@ struct WorkerOptions {
         name_(other.name_),
         timeStep_(other.timeStep_.load()),
         callback_(other.callback_),
+        reaction_(other.reaction_),
         defaultPriority_(other.defaultPriority_),
         destructWhenDone_(other.destructWhenDone_)
     {
@@ -81,11 +96,12 @@ struct WorkerOptions {
     }
 
     WorkerOptions(WorkerOptions&& other):
-        name_(std::move(other.name_)),
-        timeStep_(std::move(other.timeStep_.load())),
-        callback_(std::move(other.callback_)),
-        defaultPriority_(other.defaultPriority_),
-        destructWhenDone_(other.destructWhenDone_)
+      name_(std::move(other.name_)),
+      timeStep_(std::move(other.timeStep_.load())),
+      callback_(std::move(other.callback_)),
+      reaction_(std::move(other.reaction_)),
+      defaultPriority_(other.defaultPriority_),
+      destructWhenDone_(other.destructWhenDone_)
     {
 
     }
@@ -101,9 +117,14 @@ struct WorkerOptions {
     std::atomic<double> timeStep_;
 
     /*!
-     * The callback to be called
+     * The primary worker callback to be called
      */
     WorkerCallback callback_;
+
+    /*!
+     * The reaction callback to be called when the primary indicates error (returns false)
+     */
+    WorkerReaction reaction_;
 
     /*!
      * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
@@ -114,7 +135,6 @@ struct WorkerOptions {
      * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
      */
     bool destructWhenDone_;
-
 
 };
 

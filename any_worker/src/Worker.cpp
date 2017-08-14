@@ -56,6 +56,12 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 
 }
 
+Worker::Worker(const std::string& name, const double timestep, const WorkerCallback& callback, const WorkerReaction& reaction):
+    Worker(WorkerOptions(name, timestep, callback, reaction))
+{
+
+}
+
 Worker::Worker(const WorkerOptions& options):
     options_(options),
     running_(false),
@@ -143,12 +149,14 @@ void Worker::run() {
 
     if (options_.timeStep_ == std::numeric_limits<double>::infinity()) {
         if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
-            MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
+            MELO_WARN("Worker [%s] callback returned false. Calling worker reaction.", options_.name_.c_str());
+            options_.reaction_();
         }
     }else {
         do {
             if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
-                MELO_WARN("Worker [%s] callback returned false.", options_.name_.c_str());
+                MELO_WARN("Worker [%s] callback returned false. Calling worker reaction.", options_.name_.c_str());
+                options_.reaction_();
             }
 
             if (options_.timeStep_ != 0.0) {

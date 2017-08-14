@@ -61,6 +61,7 @@ public:
      * @param callback  std::function pointing to the callback
      */
     Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
+    Worker(const std::string& name, const double timestep, const WorkerCallback& callback, const WorkerReaction& reaction);
     Worker(const WorkerOptions& options);
     Worker(const Worker&) = delete; // atomics and threads are non-copyable
     Worker(Worker&&); // declare custom move constructor to move atomics

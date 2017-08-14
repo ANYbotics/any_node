@@ -62,8 +62,21 @@ public:
         return addWorker( WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority), autostart );
     }
 
+    template<class T>
+    inline bool addWorker(const std::string& name, const double timestep,
+                          bool(T::*cfp)(const WorkerEvent&), void(T::*rfp)(void),
+                          T* obj, const int priority=0, const bool autostart=true) {
+      return addWorker( WorkerOptions(name, timestep, std::bind(cfp, obj, std::placeholders::_1), std::bind(rfp, obj), priority), autostart );
+    }
+
     inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0, const bool autostart=true) {
         return addWorker( WorkerOptions(name, timestep, callback, priority), autostart );
+    }
+
+    inline bool addWorker(const std::string& name, const double timestep,
+                          const WorkerCallback& callback, const WorkerReaction& reaction,
+                          const int priority=0, const bool autostart=true) {
+      return addWorker( WorkerOptions(name, timestep, callback, reaction, priority), autostart );
     }
 
     bool addWorker(const WorkerOptions& options, const bool autostart=true);
