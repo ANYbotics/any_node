@@ -74,9 +74,9 @@ public:
     }
 
     inline bool addWorker(const std::string& name, const double timestep,
-                          const WorkerCallback& callback, const WorkerReaction& reaction,
+                          const WorkerCallback& callback, const WorkerCallbackFailureReaction& callbackFailureReaction,
                           const int priority=0, const bool autostart=true) {
-      return addWorker( WorkerOptions(name, timestep, callback, reaction, priority), autostart );
+      return addWorker( WorkerOptions(name, timestep, callback, callbackFailureReaction, priority), autostart );
     }
 
     bool addWorker(const WorkerOptions& options, const bool autostart=true);
