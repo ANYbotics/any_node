@@ -172,6 +172,7 @@ public:
           signal_handler::SignalHandler::unbindAll(&Nodewrap::signalHandler, this);
       }
 
+      impl_->preCleanup();
       impl_->stopAllWorkers();
       spinner_->stop();
       impl_->cleanup();
