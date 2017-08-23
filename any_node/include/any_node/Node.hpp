@@ -65,18 +65,41 @@ class Node {
     virtual ~Node();
 
     /*
-     * abstract interface functions
+     * (abstract) interface functions
+     */
+
+    /*!
+     * Init function, making everything ready for update(..) calls. Is automatically called by Nodewrap, before update worker is started
+     *  (if requested to, by setting standalone to True)
      */
     virtual void init() = 0;
+    /*!
+     * Pre-Cleanup function, which is called by Nodewrap _before_ stopping workers. (Thread safety up to the user!)
+     */
+    virtual void preCleanup() { }
+    /*!
+     * Cleanup function, called by Nodewrap _after_ stopping workers.
+     */
     virtual void cleanup() = 0;
+    /*!
+     * Update function. This will called by Nodewrap if standalone is set to True.
+     * @param event     workerEvent containing timestep at timestamp
+     * @return          true if successful.
+     */
     virtual bool update(const any_worker::WorkerEvent& event) = 0;
-
 
     /*
      * general
      */
+
+    /*!
+     * Method to signal nodewrap to shutdown the node.
+     */
     void shutdown();
 
+    /*!
+     * Helper functions to add Workers to the WorkerManager
+     */
     template<class T>
     inline bool addWorker(const std::string& name, const double timestep, bool(T::*fp)(const any_worker::WorkerEvent&), T* obj, const int priority=0) {
         return workerManager_.addWorker(name, timestep, fp, obj, priority);
@@ -86,14 +109,27 @@ class Node {
         return workerManager_.addWorker(options);
     }
 
+    /*!
+     * Check if WorkerManager is managing a Worker with given name
+     * @param name  Name of the worker
+     * @return      True if worker was found
+     */
     inline bool hasWorker(const std::string& name) {
         return workerManager_.hasWorker(name);
     }
 
+    /*!
+     * Stop a worker managed by the WorkerManager
+     * @param name  Name of the worker
+     * @param wait  Whether to wait until the worker has finished or return immediately
+     */
     inline void cancelWorker(const std::string& name, const bool wait = true) {
         workerManager_.cancelWorker(name, wait);
     }
 
+    /*!
+     * Method to stop all workers managed by the WorkerManager
+     */
     inline void stopAllWorkers() {
         workerManager_.clearWorkers();
     }
@@ -160,7 +196,7 @@ class Node {
          any_node::setParam(*nh_, key, param);
      }
 
- private:
+ protected:
     NodeHandlePtr nh_;
 
  private:
