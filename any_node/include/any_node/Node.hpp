@@ -196,9 +196,10 @@ class Node {
          any_node::setParam(*nh_, key, param);
      }
 
- private:
+ protected:
     NodeHandlePtr nh_;
 
+ private:
     any_worker::WorkerManager workerManager_;
 
 };
