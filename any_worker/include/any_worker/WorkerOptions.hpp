@@ -56,7 +56,7 @@ struct WorkerOptions {
         name_(),
         timeStep_(0.0),
         callback_(),
-        callbackFailureReaction_(),
+        callbackFailureReaction_([](){}),
         defaultPriority_(0),
         destructWhenDone_(false)
     {
@@ -66,7 +66,7 @@ struct WorkerOptions {
         name_(name),
         timeStep_(timestep),
         callback_(callback),
-        callbackFailureReaction_([this](){}),
+        callbackFailureReaction_([](){}),
         defaultPriority_(priority),
         destructWhenDone_(false)
     {

@@ -92,10 +92,12 @@ Worker::~Worker() {
 bool Worker::start(const int priority) {
     if(running_) {
         MELO_ERROR("Worker [%s] cannot be started, already/still running.", options_.name_.c_str());
+        done_ = true;
         return false;
     }
     if(options_.timeStep_ < 0.0) {
         MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_.load());
+        done_ = true;
         return false;
     }
 
