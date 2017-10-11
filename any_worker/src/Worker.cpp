@@ -133,7 +133,7 @@ void Worker::stop(const bool wait) {
 
 void Worker::setTimestep(const double timeStep) {
     if(timeStep <= 0.0) {
-        MELO_ERROR("Cannot change timestep of Worker [%s] to %f, invalid value", options_.name_.c_str(), timeStep);
+        MELO_ERROR("Cannot change timestep of Worker [%s] to %f, invalid value.", options_.name_.c_str(), timeStep);
         return;
     }
     options_.timeStep_ = timeStep;
@@ -153,13 +153,13 @@ void Worker::run() {
 
     if (options_.timeStep_ == std::numeric_limits<double>::infinity()) {
         if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
-            MELO_WARN("Worker [%s] callback returned false. Calling worker reaction.", options_.name_.c_str());
+            MELO_WARN("Worker [%s] callback returned false. Calling failure reaction.", options_.name_.c_str());
             options_.callbackFailureReaction_();
         }
     }else {
         do {
             if (!options_.callback_(WorkerEvent(options_.timeStep_, ts))) {
-                MELO_WARN("Worker [%s] callback returned false. Calling worker callback failure reaction.", options_.name_.c_str());
+                MELO_WARN("Worker [%s] callback returned false. Calling failure reaction.", options_.name_.c_str());
                 options_.callbackFailureReaction_();
             }
 
