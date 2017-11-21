@@ -31,6 +31,10 @@ add_library(${PROJECT_NAME}
   src/WorkerManager.cpp
 )
 
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
