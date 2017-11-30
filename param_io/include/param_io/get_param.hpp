@@ -83,7 +83,7 @@ inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const Par
 template <>
 inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t& parameter)
 {
-  int32_t value = 0;
+  int32_t value = parameter;
   bool success = getParam(nh, key, value);
   if (value < 0)
   {
