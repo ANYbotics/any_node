@@ -69,6 +69,7 @@ protected:
     std::mutex messageBufferMutex_;
     std::queue<MessageType> messageBuffer_;
     unsigned int maxMessageBufferSize_ = 0;
+    bool autoPublishRos_;
 
     std::thread thread_;
     std::mutex notifyThreadMutex_;
@@ -77,13 +78,16 @@ protected:
     std::atomic<bool> shutdownRequested_;
 
 public:
-    ThreadedPublisher(const ros::Publisher& publisher, unsigned int maxMessageBufferSize = 10)
+    ThreadedPublisher(const ros::Publisher& publisher, unsigned int maxMessageBufferSize = 10, bool autoPublishRos = true)
     :   publisher_(publisher),
         maxMessageBufferSize_(maxMessageBufferSize),
+        autoPublishRos_(autoPublishRos),
         notifiedThread_(false),
         shutdownRequested_(false)
     {
-        thread_ = std::thread(&ThreadedPublisher::threadedPublish, this);
+        if(autoPublishRos_) {
+            thread_ = std::thread(&ThreadedPublisher::threadedPublish, this);
+        }
     }
 
     virtual ~ThreadedPublisher()
@@ -106,9 +110,14 @@ public:
         // Prohibit shutting down twice.
         if (shutdownRequested_)
           return;
-        shutdownRequested_ = true;
-        notifyThread();
-        thread_.join();
+
+        // Shutdown thread if autopublishing
+        if(autoPublishRos_) {
+            shutdownRequested_ = true;
+            notifyThread();
+            thread_.join();
+        }
+        
         std::lock_guard<std::mutex> publisherLock(publisherMutex_);
         publisher_.shutdown();
     }
@@ -129,6 +138,23 @@ public:
     {
         std::lock_guard<std::mutex> publisherLock(publisherMutex_);
         return publisher_.isLatched();
+    }
+
+    void sendRos()
+    {
+        // Execute the publishing with a copied message object.
+        MessageType message;
+        {
+            std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
+            if (messageBuffer_.empty())
+                return;
+            message = messageBuffer_.front();
+            messageBuffer_.pop();
+        }
+        {
+            std::lock_guard<std::mutex> publisherLock(publisherMutex_);
+            publisher_.publish(message);
+        }  
     }
 
 protected:
@@ -167,21 +193,8 @@ protected:
             }
 
             // Publish all messages in the buffer; stop the thread in case of a shutdown.
-            while (!shutdownRequested_)
-            {
-                // Execute the publishing with a copied message object.
-                MessageType message;
-                {
-                    std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
-                    if (messageBuffer_.empty())
-                        break;
-                    message = messageBuffer_.front();
-                    messageBuffer_.pop();
-                }
-                {
-                    std::lock_guard<std::mutex> publisherLock(publisherMutex_);
-                    publisher_.publish(message);
-                }
+            while (!shutdownRequested_) {
+                sendRos();
             }
         }
     }
