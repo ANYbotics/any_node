@@ -140,21 +140,28 @@ public:
         return publisher_.isLatched();
     }
 
+    /*!
+     * Send all messages in the buffer.
+     */
     void sendRos()
     {
-        // Execute the publishing with a copied message object.
-        MessageType message;
+        // Publish all messages in the buffer; stop the thread in case of a shutdown.
+        while (!shutdownRequested_)
         {
-            std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
-            if (messageBuffer_.empty())
-                return;
-            message = messageBuffer_.front();
-            messageBuffer_.pop();
+            // Execute the publishing with a copied message object.
+            MessageType message;
+            {
+                std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
+                if (messageBuffer_.empty())
+                    break;
+                message = messageBuffer_.front();
+                messageBuffer_.pop();
+            }
+            {
+                std::lock_guard<std::mutex> publisherLock(publisherMutex_);
+                publisher_.publish(message);
+            }
         }
-        {
-            std::lock_guard<std::mutex> publisherLock(publisherMutex_);
-            publisher_.publish(message);
-        }  
     }
 
 protected:
@@ -193,9 +200,7 @@ protected:
             }
 
             // Publish all messages in the buffer; stop the thread in case of a shutdown.
-            while (!shutdownRequested_) {
-                sendRos();
-            }
+            sendRos();
         }
     }
 };
