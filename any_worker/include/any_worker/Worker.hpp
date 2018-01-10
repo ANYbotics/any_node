@@ -74,8 +74,10 @@ public:
     void stop(const bool wait=true);
 
     void setTimestep(const double timeStep);
+    void setEnforceRate(const bool enforceRate);
 
     const std::string& getName() const { return options_.name_; }
+    const Rate& getRate() const { return rate_; }
 
     bool isRunning() const { return running_; }
 

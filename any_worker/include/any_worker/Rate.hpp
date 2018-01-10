@@ -86,6 +86,8 @@ protected:
     //! Factor storing seconds per nanoseconds.
     static constexpr double SecPerNSec_ = 1.0/NSecPerSec_;
 
+    //! Name for printing.
+    std::string name_;
     //! Time step in seconds.
     std::atomic<double> timeStep_;
     //! Max time step for warnings in seconds.
@@ -97,8 +99,6 @@ protected:
     //! Linux clock ID.
     const clockid_t clockId_ = 0;
 
-    //! Name for printing.
-    std::string name_;
     //! Point in time when the most recent sleep() started.
     timespec sleepStartTime_;
     //! Point in time when the most recent sleep() ended.
@@ -213,7 +213,7 @@ public:
     clockid_t getClockId() const;
 
     /*!
-     * Reset the internal memory and restart the sleep time.
+     * Reset the internal memory and restart the step time.
      */
     void reset();
 

@@ -71,7 +71,7 @@ Worker::Worker(const WorkerOptions& options):
     thread_(),
     rate_(options.name_ + std::string("::Rate"), options.timeStep_)
 {
-
+  rate_.setEnforceRate(options.enforceRate_);
 }
 
 
@@ -139,9 +139,17 @@ void Worker::setTimestep(const double timeStep) {
         return;
     }
     options_.timeStep_ = timeStep;
-    if (!std::isinf(options_.timeStep_)) {
+    if (!std::isinf(timeStep)) {
+        // We will use the rate, so we set its parameters.
         rate_.setTimeStep(timeStep);
+        rate_.setMaxTimeStepWarning(timeStep);
+        rate_.setMaxTimeStepError(10.0*timeStep);
     }
+}
+
+void Worker::setEnforceRate(const bool enforceRate) {
+    options_.enforceRate_ = enforceRate;
+    rate_.setEnforceRate(enforceRate);
 }
 
 void Worker::run() {
@@ -156,7 +164,7 @@ void Worker::run() {
         }
     } else {
 
-        // Restart the rate time.
+        // Reset the rate step time.
         rate_.reset();
 
         // Run the callback repeatedly.

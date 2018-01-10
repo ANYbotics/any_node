@@ -79,6 +79,8 @@ Rate::Rate(Rate&& other)
     maxTimeStepError_(other.maxTimeStepError_.load()),
     enforceRate_(other.enforceRate_.load()),
     clockId_(std::move(other.clockId_)),
+    sleepStartTime_(std::move(other.sleepStartTime_)),
+    sleepEndTime_(std::move(other.sleepEndTime_)),
     stepTime_(std::move(other.stepTime_)),
     numTimeSteps_(std::move(other.numTimeSteps_)),
     numWarnings_(std::move(other.numWarnings_)),

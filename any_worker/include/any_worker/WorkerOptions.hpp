@@ -55,6 +55,7 @@ struct WorkerOptions {
     WorkerOptions():
         name_(),
         timeStep_(0.0),
+        enforceRate_(true),
         callback_(),
         callbackFailureReaction_([](){}),
         defaultPriority_(0),
@@ -65,6 +66,7 @@ struct WorkerOptions {
     WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
         name_(name),
         timeStep_(timestep),
+        enforceRate_(true),
         callback_(callback),
         callbackFailureReaction_([](){}),
         defaultPriority_(priority),
@@ -80,6 +82,7 @@ struct WorkerOptions {
                   const int priority=0):
       name_(name),
       timeStep_(timestep),
+      enforceRate_(true),
       callback_(callback),
       callbackFailureReaction_(callbackFailureReaction),
       defaultPriority_(priority),
@@ -91,6 +94,7 @@ struct WorkerOptions {
     WorkerOptions(const WorkerOptions& other):
         name_(other.name_),
         timeStep_(other.timeStep_.load()),
+        enforceRate_(other.enforceRate_.load()),
         callback_(other.callback_),
         callbackFailureReaction_(other.callbackFailureReaction_),
         defaultPriority_(other.defaultPriority_),
@@ -102,6 +106,7 @@ struct WorkerOptions {
     WorkerOptions(WorkerOptions&& other):
       name_(std::move(other.name_)),
       timeStep_(std::move(other.timeStep_.load())),
+      enforceRate_(std::move(other.enforceRate_.load())),
       callback_(std::move(other.callback_)),
       callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
       defaultPriority_(other.defaultPriority_),
@@ -119,6 +124,11 @@ struct WorkerOptions {
      * timestep between consecutive calls of the callback. Set to std::numeric_limits<double>::infinity() to execute only once and 0.0 to execute as fast as possible.
      */
     std::atomic<double> timeStep_;
+
+    /*!
+     * Enforce the rate of the worker. See Rate class for documentation.
+     */
+    std::atomic<bool> enforceRate_;
 
     /*!
      * The primary worker callback to be called
