@@ -85,6 +85,8 @@ Rate::Rate(Rate&& other)
     numTimeSteps_(std::move(other.numTimeSteps_)),
     numWarnings_(std::move(other.numWarnings_)),
     numErrors_(std::move(other.numErrors_)),
+    lastWarningPrintTime_(std::move(other.lastWarningPrintTime_)),
+    lastErrorPrintTime_(std::move(other.lastErrorPrintTime_)),
     awakeTime_(std::move(other.awakeTime_)),
     awakeTimeMean_(std::move(other.awakeTimeMean_)),
     awakeTimeM2_(std::move(other.awakeTimeM2_)) {
@@ -153,6 +155,10 @@ void Rate::reset() {
     awakeTime_ = 0.0;
     awakeTimeMean_ = 0.0;
     awakeTimeM2_ = 0.0;
+    lastWarningPrintTime_.tv_sec = 0;
+    lastWarningPrintTime_.tv_nsec = 0;
+    lastErrorPrintTime_.tv_sec = 0;
+    lastErrorPrintTime_.tv_nsec = 0;
 
     // Update the sleep time to the current time.
     timespec now;
@@ -180,21 +186,25 @@ void Rate::sleep() {
 
     // Check if the awake exceeds the threshold for warnings or errors.
     if (awakeTime_ > maxTimeStepError_) {
-        // Print and count the error.
-        MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-            "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
+        // Count and print the error.
         numErrors_++;
+        if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
+            MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
+                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
+            lastErrorPrintTime_ = sleepStartTime_;
+        }
     } else if (awakeTime_ > maxTimeStepWarning_) {
         // Print and count the warning (only if no error).
-        MELO_WARN_STREAM("Rate '" << name_ << "': " <<
-            "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
         numWarnings_++;
+        if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
+            MELO_WARN_STREAM("Rate '" << name_ << "': " <<
+                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
+            lastWarningPrintTime_ = sleepStartTime_;
+        }
     }
 
     // Compute the next desired step time.
-    stepTime_.tv_nsec += timeStep_ * NSecPerSec_;
-    stepTime_.tv_sec += stepTime_.tv_nsec / NSecPerSec_;
-    stepTime_.tv_nsec = stepTime_.tv_nsec % NSecPerSec_;
+    AddDuration(stepTime_, timeStep_);
 
     // Get the current time again and check if the step time has already past.
     clock_gettime(clockId_, &sleepEndTime_);
@@ -272,6 +282,12 @@ double Rate::getAwakeTimeStdDev() const {
 double Rate::GetDuration(const timespec& start, const timespec& end) {
     return (end.tv_sec - start.tv_sec) +
            (end.tv_nsec - start.tv_nsec) * SecPerNSec_;
+}
+
+void Rate::AddDuration(timespec& time, const double duration) {
+    time.tv_nsec += duration * NSecPerSec_;
+    time.tv_sec += time.tv_nsec / NSecPerSec_;
+    time.tv_nsec = time.tv_nsec % NSecPerSec_;
 }
 
 bool Rate::TimeStepIsValid(const double timeStep) {

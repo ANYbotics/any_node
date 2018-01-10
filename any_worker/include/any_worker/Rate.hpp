@@ -112,6 +112,10 @@ protected:
     unsigned int numWarnings_ = 0;
     //! Counter storing how many times a time step took longer than the error threshold, not considering warnings.
     unsigned int numErrors_ = 0;
+    //! Point in time when the last warning message was printed.
+    timespec lastWarningPrintTime_;
+    //! Point in time when the last error message was printed.
+    timespec lastErrorPrintTime_;
     //! Most recent time which elapsed between subsequent calls of sleep().
     double awakeTime_ = 0.0;
     //! Mean of the time which elapsed between subsequent calls of sleep().
@@ -289,6 +293,13 @@ public:
      * @return Duration in seconds.
      */
     static double GetDuration(const timespec& start, const timespec& end);
+
+    /*!
+     * Add a duration to a time point.
+     * @param time     Time point.
+     * @param duration Duration to add in seconds.
+     */
+    static void AddDuration(timespec& time, const double duration);
 
 protected:
     /*!
