@@ -46,6 +46,7 @@
 #include <atomic>
 #include <thread>
 
+#include "any_worker/Rate.hpp"
 #include "any_worker/WorkerEvent.hpp"
 #include "any_worker/WorkerOptions.hpp"
 
@@ -93,6 +94,7 @@ private:
     std::atomic<bool> done_;
 
     std::thread thread_;
+    Rate rate_;
 };
 
 } // namespace any_worker
