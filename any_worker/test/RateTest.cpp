@@ -253,7 +253,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     rate.sleep();
 
     EXPECT_EQ(rate.getNumTimeSteps(), 1);
-    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, 0.001);
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
 
@@ -266,7 +266,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), numTimeSteps);
-    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, 0.001);
     EXPECT_LE(rate.getAwakeTimeStdDev(), 0.001);
     EXPECT_FALSE(rate.getAwakeTimeStdDev() == 0.0); // If it is 0.0 something is fishy.
@@ -283,7 +283,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, 0.001);
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 
@@ -296,7 +296,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, 0.001);
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 }
@@ -314,7 +314,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     rate.sleep();
 
     EXPECT_EQ(rate.getNumTimeSteps(), 1);
-    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, 0.001);
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
 
@@ -327,7 +327,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), numTimeSteps);
-    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), processingTime, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, 0.001);
     EXPECT_LE(rate.getAwakeTimeStdDev(), 0.001);
     EXPECT_FALSE(rate.getAwakeTimeStdDev() == 0.0); // If it is 0.0 something is fishy.
@@ -344,7 +344,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, 0.001);
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 
@@ -357,7 +357,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.001);
+    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 0.002);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, 0.001);
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 }
