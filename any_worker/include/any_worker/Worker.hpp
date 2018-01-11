@@ -78,6 +78,7 @@ public:
 
     const std::string& getName() const { return options_.name_; }
     const Rate& getRate() const { return rate_; }
+    Rate& getRate() { return rate_; }
 
     bool isRunning() const { return running_; }
 
