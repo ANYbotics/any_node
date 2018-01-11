@@ -190,7 +190,8 @@ void Rate::sleep() {
         numErrors_++;
         if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
             MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
+                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s). " <<
+                "Number of errors: " << numErrors_ << ".");
             lastErrorPrintTime_ = sleepStartTime_;
         }
     } else if (awakeTime_ > maxTimeStepWarning_) {
@@ -198,7 +199,8 @@ void Rate::sleep() {
         numWarnings_++;
         if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
             MELO_WARN_STREAM("Rate '" << name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s).");
+                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s). " <<
+                "Number of warnings: " << numWarnings_ << ".");
             lastWarningPrintTime_ = sleepStartTime_;
         }
     }
