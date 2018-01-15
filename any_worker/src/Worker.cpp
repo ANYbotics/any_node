@@ -141,13 +141,13 @@ void Worker::setTimestep(const double timeStep) {
     options_.timeStep_ = timeStep;
     if (!std::isinf(timeStep)) {
         // We will use the rate, so we set its parameters.
-        rate_.getOptions() = options_;
+        rate_.getOptions().timeStep_ = timeStep;
     }
 }
 
 void Worker::setEnforceRate(const bool enforceRate) {
     options_.enforceRate_ = enforceRate;
-    rate_.getOptions() = options_;
+    rate_.getOptions().enforceRate_ = enforceRate;
 }
 
 void Worker::run() {
