@@ -39,9 +39,6 @@
  * @date    January, 2018
  */
 
-// std
-#include <cmath>
-
 // message logger
 #include <message_logger/message_logger.hpp>
 
@@ -54,31 +51,15 @@ namespace any_worker {
 
 Rate::Rate(const std::string& name,
            const double timeStep)
-:   Rate(name, timeStep, timeStep, 10.0*timeStep, true, CLOCK_MONOTONIC) {
-}
+:   Rate(RateOptions(name, timeStep)) {}
 
-Rate::Rate(const std::string& name,
-           const double timeStep,
-           const double maxTimeStepWarning,
-           const double maxTimeStepError,
-           const bool enforceRate,
-           const clockid_t clockId)
-:   name_(name),
-    clockId_(clockId) {
-    setTimeStep(timeStep);
-    setMaxTimeStepWarning(maxTimeStepWarning);
-    setMaxTimeStepError(maxTimeStepError);
-    setEnforceRate(enforceRate);
+Rate::Rate(const RateOptions& options)
+:   options_(options) {
     reset();
 }
 
 Rate::Rate(Rate&& other)
-:   name_(std::move(other.name_)),
-    timeStep_(other.timeStep_.load()),
-    maxTimeStepWarning_(other.maxTimeStepWarning_.load()),
-    maxTimeStepError_(other.maxTimeStepError_.load()),
-    enforceRate_(other.enforceRate_.load()),
-    clockId_(std::move(other.clockId_)),
+:   options_(std::move(other.options_)),
     sleepStartTime_(std::move(other.sleepStartTime_)),
     sleepEndTime_(std::move(other.sleepEndTime_)),
     stepTime_(std::move(other.stepTime_)),
@@ -90,61 +71,7 @@ Rate::Rate(Rate&& other)
     awakeTime_(std::move(other.awakeTime_)),
     awakeTimeMean_(std::move(other.awakeTimeMean_)),
     awakeTimeM2_(std::move(other.awakeTimeM2_)) {
-}
-
-const std::string& Rate::getName() const {
-    return name_;
-}
-
-double Rate::getTimeStep() const {
-    return timeStep_;
-}
-
-void Rate::setTimeStep(const double timeStep) {
-    if (!TimeStepIsValid(timeStep)) {
-        MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-            "Cannot set the time step to an invalid value " << timeStep << " s.");
-        return;
-    }
-    timeStep_ = timeStep;
-}
-
-double Rate::getMaxTimeStepWarning() const {
-    return maxTimeStepWarning_;
-}
-
-void Rate::setMaxTimeStepWarning(const double maxTimeStepWarning) {
-    if (!MaxTimeStepIsValid(maxTimeStepWarning)) {
-        MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-            "Cannot set the max time step for warnings to invalid value " << maxTimeStepWarning << " s.");
-        return;
-    }
-    maxTimeStepWarning_ = maxTimeStepWarning;
-}
-
-double Rate::getMaxTimeStepError() const {
-    return maxTimeStepError_;
-}
-
-void Rate::setMaxTimeStepError(const double maxTimeStepError) {
-    if (!MaxTimeStepIsValid(maxTimeStepError)) {
-        MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-            "Cannot set the max time step for errors to invalid value " << maxTimeStepError << " s.");
-        return;
-    }
-    maxTimeStepError_ = maxTimeStepError;
-}
-
-bool Rate::getEnforceRate() const {
-    return enforceRate_;
-}
-
-void Rate::setEnforceRate(const bool enforceRate) {
-    enforceRate_ = enforceRate;
-}
-
-clockid_t Rate::getClockId() const {
-    return clockId_;
+    reset();
 }
 
 void Rate::reset() {
@@ -162,7 +89,7 @@ void Rate::reset() {
 
     // Update the sleep time to the current time.
     timespec now;
-    clock_gettime(clockId_, &now);
+    clock_gettime(options_.clockId_, &now);
     sleepStartTime_ = now;
     sleepEndTime_ = now;
     stepTime_ = now;
@@ -173,7 +100,7 @@ void Rate::sleep() {
     // and errors as well as get statistics. Therefore we do not skip anything for this case.
 
     // Get the current time and compute the time which the thread has been awake.
-    clock_gettime(clockId_, &sleepStartTime_);
+    clock_gettime(options_.clockId_, &sleepStartTime_);
     awakeTime_ = GetDuration(sleepEndTime_, sleepStartTime_);
 
     // Update the statistics. The algorithm is described here:
@@ -185,34 +112,34 @@ void Rate::sleep() {
     awakeTimeM2_ += delta * delta2;
 
     // Check if the awake exceeds the threshold for warnings or errors.
-    if (awakeTime_ > maxTimeStepError_) {
+    if (awakeTime_ > options_.maxTimeStepFactorError_ * options_.timeStep_) {
         // Count and print the error.
         numErrors_++;
         if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
-            MELO_ERROR_STREAM("Rate '" << name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s). " <<
+            MELO_ERROR_STREAM("Rate '" << options_.name_ << "': " <<
+                "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). " <<
                 "Number of errors: " << numErrors_ << ".");
             lastErrorPrintTime_ = sleepStartTime_;
         }
-    } else if (awakeTime_ > maxTimeStepWarning_) {
+    } else if (awakeTime_ > options_.maxTimeStepFactorWarning_ * options_.timeStep_) {
         // Print and count the warning (only if no error).
         numWarnings_++;
         if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
-            MELO_WARN_STREAM("Rate '" << name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << timeStep_.load() << " s). " <<
+            MELO_WARN_STREAM("Rate '" << options_.name_ << "': " <<
+                "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). " <<
                 "Number of warnings: " << numWarnings_ << ".");
             lastWarningPrintTime_ = sleepStartTime_;
         }
     }
 
     // Compute the next desired step time.
-    AddDuration(stepTime_, timeStep_);
+    AddDuration(stepTime_, options_.timeStep_);
 
     // Get the current time again and check if the step time has already past.
-    clock_gettime(clockId_, &sleepEndTime_);
+    clock_gettime(options_.clockId_, &sleepEndTime_);
     const bool isBehind = (GetDuration(sleepEndTime_, stepTime_) < 0.0);
     if (isBehind) {
-        if (!enforceRate_) {
+        if (!options_.enforceRate_) {
             // We are behind schedule but do not enforce the rate, so we increase the length of
             // the current time step by setting the desired step time to when sleep() ends.
             stepTime_ = sleepEndTime_;
@@ -223,34 +150,10 @@ void Rate::sleep() {
         sleepEndTime_ = stepTime_;
 
         // Sleep until the step time is reached.
-        clock_nanosleep(clockId_, TIMER_ABSTIME, &stepTime_, NULL);
+        clock_nanosleep(options_.clockId_, TIMER_ABSTIME, &stepTime_, NULL);
 
         // Do nothing here to ensure sleep() does not consume time after clock_nanosleep(..).
     }
-}
-
-const timespec& Rate::getSleepStartTime() const {
-    return sleepStartTime_;
-}
-
-const timespec& Rate::getSleepEndTime() const {
-    return sleepEndTime_;
-}
-
-const timespec& Rate::getStepTime() const {
-    return stepTime_;
-}
-
-unsigned int Rate::getNumTimeSteps() const {
-    return numTimeSteps_;
-}
-
-unsigned int Rate::getNumWarnings() const {
-    return numWarnings_;
-}
-
-unsigned int Rate::getNumErrors() const {
-    return numErrors_;
 }
 
 double Rate::getAwakeTime() const {
@@ -290,19 +193,6 @@ void Rate::AddDuration(timespec& time, const double duration) {
     time.tv_nsec += duration * NSecPerSec_;
     time.tv_sec += time.tv_nsec / NSecPerSec_;
     time.tv_nsec = time.tv_nsec % NSecPerSec_;
-}
-
-bool Rate::TimeStepIsValid(const double timeStep) {
-    return (
-        timeStep >= 0.0 &&
-        !std::isinf(timeStep) &&
-        !std::isnan(timeStep));
-}
-
-bool Rate::MaxTimeStepIsValid(const double maxTimeStep) {
-    return (
-        maxTimeStep >= 0.0 &&
-        !std::isnan(maxTimeStep));
 }
 
 

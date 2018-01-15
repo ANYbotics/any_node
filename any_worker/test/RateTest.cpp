@@ -23,14 +23,16 @@ void doSomething(const double duration) {
 
 TEST(RateTest, Initialization)
 {
+    const std::string name = "Test";
     const double timeStep = 0.1;
-    any_worker::Rate rate("Test", timeStep);
+    any_worker::Rate rate(name, timeStep);
 
-    EXPECT_EQ(rate.getTimeStep(), timeStep);
-    EXPECT_EQ(rate.getMaxTimeStepWarning(), timeStep);
-    EXPECT_EQ(rate.getMaxTimeStepError(), 10.0*timeStep);
-    EXPECT_EQ(rate.getEnforceRate(), true);
-    EXPECT_EQ(rate.getClockId(), CLOCK_MONOTONIC);
+    EXPECT_EQ(rate.getOptions().name_, name);
+    EXPECT_EQ(rate.getOptions().timeStep_, timeStep);
+    EXPECT_EQ(rate.getOptions().maxTimeStepFactorWarning_, 1.0);
+    EXPECT_EQ(rate.getOptions().maxTimeStepFactorError_, 10.0);
+    EXPECT_EQ(rate.getOptions().enforceRate_, true);
+    EXPECT_EQ(rate.getOptions().clockId_, CLOCK_MONOTONIC);
     EXPECT_EQ(rate.getNumTimeSteps(), 0);
     EXPECT_EQ(rate.getNumWarnings(), 0);
     EXPECT_EQ(rate.getNumErrors(), 0);
@@ -62,7 +64,7 @@ TEST(RateTest, SleepWithEnforceRate)
 {
     const double timeStep = 0.1;
     any_worker::Rate rate("Test", timeStep);
-    rate.setEnforceRate(true);
+    rate.getOptions().enforceRate_ = true;
 
     timespec start;
     timespec end;
@@ -162,7 +164,7 @@ TEST(RateTest, SleepWithoutEnforceRate)
 {
     const double timeStep = 0.1;
     any_worker::Rate rate("Test", timeStep);
-    rate.setEnforceRate(false);
+    rate.getOptions().enforceRate_ = false;
 
     timespec start;
     timespec end;
@@ -244,7 +246,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
 {
     const double timeStep = 0.1;
     any_worker::Rate rate("Test", timeStep);
-    rate.setEnforceRate(true);
+    rate.getOptions().enforceRate_ = true;
 
     // Test 1 time step.
     const double processingTime = 0.05;
@@ -288,7 +290,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 
     // Test again with time step violation.
-    rate.setTimeStep(0.035);
+    rate.getOptions().timeStep_ = 0.035;
     rate.reset();
     for (unsigned int i = 0; i < processingTimes.size(); i++) {
         doSomething(processingTimes[i]);
@@ -305,7 +307,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
 {
     const double timeStep = 0.1;
     any_worker::Rate rate("Test", timeStep);
-    rate.setEnforceRate(false);
+    rate.getOptions().enforceRate_ = false;
 
     // Test 1 time step.
     const double processingTime = 0.05;
@@ -349,7 +351,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 0.003);
 
     // Test again with time step violation.
-    rate.setTimeStep(0.035);
+    rate.getOptions().timeStep_ = 0.035;
     rate.reset();
     for (unsigned int i = 0; i < processingTimes.size(); i++) {
         doSomething(processingTimes[i]);

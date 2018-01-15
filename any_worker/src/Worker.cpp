@@ -69,9 +69,9 @@ Worker::Worker(const WorkerOptions& options):
     running_(false),
     done_(false),
     thread_(),
-    rate_(options.name_ + std::string("::Rate"), options.timeStep_)
+    rate_(options)
 {
-  rate_.setEnforceRate(options.enforceRate_);
+
 }
 
 
@@ -141,15 +141,13 @@ void Worker::setTimestep(const double timeStep) {
     options_.timeStep_ = timeStep;
     if (!std::isinf(timeStep)) {
         // We will use the rate, so we set its parameters.
-        rate_.setTimeStep(timeStep);
-        rate_.setMaxTimeStepWarning(timeStep);
-        rate_.setMaxTimeStepError(10.0*timeStep);
+        rate_.getOptions() = options_;
     }
 }
 
 void Worker::setEnforceRate(const bool enforceRate) {
     options_.enforceRate_ = enforceRate;
-    rate_.setEnforceRate(enforceRate);
+    rate_.getOptions() = options_;
 }
 
 void Worker::run() {

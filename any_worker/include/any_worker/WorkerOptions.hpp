@@ -44,6 +44,7 @@
 #include <atomic>
 #include <string>
 
+#include "any_worker/RateOptions.hpp"
 #include "any_worker/WorkerEvent.hpp"
 
 namespace any_worker {
@@ -51,11 +52,9 @@ namespace any_worker {
 using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 using WorkerCallbackFailureReaction = std::function<void(void)>;
 
-struct WorkerOptions {
+struct WorkerOptions : public RateOptions {
     WorkerOptions():
-        name_(),
-        timeStep_(0.0),
-        enforceRate_(true),
+        RateOptions(),
         callback_(),
         callbackFailureReaction_([](){}),
         defaultPriority_(0),
@@ -64,9 +63,7 @@ struct WorkerOptions {
     }
 
     WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
-        name_(name),
-        timeStep_(timestep),
-        enforceRate_(true),
+        RateOptions(name, timestep),
         callback_(callback),
         callbackFailureReaction_([](){}),
         defaultPriority_(priority),
@@ -80,9 +77,7 @@ struct WorkerOptions {
                   const WorkerCallback& callback,
                   const WorkerCallbackFailureReaction& callbackFailureReaction,
                   const int priority=0):
-      name_(name),
-      timeStep_(timestep),
-      enforceRate_(true),
+      RateOptions(name, timestep),
       callback_(callback),
       callbackFailureReaction_(callbackFailureReaction),
       defaultPriority_(priority),
@@ -92,9 +87,7 @@ struct WorkerOptions {
     }
 
     WorkerOptions(const WorkerOptions& other):
-        name_(other.name_),
-        timeStep_(other.timeStep_.load()),
-        enforceRate_(other.enforceRate_.load()),
+        RateOptions(other),
         callback_(other.callback_),
         callbackFailureReaction_(other.callbackFailureReaction_),
         defaultPriority_(other.defaultPriority_),
@@ -104,9 +97,7 @@ struct WorkerOptions {
     }
 
     WorkerOptions(WorkerOptions&& other):
-      name_(std::move(other.name_)),
-      timeStep_(std::move(other.timeStep_.load())),
-      enforceRate_(std::move(other.enforceRate_.load())),
+      RateOptions(std::move(other)),
       callback_(std::move(other.callback_)),
       callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
       defaultPriority_(other.defaultPriority_),
@@ -114,21 +105,6 @@ struct WorkerOptions {
     {
 
     }
-
-    /*!
-     * The name by which the worker should be identifiable.
-     */
-    std::string name_;
-
-    /*!
-     * timestep between consecutive calls of the callback. Set to std::numeric_limits<double>::infinity() to execute only once and 0.0 to execute as fast as possible.
-     */
-    std::atomic<double> timeStep_;
-
-    /*!
-     * Enforce the rate of the worker. See Rate class for documentation.
-     */
-    std::atomic<bool> enforceRate_;
 
     /*!
      * The primary worker callback to be called
