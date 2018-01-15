@@ -27,6 +27,7 @@ include_directories(
 
 
 add_library(${PROJECT_NAME}
+  src/Rate.cpp
   src/Worker.cpp
   src/WorkerManager.cpp
 )
@@ -34,6 +35,24 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+
+##########
+## Test ##
+##########
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(
+    ${PROJECT_NAME}_test
+    test/${PROJECT_NAME}_test.cpp
+    test/RateTest.cpp
+  )
+endif()
+
+if(TARGET ${PROJECT_NAME}_test)
+  target_link_libraries(
+    ${PROJECT_NAME}_test
+    ${PROJECT_NAME}
+  )
+endif()
 
 #############
 ## Install ##
