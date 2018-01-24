@@ -22,6 +22,7 @@ catkin_package(
 
 if (CATKIN_ENABLE_TESTING)
     include_directories(include)
+    include_directories(${EIGEN3_INCLUDE_DIR})
     include_directories(${catkin_INCLUDE_DIRS})
     catkin_add_gtest(test_param_io
         test/test_main.cpp
