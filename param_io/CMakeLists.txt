@@ -8,9 +8,12 @@ find_package(catkin REQUIRED
     std_msgs
 )
 
+find_package(Eigen3 REQUIRED)
+
 catkin_package(
   INCLUDE_DIRS
     include
+    ${EIGEN3_INCLUDE_DIR}
   CATKIN_DEPENDS
     geometry_msgs
     roscpp

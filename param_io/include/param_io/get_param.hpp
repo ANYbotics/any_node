@@ -16,6 +16,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 
+#include <Eigen/Dense>
 
 namespace param_io {
 
@@ -180,6 +181,28 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, geometry
   bool success = true;
   success = success && getParam(nh, key + "/header", parameter.header);
   success = success && getParam(nh, key + "/twist", parameter.twist);
+  return success;
+}
+
+// Eigen
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, Eigen::Matrix<double,3,1>& parameter)
+{
+  bool success = true;
+  success = success && getParam(nh, key + "/x", parameter(0));
+  success = success && getParam(nh, key + "/y", parameter(1));
+  success = success && getParam(nh, key + "/z", parameter(2));
+  return success;
+}
+
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, Eigen::Quaterniond& parameter)
+{
+  bool success = true;
+  success = success && getParam(nh, key + "/x", parameter.vec()(0));
+  success = success && getParam(nh, key + "/y", parameter.vec()(1));
+  success = success && getParam(nh, key + "/z", parameter.vec()(2));
+  success = success && getParam(nh, key + "/w", parameter.w());
   return success;
 }
 
