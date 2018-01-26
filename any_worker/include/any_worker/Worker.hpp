@@ -46,6 +46,7 @@
 #include <atomic>
 #include <thread>
 
+#include "any_worker/Rate.hpp"
 #include "any_worker/WorkerEvent.hpp"
 #include "any_worker/WorkerOptions.hpp"
 
@@ -73,8 +74,11 @@ public:
     void stop(const bool wait=true);
 
     void setTimestep(const double timeStep);
+    void setEnforceRate(const bool enforceRate);
 
     const std::string& getName() const { return options_.name_; }
+    const Rate& getRate() const { return rate_; }
+    Rate& getRate() { return rate_; }
 
     bool isRunning() const { return running_; }
 
@@ -93,6 +97,7 @@ private:
     std::atomic<bool> done_;
 
     std::thread thread_;
+    Rate rate_;
 };
 
 } // namespace any_worker
