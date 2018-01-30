@@ -111,7 +111,9 @@ void Rate::sleep() {
     const double delta2 = awakeTime_ - awakeTimeMean_;
     awakeTimeM2_ += delta * delta2;
 
-    if(options_.timeStep_ > 0.0) {
+    if(options_.timeStep_ == 0.0) {
+        sleepEndTime_ = sleepStartTime_;
+    }else{
         // Check if the awake exceeds the threshold for warnings or errors.
         if (awakeTime_ > options_.maxTimeStepFactorError_ * options_.timeStep_) {
             // Count and print the error.
