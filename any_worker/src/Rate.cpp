@@ -96,9 +96,6 @@ void Rate::reset() {
 }
 
 void Rate::sleep() {
-    // NOTE: Even if the time step is 0.0, one might want to set maxima for warnings
-    // and errors as well as get statistics. Therefore we do not skip anything for this case.
-
     // Get the current time and compute the time which the thread has been awake.
     clock_gettime(options_.clockId_, &sleepStartTime_);
     awakeTime_ = GetDuration(sleepEndTime_, sleepStartTime_);
@@ -111,48 +108,52 @@ void Rate::sleep() {
     const double delta2 = awakeTime_ - awakeTimeMean_;
     awakeTimeM2_ += delta * delta2;
 
-    // Check if the awake exceeds the threshold for warnings or errors.
-    if (awakeTime_ > options_.maxTimeStepFactorError_ * options_.timeStep_) {
-        // Count and print the error.
-        numErrors_++;
-        if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
-            MELO_ERROR_STREAM("Rate '" << options_.name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). " <<
-                "Number of errors: " << numErrors_ << ".");
-            lastErrorPrintTime_ = sleepStartTime_;
+    if(options_.timeStep_ == 0.0) {
+        sleepEndTime_ = sleepStartTime_;
+    }else{
+        // Check if the awake exceeds the threshold for warnings or errors.
+        if (awakeTime_ > options_.maxTimeStepFactorError_ * options_.timeStep_) {
+            // Count and print the error.
+            numErrors_++;
+            if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
+                MELO_ERROR_STREAM(
+                        "Rate '" << options_.name_ << "': " << "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load()
+                                 << " s). " << "Number of errors: " << numErrors_ << ".");
+                lastErrorPrintTime_ = sleepStartTime_;
+            }
+        } else if (awakeTime_ > options_.maxTimeStepFactorWarning_ * options_.timeStep_) {
+            // Print and count the warning (only if no error).
+            numWarnings_++;
+            if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
+                MELO_WARN_STREAM(
+                        "Rate '" << options_.name_ << "': " << "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load()
+                                 << " s). " << "Number of warnings: " << numWarnings_ << ".");
+                lastWarningPrintTime_ = sleepStartTime_;
+            }
         }
-    } else if (awakeTime_ > options_.maxTimeStepFactorWarning_ * options_.timeStep_) {
-        // Print and count the warning (only if no error).
-        numWarnings_++;
-        if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
-            MELO_WARN_STREAM("Rate '" << options_.name_ << "': " <<
-                "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). " <<
-                "Number of warnings: " << numWarnings_ << ".");
-            lastWarningPrintTime_ = sleepStartTime_;
+
+        // Compute the next desired step time.
+        AddDuration(stepTime_, options_.timeStep_);
+
+        // Get the current time again and check if the step time has already past.
+        clock_gettime(options_.clockId_, &sleepEndTime_);
+        const bool isBehind = (GetDuration(sleepEndTime_, stepTime_) < 0.0);
+        if (isBehind) {
+            if (!options_.enforceRate_) {
+                // We are behind schedule but do not enforce the rate, so we increase the length of
+                // the current time step by setting the desired step time to when sleep() ends.
+                stepTime_ = sleepEndTime_;
+            }
+        } else {
+            // sleep() will finish in time. The end of the function will be at
+            // the target time of clock_nanosleep(..).
+            sleepEndTime_ = stepTime_;
+
+            // Sleep until the step time is reached.
+            clock_nanosleep(options_.clockId_, TIMER_ABSTIME, &stepTime_, NULL);
+
+            // Do nothing here to ensure sleep() does not consume time after clock_nanosleep(..).
         }
-    }
-
-    // Compute the next desired step time.
-    AddDuration(stepTime_, options_.timeStep_);
-
-    // Get the current time again and check if the step time has already past.
-    clock_gettime(options_.clockId_, &sleepEndTime_);
-    const bool isBehind = (GetDuration(sleepEndTime_, stepTime_) < 0.0);
-    if (isBehind) {
-        if (!options_.enforceRate_) {
-            // We are behind schedule but do not enforce the rate, so we increase the length of
-            // the current time step by setting the desired step time to when sleep() ends.
-            stepTime_ = sleepEndTime_;
-        }
-    } else {
-        // sleep() will finish in time. The end of the function will be at
-        // the target time of clock_nanosleep(..).
-        sleepEndTime_ = stepTime_;
-
-        // Sleep until the step time is reached.
-        clock_nanosleep(options_.clockId_, TIMER_ABSTIME, &stepTime_, NULL);
-
-        // Do nothing here to ensure sleep() does not consume time after clock_nanosleep(..).
     }
 }
 
