@@ -96,9 +96,6 @@ void Rate::reset() {
 }
 
 void Rate::sleep() {
-    // NOTE: Even if the time step is 0.0, one might want to set maxima for warnings
-    // and errors as well as get statistics. Therefore we do not skip anything for this case.
-
     // Get the current time and compute the time which the thread has been awake.
     clock_gettime(options_.clockId_, &sleepStartTime_);
     awakeTime_ = GetDuration(sleepEndTime_, sleepStartTime_);
