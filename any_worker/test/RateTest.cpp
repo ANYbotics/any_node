@@ -281,10 +281,9 @@ TEST(RateTest, StatisticsWithEnforceRate)
     EXPECT_LE(rate.getAwakeTimeStdDev(), RATE_TEST_TOL);
     EXPECT_FALSE(rate.getAwakeTimeStdDev() == 0.0); // If it is 0.0 something is fishy.
 
-    // Test 10 time steps with different processing times.
-    // Example values from https://en.wikipedia.org/wiki/Standard_deviation
+    // Test 9 time steps with different processing times.
     const std::vector<double> processingTimes = {
-        0.04, 0.02, 0.04, 0.07, 0.05, 0.05, 0.04, 0.09
+        0.04, 0.02, 0.04, 0.07, 0.05, 0.05, 0.04, 0.09, 0.05
     };
     rate.reset();
     for (unsigned int i = 0; i < processingTimes.size(); i++) {
@@ -293,9 +292,9 @@ TEST(RateTest, StatisticsWithEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 2.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTime(), *processingTimes.rbegin(), 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, RATE_TEST_TOL);
-    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 3.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, RATE_TEST_TOL);
 
     // Test again with time step violation.
     rate.getOptions().timeStep_ = 0.035;
@@ -306,9 +305,9 @@ TEST(RateTest, StatisticsWithEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 2.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTime(), *processingTimes.rbegin(), 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, RATE_TEST_TOL);
-    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 3.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, RATE_TEST_TOL);
 }
 
 TEST(RateTest, StatisticsWithoutEnforceRate)
@@ -342,10 +341,9 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     EXPECT_LE(rate.getAwakeTimeStdDev(), RATE_TEST_TOL);
     EXPECT_FALSE(rate.getAwakeTimeStdDev() == 0.0); // If it is 0.0 something is fishy.
 
-    // Test 10 time steps with different processing times.
-    // Example values from https://en.wikipedia.org/wiki/Standard_deviation
+    // Test 9 time steps with different processing times.
     const std::vector<double> processingTimes = {
-        0.04, 0.02, 0.04, 0.07, 0.05, 0.05, 0.04, 0.09
+        0.04, 0.02, 0.04, 0.07, 0.05, 0.05, 0.04, 0.09, 0.05
     };
     rate.reset();
     for (unsigned int i = 0; i < processingTimes.size(); i++) {
@@ -354,9 +352,9 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 2.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTime(), *processingTimes.rbegin(), 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, RATE_TEST_TOL);
-    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 3.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, RATE_TEST_TOL);
 
     // Test again with time step violation.
     rate.getOptions().timeStep_ = 0.035;
@@ -367,8 +365,8 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     }
 
     EXPECT_EQ(rate.getNumTimeSteps(), processingTimes.size());
-    EXPECT_NEAR(rate.getAwakeTime(), 0.09, 2.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTime(), *processingTimes.rbegin(), 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), 0.05, RATE_TEST_TOL);
-    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, 3.0*RATE_TEST_TOL);
+    EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, RATE_TEST_TOL);
 }
 
