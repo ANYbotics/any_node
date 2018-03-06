@@ -20,6 +20,18 @@
 
 namespace param_io {
 
+namespace internal {
+
+inline std::string getAbsoluteKey(const ros::NodeHandle& nh, const std::string& key)
+{
+  if (key.empty() || key[0] == '/')
+    return key;
+  else
+    return nh.getNamespace() + std::string("/") + key;
+}
+
+} // internal
+
 
 /*
  * Interfaces:
@@ -57,7 +69,8 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, ParamT& 
   if (!nh.getParam(key, parameter))
   {
     parameter = defaultParameter; // Make sure NodeHandle::getParam() does not modify parameter.
-    ROS_WARN_STREAM("Could not acquire parameter '" << nh.getNamespace() + "/" + key << "' from server. Parameter still contains '" << parameter << "'.");
+    ROS_WARN_STREAM("Could not acquire parameter '" << internal::getAbsoluteKey(nh, key) <<
+        "' from server. Parameter still contains '" << parameter << "'.");
     return false;
   }
   return true;
@@ -88,7 +101,8 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, uint32_t
   bool success = getParam(nh, key, value);
   if (value < 0)
   {
-    ROS_ERROR_STREAM("Parameter '" << nh.getNamespace() + "/" + key << "' is smaller than 0, cannot be stored inside an unsigned int.");
+    ROS_ERROR_STREAM("Parameter '" << internal::getAbsoluteKey(nh, key) <<
+        "' is smaller than 0, cannot be stored inside an unsigned int.");
     return false;
   }
   parameter = value;
