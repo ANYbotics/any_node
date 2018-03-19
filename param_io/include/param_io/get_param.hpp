@@ -206,6 +206,15 @@ inline bool getParam(const ros::NodeHandle& nh, const std::string& key, Eigen::Q
   return success;
 }
 
+template <>
+inline bool getParam(const ros::NodeHandle& nh, const std::string& key, Eigen::Matrix<double,2,1>& parameter)
+{
+  bool success = true;
+  success = success && getParam(nh, key + "/x", parameter(0));
+  success = success && getParam(nh, key + "/y", parameter(1));
+  return success;
+}
+
 template <typename T>
 T getMember(XmlRpc::XmlRpcValue parameter, const std::string& key)
 {
