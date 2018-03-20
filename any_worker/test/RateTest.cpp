@@ -11,7 +11,7 @@
 
 // Local and build server tolerances.
 #define RATE_TEST_TOL_LOCAL        0.001
-#define RATE_TEST_TOL_BUILD_SERVER 0.005
+#define RATE_TEST_TOL_BUILD_SERVER 0.007
 
 // Use the build server tolerance.
 #define RATE_TEST_TOL RATE_TEST_TOL_BUILD_SERVER
