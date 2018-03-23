@@ -32,6 +32,37 @@ inline std::string getAbsoluteKey(const ros::NodeHandle& nh, const std::string& 
 
 } // internal
 
+/*!
+ * Ostream overloads.
+ */
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector)
+{
+  ostream << "[";
+  for (typename std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it)
+  {
+    ostream << " " << *it;
+  }
+  ostream << "]";
+  return ostream;
+}
+
+template <typename T1, typename T2>
+inline std::ostream& operator<<(std::ostream& ostream, const std::map<T1, T2>& map)
+{
+  for (typename std::map<T1, T2>::const_iterator it = map.begin(); it != map.end(); ++it)
+  {
+    ostream << it->first << " --> " << it->second << std::endl;
+  }
+  return ostream;
+}
+
+inline std::ostream& operator<<(std::ostream& ostream, const XmlRpc::XmlRpcValue& xmlRpcValue)
+{
+  xmlRpcValue.write(ostream);
+  return ostream;
+}
 
 /*
  * Interfaces:
@@ -86,8 +117,6 @@ inline ParamT param(const ros::NodeHandle& nh, const std::string& key, const Par
   getParam(nh, key, parameter);
   return parameter;
 }
-
-
 
 /*!
  * Template specializations.
@@ -247,41 +276,6 @@ T getMember(XmlRpc::XmlRpcValue parameter, const std::string& key)
     return T();
   }
 }
-
-
-
-/*!
- * Ostream overloads.
- */
-
-template <typename T>
-inline std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vector)
-{
-  ostream << "[";
-  for (typename std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it)
-  {
-    ostream << " " << *it;
-  }
-  ostream << "]";
-  return ostream;
-}
-
-template <typename T1, typename T2>
-inline std::ostream& operator<<(std::ostream& ostream, const std::map<T1, T2>& map)
-{
-  for (typename std::map<T1, T2>::const_iterator it = map.begin(); it != map.end(); ++it)
-  {
-    ostream << it->first << " --> " << it->second << std::endl;
-  }
-  return ostream;
-}
-
-inline std::ostream& operator<<(std::ostream& ostream, const XmlRpc::XmlRpcValue& xmlRpcValue)
-{
-  xmlRpcValue.write(ostream);
-  return ostream;
-}
-
 
 } // param_io
 
