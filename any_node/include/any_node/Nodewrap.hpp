@@ -112,13 +112,20 @@ public:
    * blocking call, returns when the program should shut down
    * @param priority    priority of the worker calling the update function. Only used if isStandalone=true
    */
-  virtual void run(const int priority=0) {
-      if(isStandalone_) {
-          impl_->addWorker("updateWorker", timeStep_, static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update), impl_.get(), priority);
-      }
-      // returns if running_ is false
-      std::unique_lock<std::mutex> lk(mutexRunning_);
-      cvRunning_.wait(lk, [this]{ return !running_; });
+  inline void run(const int priority=0) {
+      run(any_worker::WorkerOptions("updateWorker", timeStep_,
+                                    std::bind(static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update),
+                                              impl_.get(), std::placeholders::_1),
+                                    priority));
+  }
+
+  void run(const any_worker::WorkerOptions& options) {
+    if(isStandalone_) {
+      impl_->addWorker(options);
+    }
+    // returns if running_ is false
+    std::unique_lock<std::mutex> lk(mutexRunning_);
+    cvRunning_.wait(lk, [this]{ return !running_; });
   }
 
   /*!
