@@ -113,7 +113,7 @@ public:
    * @param priority    priority of the worker calling the update function. Only used if isStandalone=true
    */
   inline void run(const int priority=0) {
-      run(any_worker::WorkerOptions("updateWorker", timeStep_,
+      run(any_worker::WorkerOptions(ros::this_node::getName() + "/updateWorker", timeStep_,
                                     std::bind(static_cast<bool(NodeImpl::*)(const any_worker::WorkerEvent&)>(&NodeImpl::update),
                                               impl_.get(), std::placeholders::_1),
                                     priority));
