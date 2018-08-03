@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<package format="2">
+
+  <name>param_io</name>
+  <version>0.2.1</version>
+  <description>Parameter message conversions</description>
+
+  <license>BSD</license>
+  
+  <author email="diethelm@mavt.ethz.ch">Remo Diethelm</author>
+  <maintainer email="diethelm@mavt.ethz.ch">Remo Diethelm</maintainer>
+  
+  <url type="website">https://bitbucket.org/leggedrobotics/any_common</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>eigen</depend>
+  
+  <test_depend>gtest</test_depend>
+  
+</package>
