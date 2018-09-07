@@ -1,0 +1,11 @@
+publishers:
+  my_publisher_name:
+    topic: /my_publisher_topic
+    queue_size: 1
+    latch: false
+
+subscribers:
+  my_subscriber_name:
+    topic: /my_subscriber_topic
+    queue_size: 1
+    latch: false
