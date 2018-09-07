@@ -65,8 +65,9 @@ public:
    * @param installSignalHandler    Enable installing signal handlers (SIGINT, ...).
    */
   void execute(const bool installSignalHandler=true) {
-      init(installSignalHandler);
-      run();
+      if(init(installSignalHandler)) {
+        run();
+      }
       cleanup();
   }
 
@@ -84,8 +85,7 @@ public:
 
       spinner_->start();
       if(!impl_->init()) {
-          MELO_ERROR("Failed to init Node!");
-          spinner_->stop();
+          MELO_ERROR("Failed to init Node %s!", ros::this_node::getName().c_str());
           return false;
       }
 
