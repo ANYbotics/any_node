@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<launch>
+    <arg name="debug"       default="" />
+    <arg name="time_step" default="1.0" />
+    <arg name="standalone"  default="true" />
+    
+    <!-- Launch lowlevel controller node -->
+    <node name="any_node_example_node" pkg="any_node_example" type="any_node_example_node"
+        output="screen" launch-prefix="$(arg debug)">
+        <param name="time_step" type="double" value="$(arg time_step)"/>
+        <param name="standalone" type="bool" value="$(arg standalone)"/>
+        <rosparam command="load" file="$(find any_node_example)/param/default_parameters.yaml" />
+        <rosparam command="load" file="$(find any_node_example)/param/default_publishers.yaml" />
+        <rosparam command="load" file="$(find any_node_example)/param/default_subscribers.yaml" />
+        <rosparam command="load" file="$(find any_node_example)/param/default_services.yaml" />
+    </node>
+    
+</launch>

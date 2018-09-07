@@ -1,0 +1,5 @@
+subscribers:
+  my_subscriber_name:
+    topic: /my_subscriber_topic
+    queue_size: 1
+    latch: false

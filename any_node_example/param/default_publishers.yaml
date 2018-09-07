@@ -1,0 +1,5 @@
+publishers:
+  my_publisher_name:
+    topic: /my_publisher_topic
+    queue_size: 1
+    latch: false
