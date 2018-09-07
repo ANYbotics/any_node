@@ -40,11 +40,13 @@ class Node {
      */
     virtual bool init() = 0;
     /*!
-     * Pre-Cleanup function, which is called by Nodewrap _before_ stopping workers. (Thread safety up to the user!)
+     * Pre-Cleanup function, which is called by Nodewrap _before_ stopping workers. (Thread safety up to the user!).
+     * This function is called even if init() returned false.
      */
     virtual void preCleanup() { }
     /*!
      * Cleanup function, called by Nodewrap _after_ stopping workers.
+     * This function is called even if init() returned false.
      */
     virtual void cleanup() = 0;
 
