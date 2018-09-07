@@ -14,15 +14,15 @@ public:
   {
   }
 
-  // these 3 functions need to be implemented
-  void init() override;
+  // these two functions need to be implemented
+  bool init() override;
   void cleanup() override;
-  bool update(const any_worker::WorkerEvent& event) override;
 
   // this function implementation is optional (default is empty)
   void preCleanup() override;
 
-  bool myWorkerFunction(const any_worker::WorkerEvent& event);
+  bool update(const any_worker::WorkerEvent& event);
+
   void subscriberCallback(const std_msgs::StringConstPtr &msg);
 };
 
