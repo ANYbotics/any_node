@@ -20,10 +20,6 @@
 
 namespace any_node {
 
-static inline void basicSigintHandler(int sig) {
-    ros::requestShutdown();
-}
-
 template <class NodeImpl>
 class Nodewrap {
 public:
@@ -31,19 +27,25 @@ public:
   /*!
    * @param argc
    * @param argv
-   * @param nodeName    name of the node
-   * @param numSpinners number of async ros spinners. Set to -1 to get value from ros params.
+   * @param nodeName                name of the node
+   * @param numSpinners             number of async ros spinners. Set to -1 to get value from ros params. A value of 0 means to use the number of processor cores.
+   * @param installSignalHandler    set to False to use the ros internal signal handler instead
    */
-  Nodewrap(int argc, char **argv, const std::string& nodeName, int numSpinners = -1):
+  Nodewrap(int argc, char **argv, const std::string& nodeName, int numSpinners = -1, const bool installSignalHandler=true):
       nh_(nullptr),
       spinner_(nullptr),
       impl_(nullptr),
-      signalHandlerInstalled_(false),
+      signalHandlerInstalled_(installSignalHandler),
       running_(false),
       cvRunning_(),
       mutexRunning_()
   {
-      ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
+      if(signalHandlerInstalled_) {
+          ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
+      }else{
+          ros::init(argc, argv, nodeName);
+      }
+
       nh_ = std::make_shared<ros::NodeHandle>("~");
 
       if(numSpinners == -1) {
@@ -62,10 +64,9 @@ public:
 
   /*!
    * blocking call, executes init, run and cleanup
-   * @param installSignalHandler    Enable installing signal handlers (SIGINT, ...).
    */
-  void execute(const bool installSignalHandler=true) {
-      if(init(installSignalHandler)) {
+  void execute() {
+      if(init()) {
         run();
       }
       cleanup();
@@ -73,14 +74,10 @@ public:
 
   /*!
    * Initializes the node
-   * @param installSignalHandler  Enable installing signal handlers (SIGINT, ...).
    */
-  bool init(const bool installSignalHandler=true) {
-      if(installSignalHandler) {
+  bool init() {
+      if(signalHandlerInstalled_) {
           signal_handler::SignalHandler::bindAll(&Nodewrap::signalHandler, this);
-          signalHandlerInstalled_ = true;
-      }else{
-          signal(SIGINT, basicSigintHandler);
       }
 
       spinner_->start();
