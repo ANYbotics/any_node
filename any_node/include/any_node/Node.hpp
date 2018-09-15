@@ -34,8 +34,7 @@ class Node {
      */
 
     /*!
-     * Init function, making everything ready for update(..) calls. Is automatically called by Nodewrap, before update worker is started
-     *  (if requested to, by setting standalone to True)
+     * Init function, used to initialize all members and starting workers (if any).
      * @return      True if successful. Returning false indicates that the node shall shut down.
      */
     virtual bool init() = 0;
