@@ -34,24 +34,20 @@ class Node {
      */
 
     /*!
-     * Init function, making everything ready for update(..) calls. Is automatically called by Nodewrap, before update worker is started
-     *  (if requested to, by setting standalone to True)
+     * Init function, used to initialize all members and starting workers (if any).
+     * @return      True if successful. Returning false indicates that the node shall shut down.
      */
-    virtual void init() = 0;
+    virtual bool init() = 0;
     /*!
-     * Pre-Cleanup function, which is called by Nodewrap _before_ stopping workers. (Thread safety up to the user!)
+     * Pre-Cleanup function, which is called by Nodewrap _before_ stopping workers. (Thread safety up to the user!).
+     * This function is called even if init() returned false.
      */
     virtual void preCleanup() { }
     /*!
      * Cleanup function, called by Nodewrap _after_ stopping workers.
+     * This function is called even if init() returned false.
      */
     virtual void cleanup() = 0;
-    /*!
-     * Update function. This will called by Nodewrap if standalone is set to True.
-     * @param event     workerEvent containing timestep at timestamp
-     * @return          true if successful.
-     */
-    virtual bool update(const any_worker::WorkerEvent& event) = 0;
 
     /*
      * general
