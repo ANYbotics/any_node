@@ -1,0 +1,9 @@
+# - Config file for the any_worker package
+# It defines the following variables
+#  any_worker_INCLUDE_DIRS - include directories for any_worker
+#  any_worker_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(any_worker_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(any_worker_INCLUDE_DIRS "@any_worker_include_dirs@")
+set(any_worker_LIBRARIES "@any_worker_library@;@external_libs@")

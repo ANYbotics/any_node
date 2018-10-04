@@ -1,0 +1,9 @@
+# - Config file for the signal_handler package
+# It defines the following variables
+#  signal_handler_INCLUDE_DIRS - include directories for signal_handler
+#  signal_handler_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(signal_handler_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(signal_handler_INCLUDE_DIRS "@signal_handler_include_dirs@")
+set(signal_handler_LIBRARIES @signal_handler_library@)
