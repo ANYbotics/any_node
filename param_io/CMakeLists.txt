@@ -5,7 +5,6 @@ find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
     roscpp
-    rostest
     std_msgs
 )
 
@@ -18,15 +17,16 @@ catkin_package(
   CATKIN_DEPENDS
     geometry_msgs
     roscpp
-    rostest
     std_msgs
 )
 
 if (CATKIN_ENABLE_TESTING)
+  find_package(rostest)
   include_directories(
     include
     ${EIGEN3_INCLUDE_DIR}
     ${catkin_INCLUDE_DIRS}
+    ${rostest_INCLUDE_DIRS}
   )
   add_rostest_gtest(test_param_io
     test/param_io.test
@@ -35,6 +35,7 @@ if (CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_param_io
     ${catkin_LIBRARIES}
+    ${rostest_LIBRARIES}
   )
 endif()
 
