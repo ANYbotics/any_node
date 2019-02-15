@@ -2,9 +2,9 @@
 
 ## Overview
 
-Set of wrapper packages to handle multi-threaded ROS nodes. 
+Set of wrapper packages to handle multi-threaded ROS nodes.
 
-The packages contained have been tested under [ROS] Kinetic and Ubuntu 16.04. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
+The packages contained have been tested under ROS Melodic and Ubuntu 18.04. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
