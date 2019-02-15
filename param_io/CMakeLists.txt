@@ -5,6 +5,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
     roscpp
+    rostest
     std_msgs
 )
 
@@ -17,21 +18,24 @@ catkin_package(
   CATKIN_DEPENDS
     geometry_msgs
     roscpp
+    rostest
     std_msgs
 )
 
 if (CATKIN_ENABLE_TESTING)
-    include_directories(include)
-    include_directories(${EIGEN3_INCLUDE_DIR})
-    include_directories(${catkin_INCLUDE_DIRS})
-    catkin_add_gtest(test_param_io
-        test/test_main.cpp
-        test/get_param_test.cpp
-    )
-    
-    target_link_libraries(test_param_io
-        ${catkin_LIBRARIES}
-    )
+  include_directories(
+    include
+    ${EIGEN3_INCLUDE_DIR}
+    ${catkin_INCLUDE_DIRS}
+  )
+  add_rostest_gtest(test_param_io
+    test/test_param_io.test
+    test/test_main.cpp
+    test/get_param_test.cpp
+  )
+  target_link_libraries(test_param_io
+    ${catkin_LIBRARIES}
+  )
 endif()
 
 #############
@@ -41,4 +45,3 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
-

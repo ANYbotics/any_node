@@ -5,14 +5,14 @@
  *      Author: Christian Gehring
  */
 
-
-
-
+// gtest
 #include <gtest/gtest.h>
+
+// ros
 #include <ros/ros.h>
 
+// param io
 #include <param_io/get_param.hpp>
-
 
 TEST(GetParam, getParam_double) {
   ros::NodeHandle nh("~");
@@ -23,7 +23,6 @@ TEST(GetParam, getParam_double) {
   ASSERT_EQ(test, testdefault);
 }
 
-
 TEST(GetParam, getParam_bool) {
   ros::NodeHandle nh("~");
 
@@ -32,7 +31,6 @@ TEST(GetParam, getParam_bool) {
   ASSERT_FALSE(param_io::getParam(nh, "double", test));
   ASSERT_EQ(test, testdefault);
 }
-
 
 TEST(GetParam, param_double) {
   ros::NodeHandle nh("~");
@@ -50,7 +48,6 @@ TEST(GetParam, param_double) {
   testdouble = param_io::param(nh, "double", testdefault);
   ASSERT_EQ(testdefault, testdouble);
 }
-
 
 TEST(GetParam, param_bool) {
   ros::NodeHandle nh("~");
