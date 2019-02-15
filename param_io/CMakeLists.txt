@@ -29,9 +29,9 @@ if (CATKIN_ENABLE_TESTING)
     ${catkin_INCLUDE_DIRS}
   )
   add_rostest_gtest(test_param_io
-    test/test_param_io.test
-    test/test_main.cpp
-    test/get_param_test.cpp
+    test/param_io.test
+    test/main.cpp
+    test/GetParam.cpp
   )
   target_link_libraries(test_param_io
     ${catkin_LIBRARIES}
