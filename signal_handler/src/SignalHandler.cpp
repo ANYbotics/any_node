@@ -44,7 +44,7 @@ void SignalHandler::unbind(int signal_, const Handler& handler) {
             it->second.erase(jt);
 
             if (it->second.empty()) {
-                handlers.erase(signal_);
+                handlers.erase(it);
                 signal(signal_, SIG_DFL);
             }
 
