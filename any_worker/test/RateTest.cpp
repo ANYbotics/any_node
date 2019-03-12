@@ -41,9 +41,9 @@ TEST(RateTest, Initialization)
     EXPECT_EQ(rate.getOptions().maxTimeStepFactorError_, 10.0);
     EXPECT_EQ(rate.getOptions().enforceRate_, true);
     EXPECT_EQ(rate.getOptions().clockId_, CLOCK_MONOTONIC);
-    EXPECT_EQ(rate.getNumTimeSteps(), 0);
-    EXPECT_EQ(rate.getNumWarnings(), 0);
-    EXPECT_EQ(rate.getNumErrors(), 0);
+    EXPECT_EQ(rate.getNumTimeSteps(), 0u);
+    EXPECT_EQ(rate.getNumWarnings(), 0u);
+    EXPECT_EQ(rate.getNumErrors(), 0u);
     EXPECT_TRUE(std::isnan(rate.getAwakeTime()));
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeMean()));
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
@@ -60,9 +60,9 @@ TEST(RateTest, Reset)
     rate.sleep();
     rate.reset();
 
-    EXPECT_EQ(rate.getNumTimeSteps(), 0);
-    EXPECT_EQ(rate.getNumWarnings(), 0);
-    EXPECT_EQ(rate.getNumErrors(), 0);
+    EXPECT_EQ(rate.getNumTimeSteps(), 0u);
+    EXPECT_EQ(rate.getNumWarnings(), 0u);
+    EXPECT_EQ(rate.getNumErrors(), 0u);
     EXPECT_TRUE(std::isnan(rate.getAwakeTime()));
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeMean()));
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
@@ -245,9 +245,9 @@ TEST(RateTest, WarningsAndErrors)
     doSomething(11.0*timeStep); // Error
     rate.sleep();
 
-    EXPECT_EQ(rate.getNumTimeSteps(), 4);
-    EXPECT_EQ(rate.getNumWarnings(), 2);
-    EXPECT_EQ(rate.getNumErrors(), 1);
+    EXPECT_EQ(rate.getNumTimeSteps(), 4u);
+    EXPECT_EQ(rate.getNumWarnings(), 2u);
+    EXPECT_EQ(rate.getNumErrors(), 1u);
 }
 
 TEST(RateTest, StatisticsWithEnforceRate)
@@ -262,7 +262,7 @@ TEST(RateTest, StatisticsWithEnforceRate)
     doSomething(processingTime);
     rate.sleep();
 
-    EXPECT_EQ(rate.getNumTimeSteps(), 1);
+    EXPECT_EQ(rate.getNumTimeSteps(), 1u);
     EXPECT_NEAR(rate.getAwakeTime(), processingTime, 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, RATE_TEST_TOL);
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
@@ -322,7 +322,7 @@ TEST(RateTest, StatisticsWithoutEnforceRate)
     doSomething(processingTime);
     rate.sleep();
 
-    EXPECT_EQ(rate.getNumTimeSteps(), 1);
+    EXPECT_EQ(rate.getNumTimeSteps(), 1u);
     EXPECT_NEAR(rate.getAwakeTime(), processingTime, 2.0*RATE_TEST_TOL);
     EXPECT_NEAR(rate.getAwakeTimeMean(), processingTime, RATE_TEST_TOL);
     EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
