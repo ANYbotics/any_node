@@ -85,7 +85,7 @@ public:
     /*!
      * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
      */
-    const bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
+    bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
 
 private:
     void run();
