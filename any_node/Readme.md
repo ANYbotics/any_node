@@ -1,7 +1,12 @@
 # Any_node (a.k.a. minimal nodewrap)
 
-##Overview
+## Overview
 Implements several convenience classes and functions.
+
+### Differences to ROS Nodes
+The any_node is a wrapper for the official [ROS node](http://wiki.ros.org/Nodes).
+It adds workers (high-precision version of ros::Rate class), custom signal handling and verbose ROS parameter reading, at the cost of less stable API.
+If these features are not explicitly required, it is recommended to use the official ROS node.
 
 ### Param.hpp
 Forwards to param_io package, which allows to read and write ROS messages from and to the parameter server. Also, it provides param(..) functions which print a warning if a requested parameter was not found.
@@ -32,14 +37,12 @@ Allows to advertise/subscribe to/from topics/services, whose connection details 
 
 ### Node.hpp
 Provides an interface base class any_node::Node, which declares init, cleanup and update functions and has a any_worker::WorkerManager instance.
-Classes derived from this are compatible with the Nodewrap and rtcontrol templates.
+Classes derived from this are compatible with the Nodewrap template.
 Additionally, it forwards calls of subscribe, advertise, param, advertiseService serviceClient and addWorker calls to the above mentioned functions.
+See any_node_example for an example.
 
 ### Nodewrap.hpp
-Convencience template, designed to be used with classes derived from any_node::Node. It automatically sets up ros nodehandlers (with private namespace) and spinners, signal handlers (like SIGINT, ...) and calls the init, cleanup and (optionally) update functions of the given Node. The following ros parameters are used:
-
-- standalone: If set to true, a worker will be set up that calls the Node::update(..) function with a given freqeuncy (see time_step) 
-- time_step: Time step between consecutive calls of the Node::update(..) function. Set to 0 to run only once. Ignored if standalone is set to false.
-
+Convencience template, designed to be used with classes derived from any_node::Node.
+It automatically sets up ros nodehandlers (with private namespace) and spinners, signal handlers (like SIGINT, ...) and calls the init function on startup and cleanup on shutdown of the given Node.
 See any_node_example for an example.
 

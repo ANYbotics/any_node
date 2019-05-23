@@ -3,10 +3,12 @@
 ## Overview
 
 Read and write ROS messages from and to the parameter server.
+Wraps the standard ROS parameter interface, adding verbose warning messages if a parameter is not found.
+
 This code does not support all message types and can be extended when needed.
 
 Example for a TwistStamped message in yaml syntax.
-  
+
     header:
       stamp:
         sec:                         0

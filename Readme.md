@@ -31,7 +31,7 @@ ROS node wrapper with some convenience functions using *any_worker*.
 
 ### any_worker
 
-High resolution version of the ROS worker.
+High resolution and threaded version of the ROS rate class.
 
 ### param_io
 
