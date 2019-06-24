@@ -5,16 +5,16 @@
   <name>any_node_example</name>
   <version>0.5.0</version>
   <description>any_node example</description>
-  
+
   <license>BSD</license>
-  
-  <author email="pleemann@ethz.ch">Philipp Leemann</author>
-  <maintainer email="pleemann@ethz.ch">Philipp Leemann</maintainer>
-  
+
+  <author email="pleemann@anybotics.com">Philipp Leemann</author>
+  <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
+
   <url type="website">https://bitbucket.org/leggedrobotics/any_node</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <depend>any_node</depend>
   <depend>std_msgs</depend>
 

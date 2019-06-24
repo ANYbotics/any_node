@@ -8,8 +8,6 @@ The packages contained have been tested under ROS Melodic and Ubuntu 18.04. This
 
 The source code is released under a [BSD 3-Clause license](LICENSE).
 
-Contact: leggedrobotics@ethz.ch
-
 ## Building
 
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=bitbucket_leggedrobotics/any_node/master)](https://ci.leggedrobotics.com/job/bitbucket_leggedrobotics/job/any_node/job/master/)
