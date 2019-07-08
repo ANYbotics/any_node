@@ -38,4 +38,3 @@ Wrapper for the ROS param get and set functions outputting warnings if a paramet
 Contains a static signal handling helper class.
 
 
-
