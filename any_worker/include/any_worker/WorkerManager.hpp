@@ -62,15 +62,13 @@ public:
 
     void cancelWorker(const std::string& name, const bool wait=true);
 
+    /*!
+     * Requests all workers to stop, then joins their threads and deletes their instances.
+     */
     void cancelWorkers(const bool wait=true);
 
     void setWorkerTimestep(const std::string& name, const double timeStep);
 
-
-    /*!
-     * Requests all workers to stop, then joins their threads and deletes their instances.
-     */
-    void clearWorkers();
 
     /*!
      * Removes workers which are destructible (see Worker::isDestructible()) from the map (calling their destructors)

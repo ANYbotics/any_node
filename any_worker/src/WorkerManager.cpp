@@ -17,7 +17,7 @@ WorkerManager::WorkerManager():
 }
 
 WorkerManager::~WorkerManager() {
-    clearWorkers();
+    cancelWorkers();
 }
 
 bool WorkerManager::addWorker(const WorkerOptions& options, const bool autostart) {
@@ -95,7 +95,13 @@ void WorkerManager::cancelWorker(const std::string& name, const bool wait) {
 
 void WorkerManager::cancelWorkers(const bool wait) {
     std::lock_guard<std::mutex> lock(mutexWorkers_);
-    stopWorkers(wait);
+
+    // signal all workers to stop
+    for(auto& worker : workers_) {
+        worker.second.stop(wait);
+    }
+
+    // call destructors of all workers, which will join the underlying thread
     workers_.clear();
 }
 
@@ -107,18 +113,6 @@ void WorkerManager::setWorkerTimestep(const std::string& name, const double time
         return;
     }
     worker->second.setTimestep(timeStep);
-}
-
-void WorkerManager::clearWorkers() {
-    std::lock_guard<std::mutex> lock(mutexWorkers_);
-
-    // signal all workers to stop
-    for(auto& worker : workers_) {
-        worker.second.stop(false);
-    }
-
-    // call destructors of all workers, which will join the underlying thread
-    workers_.clear();
 }
 
 void WorkerManager::cleanDestructibleWorkers() {

@@ -92,8 +92,12 @@ class Node {
      * Method to stop all workers managed by the WorkerManager
      */
     inline void stopAllWorkers() {
-        workerManager_.clearWorkers();
+        stopAllWorkers(true);
     }
+    inline void stopAllWorkers(bool wait) {
+        workerManager_.cancelWorkers(wait);
+    }
+
 
     /*
      * accessors
