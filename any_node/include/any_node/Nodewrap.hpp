@@ -63,13 +63,15 @@ public:
   virtual ~Nodewrap() = default;
 
   /*!
-   * blocking call, executes init, run and cleanup
+   * blocking call, executes init, run (if init() was successful) and cleanup (independent of the success of init()).
    */
-  void execute() {
-      if(init()) {
+  bool execute() {
+      bool initSuccess = init();
+      if(initSuccess) {
         run();
       }
       cleanup();
+      return initSuccess;
   }
 
   /*!
