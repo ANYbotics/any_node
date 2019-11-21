@@ -3,6 +3,6 @@
 <launch>
 
   <!-- Launch the ROS test -->
-  <test pkg="param_io" type="test_param_io" test-name="test_param_io" time-limit="100.0"/>
+  <test pkg="param_io" type="test_param_io_node" test-name="test_param_io_node" time-limit="100.0"/>
 
 </launch>

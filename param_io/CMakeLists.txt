@@ -28,15 +28,20 @@ if (CATKIN_ENABLE_TESTING)
     ${catkin_INCLUDE_DIRS}
     ${rostest_INCLUDE_DIRS}
   )
-  add_rostest_gtest(test_param_io
+  add_rostest_gtest(test_${PROJECT_NAME}_node
     test/param_io.test
     test/main.cpp
     test/GetParam.cpp
   )
-  target_link_libraries(test_param_io
+  target_link_libraries(test_${PROJECT_NAME}_node
     ${catkin_LIBRARIES}
     ${rostest_LIBRARIES}
   )
+
+  find_package(cmake_code_coverage QUIET)
+  if(cmake_code_coverage_FOUND)
+    add_rostest_coverage()
+  endif(cmake_code_coverage_FOUND)
 endif()
 
 #############

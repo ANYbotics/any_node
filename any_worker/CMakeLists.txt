@@ -41,17 +41,22 @@ target_link_libraries(${PROJECT_NAME}
 ##########
 if (CATKIN_ENABLE_TESTING)
   catkin_add_gtest(
-    ${PROJECT_NAME}_test
+    test_${PROJECT_NAME}
     test/${PROJECT_NAME}_test.cpp
     test/RateTest.cpp
   )
 endif()
 
-if(TARGET ${PROJECT_NAME}_test)
+if(TARGET test_${PROJECT_NAME})
   target_link_libraries(
-    ${PROJECT_NAME}_test
+    test_${PROJECT_NAME}
     ${PROJECT_NAME}
   )
+
+  find_package(cmake_code_coverage QUIET)
+  if(cmake_code_coverage_FOUND)
+    add_gtest_coverage()
+  endif(cmake_code_coverage_FOUND)
 endif()
 
 #############
