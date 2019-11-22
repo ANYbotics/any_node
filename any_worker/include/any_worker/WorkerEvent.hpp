@@ -49,16 +49,16 @@ namespace any_worker {
  * Todo: not every member of this struct is guaranteed to hold an appropriate value. Check the values for your use case!
  */
 struct WorkerEvent {
-    WorkerEvent(): timeStep(0.0), timeStamp{0, 0} {}
-    WorkerEvent(const double dt, const timespec& time): timeStep(dt), timeStamp(time) {}
-    virtual ~WorkerEvent() {}
+  WorkerEvent() : timeStep(0.0), timeStamp{0, 0} {}
+  WorkerEvent(const double dt, const timespec& time) : timeStep(dt), timeStamp(time) {}
+  virtual ~WorkerEvent() = default;
 
-    /*!
-     * The timestep between consecutive calls of the callback function. 0 if run only once.
-     */
-    double timeStep;
+  /*!
+   * The timestep between consecutive calls of the callback function. 0 if run only once.
+   */
+  double timeStep;  // NOLINT(readability-identifier-naming)
 
-    timespec timeStamp;
+  timespec timeStamp;  // NOLINT(readability-identifier-naming)
 };
 
-} // namespace any_worker
+}  // namespace any_worker

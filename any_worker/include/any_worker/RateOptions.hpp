@@ -41,111 +41,94 @@
 
 #pragma once
 
-
 // std
 #include <atomic>
 #include <cmath>
 #include <string>
 
-
 namespace any_worker {
-
 
 /*!
  * RateOptions class.
  */
-struct RateOptions
-{
-    //! Name for printing.
-    std::string name_;
-    //! Time step in seconds.
-    std::atomic<double> timeStep_;
-    //! If the awake time is bigger than the time step multiplied by this factor, it counts as an warning.
-    std::atomic<double> maxTimeStepFactorWarning_;
-    //! If the awake time is bigger than the time step multiplied by this factor, it counts as an error.
-    std::atomic<double> maxTimeStepFactorError_;
-    //! Boolean indicating whether the rate should be enforced.
-    std::atomic<bool> enforceRate_;
-    //! Linux clock ID.
-    std::atomic<clockid_t> clockId_;
+struct RateOptions {
+  //! Name for printing.
+  std::string name_{};
+  //! Time step in seconds.
+  std::atomic<double> timeStep_{0.0};
+  //! If the awake time is bigger than the time step multiplied by this factor, it counts as an warning.
+  std::atomic<double> maxTimeStepFactorWarning_{1.0};
+  //! If the awake time is bigger than the time step multiplied by this factor, it counts as an error.
+  std::atomic<double> maxTimeStepFactorError_{10.0};
+  //! Boolean indicating whether the rate should be enforced.
+  std::atomic<bool> enforceRate_{true};
+  //! Linux clock ID.
+  std::atomic<clockid_t> clockId_{CLOCK_MONOTONIC};
 
-    /*!
-     * Constructor.
-     * Starts the clock. Call reset() to restart it if you do not intend to call sleep() immediately.
-     * @param name                     Name for printing.
-     * @param timeStep                 Time step in seconds.
-     * @param maxTimeStepFactorWarning Max time step factor for warnings.
-     * @param maxTimeStepFactorError   Max time step factor for errors.
-     * @param enforceRate              Enforce the rate.
-     * @param clockId                  Linux clock ID.
-     */
-    RateOptions(const std::string& name = "",
-                const double timeStep = 0.0,
-                const double maxTimeStepFactorWarning = 1.0,
-                const double maxTimeStepFactorError = 10.0,
-                const bool enforceRate = true,
-                const clockid_t clockId = CLOCK_MONOTONIC)
-    :   name_(name),
+  /*!
+   * Constructor.
+   * Starts the clock. Call reset() to restart it if you do not intend to call sleep() immediately.
+   * @param name                     Name for printing.
+   * @param timeStep                 Time step in seconds.
+   * @param maxTimeStepFactorWarning Max time step factor for warnings.
+   * @param maxTimeStepFactorError   Max time step factor for errors.
+   * @param enforceRate              Enforce the rate.
+   * @param clockId                  Linux clock ID.
+   */
+  explicit RateOptions(std::string name = "", const double timeStep = 0.0, const double maxTimeStepFactorWarning = 1.0,
+                       const double maxTimeStepFactorError = 10.0, const bool enforceRate = true, const clockid_t clockId = CLOCK_MONOTONIC)
+      : name_(std::move(name)),
         timeStep_(timeStep),
         maxTimeStepFactorWarning_(maxTimeStepFactorWarning),
         maxTimeStepFactorError_(maxTimeStepFactorError),
         enforceRate_(enforceRate),
         clockId_(clockId) {}
 
-    /*!
-     * Copy constructor.
-     * @param other Rate options to copy from.
-     */
-    RateOptions(const RateOptions& other) {
-        *this = other;
-    }
+  /*!
+   * Copy constructor.
+   * @param other Rate options to copy from.
+   */
+  RateOptions(const RateOptions& other) { *this = other; }
 
-    /*!
-     * Move constructor.
-     * @param other Rate options to move.
-     */
-    RateOptions(RateOptions&& other)
-    :   name_(std::move(other.name_)),
+  /*!
+   * Move constructor.
+   * @param other Rate options to move.
+   */
+  RateOptions(RateOptions&& other)
+      : name_(std::move(other.name_)),
         timeStep_(other.timeStep_.load()),
         maxTimeStepFactorWarning_(other.maxTimeStepFactorWarning_.load()),
         maxTimeStepFactorError_(other.maxTimeStepFactorError_.load()),
         enforceRate_(other.enforceRate_.load()),
         clockId_(other.clockId_.load()) {}
 
-    /*!
-     * Assignment operator.
-     * @param other Rate options.
-     */
-    RateOptions& operator=(const RateOptions& other) {
-        name_ = other.name_;
-        timeStep_ = other.timeStep_.load();
-        maxTimeStepFactorWarning_ = other.maxTimeStepFactorWarning_.load();
-        maxTimeStepFactorError_ = other.maxTimeStepFactorError_.load();
-        enforceRate_ = other.enforceRate_.load();
-        clockId_ = other.clockId_.load();
-        return *this;
-    }
+  /*!
+   * Assignment operator.
+   * @param other Rate options.
+   */
+  RateOptions& operator=(const RateOptions& other) {
+    name_ = other.name_;
+    timeStep_ = other.timeStep_.load();
+    maxTimeStepFactorWarning_ = other.maxTimeStepFactorWarning_.load();
+    maxTimeStepFactorError_ = other.maxTimeStepFactorError_.load();
+    enforceRate_ = other.enforceRate_.load();
+    clockId_ = other.clockId_.load();
+    return *this;
+  }
 
-    /*!
-     * Destructor.
-     */
-    virtual ~RateOptions() {}
+  /*!
+   * Destructor.
+   */
+  virtual ~RateOptions() = default;
 
-    /*!
-     * Check if the rate options are valid.
-     * @return True if rate options are valid.
-     */
-    virtual bool isValid() const {
-        return (
-            timeStep_ >= 0.0 &&
-            !std::isinf(timeStep_) &&
-            !std::isnan(timeStep_) &&
-            maxTimeStepFactorWarning_ >= 0.0 &&
-            !std::isnan(maxTimeStepFactorWarning_) &&
-            maxTimeStepFactorError_ >= 0.0 &&
-            !std::isnan(maxTimeStepFactorError_));
-    }
+  /*!
+   * Check if the rate options are valid.
+   * @return True if rate options are valid.
+   */
+  virtual bool isValid() const {
+    return (timeStep_ >= 0.0 && !std::isinf(timeStep_) && !std::isnan(timeStep_) && maxTimeStepFactorWarning_ >= 0.0 &&
+            !std::isnan(maxTimeStepFactorWarning_) && maxTimeStepFactorError_ >= 0.0 && !std::isnan(maxTimeStepFactorError_));
+  }
 };
 
-
-} // namespace any_worker
+}  // namespace any_worker

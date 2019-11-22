@@ -41,9 +41,9 @@
 
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <string>
-#include <atomic>
 #include <thread>
 
 #include "any_worker/Rate.hpp"
@@ -53,51 +53,52 @@
 namespace any_worker {
 
 class Worker {
-public:
-    Worker() = delete;
+ public:
+  Worker() = delete;
 
-    /*!
-     * @param name      name of the worker
-     * @param timestep  with a timestep of 0, the callback will be executed as fast as possible, with std::numeric_limits<double>::infinity() only once.
-     * @param callback  std::function pointing to the callback
-     */
-    Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
-    Worker(const std::string& name, const double timestep, const WorkerCallback& callback,
-           const WorkerCallbackFailureReaction& callbackFailureReaction);
-    Worker(const WorkerOptions& options);
-    Worker(const Worker&) = delete; // atomics and threads are non-copyable
-    Worker(Worker&&); // declare custom move constructor to move atomics
+  /*!
+   * @param name      name of the worker
+   * @param timestep  with a timestep of 0, the callback will be executed as fast as possible, with std::numeric_limits<double>::infinity()
+   * only once.
+   * @param callback  std::function pointing to the callback
+   */
+  Worker(const std::string& name, const double timestep, const WorkerCallback& callback);
+  Worker(const std::string& name, const double timestep, const WorkerCallback& callback,
+         const WorkerCallbackFailureReaction& callbackFailureReaction);
+  explicit Worker(WorkerOptions options);
+  Worker(const Worker&) = delete;  // atomics and threads are non-copyable
+  Worker(Worker&&);                // declare custom move constructor to move atomics
 
-    virtual ~Worker();
+  virtual ~Worker();
 
-    bool start(const int priority=0);
-    void stop(const bool wait=true);
+  bool start(const int priority = 0);
+  void stop(const bool wait = true);
 
-    void setTimestep(const double timeStep);
-    void setEnforceRate(const bool enforceRate);
+  void setTimestep(const double timeStep);
+  void setEnforceRate(const bool enforceRate);
 
-    const std::string& getName() const { return options_.name_; }
-    const Rate& getRate() const { return rate_; }
-    Rate& getRate() { return rate_; }
+  const std::string& getName() const { return options_.name_; }
+  const Rate& getRate() const { return rate_; }
+  Rate& getRate() { return rate_; }
 
-    bool isRunning() const { return running_; }
+  bool isRunning() const { return running_; }
 
-    /*!
-     * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
-     */
-    bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
+  /*!
+   * @return true if underlying thread has terminated and deleteWhenDone_ option is set.
+   */
+  bool isDestructible() const { return done_.load() && options_.destructWhenDone_; }
 
-private:
-    void run();
+ private:
+  void run();
 
-private:
-    WorkerOptions options_;
+ private:
+  WorkerOptions options_;
 
-    std::atomic<bool> running_;
-    std::atomic<bool> done_;
+  std::atomic<bool> running_;
+  std::atomic<bool> done_;
 
-    std::thread thread_;
-    Rate rate_;
+  std::thread thread_;
+  Rate rate_;
 };
 
-} // namespace any_worker
+}  // namespace any_worker

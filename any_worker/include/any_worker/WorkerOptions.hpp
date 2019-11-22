@@ -53,79 +53,51 @@ using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 using WorkerCallbackFailureReaction = std::function<void(void)>;
 
 struct WorkerOptions : public RateOptions {
-    WorkerOptions():
-        RateOptions(),
-        callback_(),
-        callbackFailureReaction_([](){}),
-        defaultPriority_(0),
-        destructWhenDone_(false)
-    {
-    }
+  WorkerOptions() : RateOptions(), callback_(), callbackFailureReaction_([]() {}), defaultPriority_(0), destructWhenDone_(false) {}
 
-    WorkerOptions(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority=0):
-        RateOptions(name, timestep),
-        callback_(callback),
-        callbackFailureReaction_([](){}),
+  WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback, const int priority = 0)
+      : RateOptions(name, timestep),
+        callback_(std::move(callback)),
+        callbackFailureReaction_([]() {}),
         defaultPriority_(priority),
-        destructWhenDone_(false)
-    {
+        destructWhenDone_(false) {}
 
-    }
+  WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback,
+                WorkerCallbackFailureReaction callbackFailureReaction, const int priority = 0)
+      : RateOptions(name, timestep),
+        callback_(std::move(callback)),
+        callbackFailureReaction_(std::move(callbackFailureReaction)),
+        defaultPriority_(priority),
+        destructWhenDone_(false) {}
 
-    WorkerOptions(const std::string& name,
-                  const double timestep,
-                  const WorkerCallback& callback,
-                  const WorkerCallbackFailureReaction& callbackFailureReaction,
-                  const int priority=0):
-      RateOptions(name, timestep),
-      callback_(callback),
-      callbackFailureReaction_(callbackFailureReaction),
-      defaultPriority_(priority),
-      destructWhenDone_(false)
-    {
+  WorkerOptions(const WorkerOptions& other) = default;
 
-    }
-
-    WorkerOptions(const WorkerOptions& other):
-        RateOptions(other),
-        callback_(other.callback_),
-        callbackFailureReaction_(other.callbackFailureReaction_),
+  WorkerOptions(WorkerOptions&& other)
+      : RateOptions(std::move(other)),
+        callback_(std::move(other.callback_)),
+        callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
         defaultPriority_(other.defaultPriority_),
-        destructWhenDone_(other.destructWhenDone_)
-    {
+        destructWhenDone_(other.destructWhenDone_) {}
 
-    }
+  /*!
+   * The primary worker callback to be called
+   */
+  WorkerCallback callback_;
 
-    WorkerOptions(WorkerOptions&& other):
-      RateOptions(std::move(other)),
-      callback_(std::move(other.callback_)),
-      callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
-      defaultPriority_(other.defaultPriority_),
-      destructWhenDone_(other.destructWhenDone_)
-    {
+  /*!
+   * The reaction callback to be called when the primary indicates error (returns false)
+   */
+  WorkerCallbackFailureReaction callbackFailureReaction_;
 
-    }
+  /*!
+   * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
+   */
+  int defaultPriority_;
 
-    /*!
-     * The primary worker callback to be called
-     */
-    WorkerCallback callback_;
-
-    /*!
-     * The reaction callback to be called when the primary indicates error (returns false)
-     */
-    WorkerCallbackFailureReaction callbackFailureReaction_;
-
-    /*!
-     * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
-     */
-    int defaultPriority_;
-
-    /*!
-     * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
-     */
-    bool destructWhenDone_;
-
+  /*!
+   * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
+   */
+  bool destructWhenDone_;
 };
 
-} // namespace any_worker
+}  // namespace any_worker

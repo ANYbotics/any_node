@@ -4,7 +4,6 @@
  * @date	July, 2016
  */
 
-
 #pragma once
 
 #include "param_io/get_param.hpp"
@@ -12,6 +11,6 @@
 
 namespace any_node {
 
-using namespace param_io;
+using namespace param_io;  // NOLINT
 
-} // namespace any_node
+}  // namespace any_node

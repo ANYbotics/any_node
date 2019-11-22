@@ -44,6 +44,16 @@ if (CATKIN_ENABLE_TESTING)
   endif(cmake_code_coverage_FOUND)
 endif()
 
+##########
+## Test ##
+##########
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+find_package(cmake_clang_tools QUIET)
+if(cmake_clang_tools_FOUND)
+  add_default_clang_tooling()
+endif(cmake_clang_tools_FOUND)
+
 #############
 ## Install ##
 #############

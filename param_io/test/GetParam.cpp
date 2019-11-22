@@ -14,7 +14,7 @@
 // param io
 #include <param_io/get_param.hpp>
 
-TEST(GetParam, getParam_double) {
+TEST(GetParam, getParam_double) {  // NOLINT
   ros::NodeHandle nh("~");
 
   const double testdefault = 3.0;
@@ -23,7 +23,7 @@ TEST(GetParam, getParam_double) {
   ASSERT_EQ(test, testdefault);
 }
 
-TEST(GetParam, getParam_bool) {
+TEST(GetParam, getParam_bool) {  // NOLINT
   ros::NodeHandle nh("~");
 
   const bool testdefault = true;
@@ -32,7 +32,7 @@ TEST(GetParam, getParam_bool) {
   ASSERT_EQ(test, testdefault);
 }
 
-TEST(GetParam, param_double) {
+TEST(GetParam, param_double) {  // NOLINT
   ros::NodeHandle nh("~");
   double testdouble = 0.0;
 
@@ -49,7 +49,7 @@ TEST(GetParam, param_double) {
   ASSERT_EQ(testdefault, testdouble);
 }
 
-TEST(GetParam, param_bool) {
+TEST(GetParam, param_bool) {  // NOLINT
   ros::NodeHandle nh("~");
   bool testbool = true;
 

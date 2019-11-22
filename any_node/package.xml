@@ -18,5 +18,6 @@
   <depend>param_io</depend>
   <depend>roscpp</depend>
   <depend>signal_handler</depend>
+  <test_depend>cmake_clang_tools</test_depend>
 
 </package>

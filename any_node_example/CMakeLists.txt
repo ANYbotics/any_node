@@ -65,3 +65,14 @@ install(DIRECTORY
   param
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+##########
+## Test ##
+##########
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
+find_package(cmake_clang_tools QUIET)
+if(cmake_clang_tools_FOUND)
+  add_default_clang_tooling()
+endif(cmake_clang_tools_FOUND)
