@@ -10,6 +10,7 @@
 
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
   <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
+  <maintainer email="msuetterlin@anybotics.com">Marco Sütterlin</maintainer>
 
   <buildtool_depend>catkin</buildtool_depend>
 
