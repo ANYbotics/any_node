@@ -116,7 +116,8 @@ class ThreadedPublisher {
     {
       std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
       if (messageBuffer_.size() == maxMessageBufferSize_) {
-        MELO_ERROR("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing.");
+        MELO_ERROR_STREAM("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
+                          << publisher_.getTopic())
         messageBuffer_.pop();
       }
       messageBuffer_.push(message);
