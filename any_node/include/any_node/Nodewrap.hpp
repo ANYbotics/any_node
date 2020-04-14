@@ -126,6 +126,7 @@ class Nodewrap {
 
  public:  /// INTERNAL FUNCTIONS
   void signalHandler(const int signum) {
+    MELO_DEBUG_STREAM("Signal: " << signum)
     stop();
 
     if (signum == SIGSEGV) {
