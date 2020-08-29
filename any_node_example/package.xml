@@ -17,6 +17,6 @@
 
   <depend>any_node</depend>
   <depend>std_msgs</depend>
-  <test_depend>cmake_clang_tools</test_depend>
+<!--   <build_depend>cmake_clang_tools</build_depend> -->
 
 </package>

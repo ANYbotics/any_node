@@ -14,6 +14,9 @@
   <url>https://github.com/anybotics/any_node</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <test_depend>cmake_clang_tools</test_depend>
+
+  <test_depend>gtest</test_depend>
+<!--   <build_depend>cmake_clang_tools</build_depend> -->
+<!--   <test_depend>cmake_code_coverage</test_depend> -->
 
 </package>

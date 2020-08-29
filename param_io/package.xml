@@ -21,6 +21,6 @@
   <depend>eigen</depend>
 
   <test_depend>rostest</test_depend>
-  <test_depend>cmake_code_coverage</test_depend>
-  <test_depend>cmake_clang_tools</test_depend>
+<!--   <test_depend>cmake_code_coverage</test_depend> -->
+<!--   <build_depend>cmake_clang_tools</build_depend> -->
 </package>
