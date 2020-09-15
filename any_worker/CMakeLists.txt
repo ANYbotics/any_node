@@ -18,7 +18,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-add_definitions(-std=c++11 -Wall -Werror)
+add_definitions(-std=c++11 -Wall)
 
 include_directories(
   include
@@ -79,4 +79,3 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
