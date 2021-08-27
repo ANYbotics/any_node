@@ -53,22 +53,26 @@ using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 using WorkerCallbackFailureReaction = std::function<void(void)>;
 
 struct WorkerOptions : public RateOptions {
-  WorkerOptions() : RateOptions(), callback_(), callbackFailureReaction_([]() {}), defaultPriority_(0), destructWhenDone_(false) {}
+  WorkerOptions()
+      : RateOptions(), callback_(), callbackFailureReaction_([]() {}), defaultPriority_(0), destructWhenDone_(false), schedAffinity_(-1) {}
 
-  WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback, const int priority = 0)
+  WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback, const int priority = 0,
+                const int schedAffinity = -1)
       : RateOptions(name, timestep),
         callback_(std::move(callback)),
         callbackFailureReaction_([]() {}),
         defaultPriority_(priority),
-        destructWhenDone_(false) {}
+        destructWhenDone_(false),
+        schedAffinity_(schedAffinity) {}
 
   WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback,
-                WorkerCallbackFailureReaction callbackFailureReaction, const int priority = 0)
+                WorkerCallbackFailureReaction callbackFailureReaction, const int priority = 0, const int schedAffinity = -1)
       : RateOptions(name, timestep),
         callback_(std::move(callback)),
         callbackFailureReaction_(std::move(callbackFailureReaction)),
         defaultPriority_(priority),
-        destructWhenDone_(false) {}
+        destructWhenDone_(false),
+        schedAffinity_(schedAffinity) {}
 
   WorkerOptions(const WorkerOptions& other) = default;
 
@@ -77,7 +81,8 @@ struct WorkerOptions : public RateOptions {
         callback_(std::move(other.callback_)),
         callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
         defaultPriority_(other.defaultPriority_),
-        destructWhenDone_(other.destructWhenDone_) {}
+        destructWhenDone_(other.destructWhenDone_),
+        schedAffinity_(other.schedAffinity_) {}
 
   /*!
    * The primary worker callback to be called
@@ -98,6 +103,12 @@ struct WorkerOptions : public RateOptions {
    * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
    */
   bool destructWhenDone_;
+
+  /*!
+   * scheduling affinity of the underlying thread, integer between 0 and number of CPUs - 1. A scheduling affinity
+   * of "-1" means no affinity is set.
+   */
+  int schedAffinity_{-1};
 };
 
 }  // namespace any_worker

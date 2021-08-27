@@ -23,24 +23,26 @@ class WorkerManager {
 
   template <class T>
   inline bool addWorker(const std::string& name, const double timestep, bool (T::*fp)(const WorkerEvent&), T* obj, const int priority = 0,
-                        const bool autostart = true) {
-    return addWorker(WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority), autostart);
+                        const bool autostart = true, const int affinity = -1) {
+    return addWorker(WorkerOptions(name, timestep, std::bind(fp, obj, std::placeholders::_1), priority, affinity), autostart);
   }
 
   template <class T>
   inline bool addWorker(const std::string& name, const double timestep, bool (T::*cfp)(const WorkerEvent&), void (T::*rfp)(), T* obj,
-                        const int priority = 0, const bool autostart = true) {
-    return addWorker(WorkerOptions(name, timestep, std::bind(cfp, obj, std::placeholders::_1), std::bind(rfp, obj), priority), autostart);
+                        const int priority = 0, const bool autostart = true, const int affinity = -1) {
+    return addWorker(WorkerOptions(name, timestep, std::bind(cfp, obj, std::placeholders::_1), std::bind(rfp, obj), priority, affinity),
+                     autostart);
   }
 
   inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback, const int priority = 0,
-                        const bool autostart = true) {
-    return addWorker(WorkerOptions(name, timestep, callback, priority), autostart);
+                        const bool autostart = true, const int affinity = -1) {
+    return addWorker(WorkerOptions(name, timestep, callback, priority, affinity), autostart);
   }
 
   inline bool addWorker(const std::string& name, const double timestep, const WorkerCallback& callback,
-                        const WorkerCallbackFailureReaction& callbackFailureReaction, const int priority = 0, const bool autostart = true) {
-    return addWorker(WorkerOptions(name, timestep, callback, callbackFailureReaction, priority), autostart);
+                        const WorkerCallbackFailureReaction& callbackFailureReaction, const int priority = 0, const bool autostart = true,
+                        const int affinity = -1) {
+    return addWorker(WorkerOptions(name, timestep, callback, callbackFailureReaction, priority, affinity), autostart);
   }
 
   bool addWorker(const WorkerOptions& options, const bool autostart = true);

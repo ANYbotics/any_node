@@ -62,8 +62,8 @@ class Node {
    */
   template <class T>
   inline bool addWorker(const std::string& name, const double timestep, bool (T::*fp)(const any_worker::WorkerEvent&), T* obj,
-                        const int priority = 0) {
-    return workerManager_.addWorker(name, timestep, fp, obj, priority);
+                        const int priority = 0, const int affinity = -1) {
+    return workerManager_.addWorker(name, timestep, fp, obj, priority, true, affinity);
   }
 
   inline bool addWorker(const any_worker::WorkerOptions& options) { return workerManager_.addWorker(options); }

@@ -107,6 +107,22 @@ bool Worker::start(const int priority) {
     }
   }
 
+  // Set affinity if there is one
+  if (options_.schedAffinity_ != -1) {
+    if (options_.schedAffinity_ >= CPU_SETSIZE) {
+      MELO_ERROR_STREAM("Selected affinity of " << options_.schedAffinity_ << "is too high. Max allowed is " << CPU_SETSIZE);
+    } else {
+      // Use a CPU set as stated in the manpages
+      cpu_set_t cpuset;
+      CPU_ZERO(&cpuset);
+      CPU_SET(options_.schedAffinity_, &cpuset);
+      auto s = pthread_setaffinity_np(thread_.native_handle(), sizeof(cpuset), &cpuset);
+      if (s != 0) {
+        MELO_ERROR_STREAM("Failed to set thread affinity to " << options_.schedAffinity_);
+      }
+    }
+  }
+
   MELO_INFO("Worker [%s] started", options_.name_.c_str());
   return true;
 }
