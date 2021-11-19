@@ -113,6 +113,7 @@ class Nodewrap {
     impl_->stopAllWorkers();
     spinner_->stop();
     impl_->cleanup();
+    ros::shutdown();
   }
 
   /*!
