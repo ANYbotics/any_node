@@ -83,6 +83,12 @@ class Node {
   inline void stopWorker(const std::string& name, const bool wait = true) { workerManager_.stopWorker(name, wait); }
 
   /*!
+   * Start a worker managed by the WorkerManager.
+   * @param name  Name of the worker
+   */
+  inline void startWorker(const std::string& name) { workerManager_.startWorker(name); }
+
+  /*!
    * Stop and delete a worker managed by the WorkerManager
    * @param name  Name of the worker
    * @param wait  Whether to wait until the worker has finished or return immediately
