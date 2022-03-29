@@ -29,22 +29,18 @@ class ThreadedPublisher {
 
   std::mutex messageBufferMutex_;
   std::queue<MessageType> messageBuffer_;
-  unsigned int maxMessageBufferSize_ = 0;
-  bool autoPublishRos_;
+  unsigned int maxMessageBufferSize_{0};
+  bool autoPublishRos_{true};
 
   std::thread thread_;
   std::mutex notifyThreadMutex_;
   std::condition_variable notifyThreadCv_;
-  std::atomic<bool> notifiedThread_;
-  std::atomic<bool> shutdownRequested_;
+  std::atomic<bool> notifiedThread_{false};
+  std::atomic<bool> shutdownRequested_{false};
 
  public:
   explicit ThreadedPublisher(const ros::Publisher& publisher, unsigned int maxMessageBufferSize = 10, bool autoPublishRos = true)
-      : publisher_(publisher),
-        maxMessageBufferSize_(maxMessageBufferSize),
-        autoPublishRos_(autoPublishRos),
-        notifiedThread_(false),
-        shutdownRequested_(false) {
+      : publisher_(publisher), maxMessageBufferSize_(maxMessageBufferSize), autoPublishRos_(autoPublishRos) {
     if (autoPublishRos_) {
       thread_ = std::thread(&ThreadedPublisher::threadedPublish, this);
     }

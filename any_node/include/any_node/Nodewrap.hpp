@@ -33,13 +33,7 @@ class Nodewrap {
    * @param installSignalHandler    set to False to use the ros internal signal handler instead
    */
   Nodewrap(int argc, char** argv, const std::string& nodeName, int numSpinners = -1, const bool installSignalHandler = true)
-      : nh_(nullptr),
-        spinner_(nullptr),
-        impl_(nullptr),
-        signalHandlerInstalled_(installSignalHandler),
-        running_(false),
-        cvRunning_(),
-        mutexRunning_() {
+      : signalHandlerInstalled_(installSignalHandler) {
     if (signalHandlerInstalled_) {
       ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
     } else {
@@ -66,7 +60,7 @@ class Nodewrap {
    * blocking call, executes init, run (if init() was successful) and cleanup (independent of the success of init()).
    */
   bool execute() {
-    bool initSuccess = init();
+    const bool initSuccess{init()};
     if (initSuccess) {
       run();
     }
@@ -152,9 +146,9 @@ class Nodewrap {
   std::unique_ptr<ros::AsyncSpinner> spinner_;
   std::unique_ptr<NodeImpl> impl_;
 
-  bool signalHandlerInstalled_;
+  bool signalHandlerInstalled_{false};
 
-  std::atomic<bool> running_;
+  std::atomic<bool> running_{false};
   std::condition_variable cvRunning_;
   std::mutex mutexRunning_;
 };
