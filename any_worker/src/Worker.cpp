@@ -59,9 +59,6 @@ Worker::Worker(const std::string& name, const double timestep, const WorkerCallb
 
 Worker::Worker(const WorkerOptions& options)
     : options_(options),
-      running_(false),
-      done_(false),
-      thread_(),
       rate_(options)  // NOLINT(cppcoreguidelines-slicing)
 {}
 

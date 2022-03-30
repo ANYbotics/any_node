@@ -94,8 +94,8 @@ class Worker {
  private:
   WorkerOptions options_;
 
-  std::atomic<bool> running_;
-  std::atomic<bool> done_;
+  std::atomic<bool> running_{false};
+  std::atomic<bool> done_{false};
 
   std::thread thread_;
   Rate rate_;

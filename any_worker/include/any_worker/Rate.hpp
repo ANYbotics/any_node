@@ -79,9 +79,9 @@ namespace any_worker {
 class Rate {
  protected:
   //! Factor storing nanoseconds per seconds.
-  static constexpr long int NSecPerSec_ = static_cast<long int>(1e9);
+  static constexpr long int NSecPerSec_{static_cast<long int>(1e9)};
   //! Factor storing seconds per nanoseconds.
-  static constexpr double SecPerNSec_ = 1.0 / NSecPerSec_;
+  static constexpr double SecPerNSec_{1.0 / NSecPerSec_};
 
   //! Rate options.
   RateOptions options_{};
@@ -94,21 +94,21 @@ class Rate {
   //! If the timing is fine, the step time is equal to the sleep end time.
   timespec stepTime_{};
   //! Counter storing how many times sleep has been called.
-  unsigned int numTimeSteps_ = 0;
+  unsigned int numTimeSteps_{0};
   //! Counter storing how many times a time step took longer than the warning threshold.
-  unsigned int numWarnings_ = 0;
+  unsigned int numWarnings_{0};
   //! Counter storing how many times a time step took longer than the error threshold, not considering warnings.
-  unsigned int numErrors_ = 0;
+  unsigned int numErrors_{0};
   //! Point in time when the last warning message was printed.
   timespec lastWarningPrintTime_{};
   //! Point in time when the last error message was printed.
   timespec lastErrorPrintTime_{};
   //! Most recent time which elapsed between subsequent calls of sleep().
-  double awakeTime_ = 0.0;
+  double awakeTime_{0.0};
   //! Mean of the time which elapsed between subsequent calls of sleep().
-  double awakeTimeMean_ = 0.0;
+  double awakeTimeMean_{0.0};
   //! Helper variable to compute the variance of the time step which elapsed between subsequent calls of sleep().
-  double awakeTimeM2_ = 0.0;
+  double awakeTimeM2_{0.0};
 
  public:
   /*!

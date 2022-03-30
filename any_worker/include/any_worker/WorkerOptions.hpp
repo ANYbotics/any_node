@@ -53,8 +53,7 @@ using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 using WorkerCallbackFailureReaction = std::function<void(void)>;
 
 struct WorkerOptions : public RateOptions {
-  WorkerOptions()
-      : RateOptions(), callback_(), callbackFailureReaction_([]() {}), defaultPriority_(0), destructWhenDone_(false), schedAffinity_(-1) {}
+  WorkerOptions() : callbackFailureReaction_([]() {}) {}
 
   WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback, const int priority = 0,
                 const int schedAffinity = -1)
@@ -97,12 +96,12 @@ struct WorkerOptions : public RateOptions {
   /*!
    * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
    */
-  int defaultPriority_;
+  int defaultPriority_{0};
 
   /*!
    * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager
    */
-  bool destructWhenDone_;
+  bool destructWhenDone_{false};
 
   /*!
    * scheduling affinity of the underlying thread, integer between 0 and number of CPUs - 1. A scheduling affinity
