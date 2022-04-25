@@ -49,6 +49,12 @@ class SignalHandler {
 
   static void unbind(int signal, const Handler& handler);
 
+  /*! Static function to unbind all handlers attached to a signal
+   * The signal is re-attached to the default handler (SIG_DFL)
+   * @param signal_ Signal to unbind
+   */
+  static void unbind(int signal_);
+
   template <typename T>
   static void unbindAll(void (T::*fp)(int), T* object) {
     const Handler handler = std::bind(fp, object, std::placeholders::_1);

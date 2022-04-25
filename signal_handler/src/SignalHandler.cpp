@@ -53,6 +53,18 @@ void SignalHandler::unbind(int signal_, const Handler& handler) {
   }
 }
 
+void SignalHandler::unbind(int signal_) {
+  std::lock_guard<std::mutex> lock(mutex);
+  auto it = handlers.find(signal_);
+
+  if (it == handlers.end()) {
+    return;
+  }
+
+  it->second.clear();
+  signal(signal_, SIG_DFL);
+}
+
 void SignalHandler::signaled(int signal) {
   std::lock_guard<std::mutex> lock(mutex);
   auto it = handlers.find(signal);
