@@ -40,6 +40,11 @@ class Nodewrap {
       ros::init(argc, argv, nodeName);
     }
 
+    // Explicitly call ros::start here, to avoid the ROS node handles to call this implicitly (as well as calling ros::shutdown implicitly).
+    // See https://github.com/ros/ros_comm/blob/noetic-devel/clients/roscpp/src/libros/node_handle.cpp#L178
+    // and https://github.com/ros/ros_comm/blob/noetic-devel/clients/roscpp/src/libros/node_handle.cpp#L194
+    ros::start();
+
     nh_ = std::make_shared<ros::NodeHandle>("~");
 
     if (numSpinners == -1) {
@@ -52,9 +57,10 @@ class Nodewrap {
     checkSteadyClock();
   }
 
-  // not necessary to call ros::shutdown in the destructor, this is done as soon as the last nodeHandle
-  // is destructed
-  virtual ~Nodewrap() = default;
+  virtual ~Nodewrap() {
+    // Call ros::shutdown here explicitly, as we also called ros::start explicitly in the constructor.
+    ros::shutdown();
+  };
 
   /*!
    * blocking call, executes init, run (if init() was successful) and cleanup (independent of the success of init()).
@@ -107,7 +113,6 @@ class Nodewrap {
     impl_->stopAllWorkers();
     spinner_->stop();
     impl_->cleanup();
-    ros::shutdown();
   }
 
   /*!
