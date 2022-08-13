@@ -3,7 +3,7 @@
 <package format="2">
 
   <name>any_worker</name>
-  <version>0.5.7</version>
+  <version>0.5.8</version>
   <description>High resolution version of the ROS worker.</description>
 
   <license>BSD</license>
