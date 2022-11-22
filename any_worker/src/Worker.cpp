@@ -126,8 +126,12 @@ bool Worker::start(const int priority) {
 
 void Worker::stop(const bool wait) {
   running_ = false;
-  if (wait && thread_.joinable()) {
-    thread_.join();
+
+  // Only wait to stop is not called from within the worker itself (= same thread ID as worker)
+  if (thread_.get_id() != std::this_thread::get_id()) {
+    if (wait && thread_.joinable()) {
+      thread_.join();
+    }
   }
 }
 
