@@ -3,7 +3,7 @@
 <package format="2">
 
   <name>signal_handler</name>
-  <version>0.5.9</version>
+  <version>0.5.10</version>
   <description>Contains a static signal handling helper class.</description>
 
   <license>BSD</license>
