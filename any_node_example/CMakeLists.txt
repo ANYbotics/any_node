@@ -23,7 +23,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-add_definitions(-std=c++11)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
   include
