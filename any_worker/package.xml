@@ -1,21 +1,21 @@
-<?xml version="1.0"?>
-
-<package format="2">
+<?xml version='1.0' encoding='utf-8'?>
+<package format="3">
 
   <name>any_worker</name>
   <version>0.5.20</version>
   <description>High resolution version of the ROS worker.</description>
-
-  <license>BSD</license>
-
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
   <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
   <maintainer email="msuetterlin@anybotics.com">Marco Sütterlin</maintainer>
+  <license>BSD</license>
   <url>https://github.com/anybotics/any_node</url>
-
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <depend>message_logger</depend>
-<!--   <test_depend>cmake_code_coverage</test_depend> -->
-<!--   <build_depend>cmake_clang_tools</build_depend> -->
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+  <build_depend condition="$ROS_VERSION == 1">cmake_clang_tools</build_depend>
+  <depend condition="$ROS_VERSION == 1">message_logger</depend>
+  <depend condition="$ROS_VERSION == 2">rclcpp</depend>
+  <test_depend condition="$ROS_VERSION == 1">cmake_code_coverage</test_depend>
+  <export>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+  </export>
 </package>
