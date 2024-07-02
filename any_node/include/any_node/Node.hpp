@@ -6,15 +6,20 @@
 
 #pragma once
 
+#ifndef ROS2_BUILD
 #include <ros/ros.h>
+#else /* ROS2_BUILD */
+#include "rclcpp/rclcpp.hpp"
+#endif /* ROS2_BUILD */
 #include <sched.h>
 #include <unistd.h>  // for getpid()
 #include <memory>    // for std::shared_ptr
 
+#include <any_worker/WorkerManager.hpp>
+#include <any_worker/WorkerOptions.hpp>
+
 #include "any_node/Param.hpp"
 #include "any_node/Topic.hpp"
-#include "any_worker/WorkerManager.hpp"
-#include "any_worker/WorkerOptions.hpp"
 
 namespace any_node {
 
@@ -22,7 +27,11 @@ bool setProcessPriority(int priority);
 
 class Node {
  public:
+#ifndef ROS2_BUILD
   using NodeHandlePtr = std::shared_ptr<ros::NodeHandle>;
+#else  /* ROS2_BUILD */
+  using NodeHandlePtr = std::shared_ptr<rclcpp::Node>;
+#endif /* ROS2_BUILD */
 
   Node() = delete;
   explicit Node(NodeHandlePtr nh);
@@ -104,13 +113,22 @@ class Node {
   /*
    * accessors
    */
+#ifndef ROS2_BUILD
   inline ros::NodeHandle& getNodeHandle() const { return *nh_; }
+#else  /* ROS2_BUILD */
+  inline rclcpp::Node& getNodeHandle() const { return *nh_; }
+#endif /* ROS2_BUILD */
 
   /*
    * forwarding to Topic.hpp functions
    */
   template <typename msg>
+#ifndef ROS2_BUILD
   inline ros::Publisher advertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size, bool latch = false) {
+#else  /* ROS2_BUILD */
+  inline typename rclcpp::Publisher<msg>::SharedPtr advertise(const std::string& name, const std::string& defaultTopic, uint32_t queue_size,
+                                                              bool latch = false) {
+#endif /* ROS2_BUILD */
     return any_node::advertise<msg>(*nh_, name, defaultTopic, queue_size, latch);
   }
 
@@ -121,37 +139,67 @@ class Node {
   }
 
   template <class M, class T>
+#ifndef ROS2_BUILD
   inline ros::Subscriber subscribe(const std::string& name, const std::string& defaultTopic, uint32_t queue_size,
                                    void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                                    const ros::TransportHints& transport_hints = ros::TransportHints()) {
+#else  /* ROS2_BUILD */
+  inline typename rclcpp::Subscription<M>::SharedPtr subscribe(const std::string& name, const std::string& defaultTopic,
+                                                               uint32_t queue_size, void (T::*fp)(const std::shared_ptr<M const>&),
+                                                               T* obj) {
+#endif /* ROS2_BUILD */
+#ifndef ROS2_BUILD
     return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
+#else  /* ROS2_BUILD */
+    return any_node::subscribe(*nh_, name, defaultTopic, queue_size, fp, obj);
+#endif /* ROS2_BUILD */
   }
 
   template <class M, class T>
   inline ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, const std::string& name, const std::string& defaultTopic,
+#ifndef ROS2_BUILD
                                                          uint32_t queue_size, void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                                                          const ros::TransportHints& transport_hints = ros::TransportHints()) {
-    return any_node::throttledSubscribe<M, T>(timeStep, *nh_, name, defaultTopic, queue_size, fp, obj, transport_hints);
+
+#else  /* ROS2_BUILD */
+                                                         uint32_t queue_size, void (T::*fp)(const std::shared_ptr<M const>&), T* obj) {
+#endif /* ROS2_BUILD */
+    return any_node::throttledSubscribe<M, T>(timeStep, *nh_, name, defaultTopic, queue_size, fp, obj);
   }
 
   template <class T, class MReq, class MRes>
+#ifndef ROS2_BUILD
   inline ros::ServiceServer advertiseService(const std::string& name, const std::string& defaultService, bool (T::*srv_func)(MReq&, MRes&),
                                              T* obj) {
+#else  /* ROS2_BUILD */
+  inline auto advertiseService(const std::string& name, const std::string& defaultService, bool (T::*srv_func)(MReq&, MRes&), T* obj) {
+#endif /* ROS2_BUILD */
     return any_node::advertiseService(*nh_, name, defaultService, srv_func, obj);
   }
 
+#ifndef ROS2_BUILD
   template <class MReq, class MRes>
   inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService,
                                           const ros::M_string& header_values = ros::M_string()) {
     return any_node::serviceClient<MReq, MRes>(*nh_, name, defaultService, header_values);
   }
+#endif /* ROS2_BUILD */
 
   template <class Service>
+#ifndef ROS2_BUILD
   inline ros::ServiceClient serviceClient(const std::string& name, const std::string& defaultService,
                                           const ros::M_string& header_values = ros::M_string()) {
+#else  /* ROS2_BUILD */
+  inline rclcpp::Client<Service> serviceClient(const std::string& name, const std::string& defaultService) {
+#endif /* ROS2_BUILD */
+#ifndef ROS2_BUILD
     return any_node::serviceClient<Service>(*nh_, name, defaultService, header_values);
+#else  /* ROS2_BUILD */
+    return any_node::serviceClient<Service>(*nh_, name, defaultService);
+#endif /* ROS2_BUILD */
   }
 
+#ifndef ROS2_BUILD
   /*
    * forwarding to Param.hpp functions
    */
@@ -169,6 +217,7 @@ class Node {
   inline void setParam(const std::string& key, const ParamT& param) {
     any_node::setParam(*nh_, key, param);
   }
+#endif /* ROS2_BUILD */
 
  protected:
   NodeHandlePtr nh_;

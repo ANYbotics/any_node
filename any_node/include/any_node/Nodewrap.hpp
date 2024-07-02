@@ -6,7 +6,11 @@
 
 #pragma once
 
+#ifndef ROS2_BUILD
 #include <ros/ros.h>
+#else /* ROS2_BUILD */
+#include "rclcpp/rclcpp.hpp"
+#endif /* ROS2_BUILD */
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -15,7 +19,9 @@
 
 #include "any_node/Param.hpp"
 #include "any_worker/WorkerOptions.hpp"
-#include "message_logger/message_logger.hpp"
+#ifndef ROS2_BUILD
+#include <message_logger/message_logger.hpp>
+#endif
 #include "signal_handler/SignalHandler.hpp"
 
 namespace any_node {
@@ -45,7 +51,11 @@ class Nodewrap {
     // and https://github.com/ros/ros_comm/blob/noetic-devel/clients/roscpp/src/libros/node_handle.cpp#L194
     ros::start();
 
+#ifndef ROS2_BUILD
     nh_ = std::make_shared<ros::NodeHandle>("~");
+#else  /* ROS2_BUILD */
+    nh_ = std::make_shared<rclcpp::Node>("~");
+#endif /* ROS2_BUILD */
 
     if (numSpinners == -1) {
       numSpinners = param<unsigned int>(*nh_, "num_spinners", 2);
@@ -84,7 +94,11 @@ class Nodewrap {
 
     spinner_->start();
     if (!impl_->init()) {
+#ifndef ROS2_BUILD
       MELO_ERROR("Failed to init Node %s!", ros::this_node::getName().c_str());
+#else
+      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "Failed to init Node %s!", ros::this_node::getName().c_str());
+#endif
       return false;
     }
 
@@ -126,7 +140,11 @@ class Nodewrap {
 
  public:  /// INTERNAL FUNCTIONS
   void signalHandler(const int signum) {
+#ifndef ROS2_BUILD
     MELO_DEBUG_STREAM("Signal: " << signum)
+#else
+    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("any_node"), "Signal: " << signum)
+#endif
     stop();
 
     if (signum == SIGSEGV) {
@@ -137,17 +155,29 @@ class Nodewrap {
 
   static void checkSteadyClock() {
     if (std::chrono::steady_clock::period::num != 1 || std::chrono::steady_clock::period::den != 1000000000) {
+#ifndef ROS2_BUILD
       MELO_ERROR("std::chrono::steady_clock does not have a nanosecond resolution!")
+#else
+      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "std::chrono::steady_clock does not have a nanosecond resolution!")
+#endif
     }
     if (std::chrono::system_clock::period::num != 1 || std::chrono::system_clock::period::den != 1000000000) {
+#ifndef ROS2_BUILD
       MELO_ERROR("std::chrono::system_clock does not have a nanosecond resolution!")
+#else
+      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "std::chrono::system_clock does not have a nanosecond resolution!")
+#endif
     }
   }
 
   NodeImpl* getImplPtr() { return impl_.get(); }
 
  protected:
+#ifndef ROS2_BUILD
   std::shared_ptr<ros::NodeHandle> nh_;
+#else  /* ROS2_BUILD */
+  std::shared_ptr<rclcpp::Node> nh_;
+#endif /* ROS2_BUILD */
   std::unique_ptr<ros::AsyncSpinner> spinner_;
   std::unique_ptr<NodeImpl> impl_;
 

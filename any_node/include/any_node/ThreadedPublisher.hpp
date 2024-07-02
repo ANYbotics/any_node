@@ -14,10 +14,15 @@
 #include <thread>
 
 // ros
+#ifndef ROS2_BUILD
 #include <ros/ros.h>
+#else /* ROS2_BUILD */
+#include "rclcpp/rclcpp.hpp"
+#endif /* ROS2_BUILD */
 
-// message logger
-#include "message_logger/message_logger.hpp"
+#ifndef ROS2_BUILD
+#include <message_logger/message_logger.hpp>
+#endif
 
 namespace any_node {
 
@@ -25,7 +30,11 @@ template <typename MessageType>
 class ThreadedPublisher {
  protected:
   mutable std::mutex publisherMutex_;
+#ifndef ROS2_BUILD
   ros::Publisher publisher_;
+#else  /* ROS2_BUILD */
+  typename rclcpp::Publisher<MessageType>::SharedPtr publisher_;
+#endif /* ROS2_BUILD */
 
   std::mutex messageBufferMutex_;
   std::queue<MessageType> messageBuffer_;
@@ -39,7 +48,12 @@ class ThreadedPublisher {
   std::atomic<bool> shutdownRequested_{false};
 
  public:
+#ifndef ROS2_BUILD
   explicit ThreadedPublisher(const ros::Publisher& publisher, unsigned int maxMessageBufferSize = 10, bool autoPublishRos = true)
+#else  /* ROS2_BUILD */
+  explicit ThreadedPublisher(const typename rclcpp::Publisher<MessageType>::SharedPtr& publisher, unsigned int maxMessageBufferSize = 10,
+                             bool autoPublishRos = true)
+#endif /* ROS2_BUILD */
       : publisher_(publisher), maxMessageBufferSize_(maxMessageBufferSize), autoPublishRos_(autoPublishRos) {
     if (autoPublishRos_) {
       thread_ = std::thread(&ThreadedPublisher::threadedPublish, this);
@@ -48,7 +62,11 @@ class ThreadedPublisher {
 
   virtual ~ThreadedPublisher() { shutdown(); }
 
+#ifndef ROS2_BUILD
   void publish(const boost::shared_ptr<MessageType>& message) { addMessageToBuffer(*message); }
+#else  /* ROS2_BUILD */
+  void publish(const std::shared_ptr<MessageType>& message) { addMessageToBuffer(*message); }
+#endif /* ROS2_BUILD */
 
   void publish(const MessageType& message) { addMessageToBuffer(message); }
 
@@ -112,8 +130,14 @@ class ThreadedPublisher {
     {
       std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
       if (messageBuffer_.size() == maxMessageBufferSize_) {
+#ifndef ROS2_BUILD
         MELO_ERROR_STREAM("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
-                          << publisher_.getTopic())
+                          << publisher_.getTopic());
+#else
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("any_node"),
+                            "Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
+                                << publisher_.getTopic());
+#endif
         messageBuffer_.pop();
       }
       messageBuffer_.push(message);
