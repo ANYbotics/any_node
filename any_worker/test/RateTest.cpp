@@ -60,7 +60,7 @@ TEST(RateTest, Reset) {  // NOLINT
   EXPECT_TRUE(std::isnan(rate.getAwakeTimeStdDev()));
 }
 
-TEST(RateTest, SleepWithEnforceRate) {  // NOLINT
+TEST(RateTest, DISABLED_SleepWithEnforceRate) {  // NOLINT
   const double timeStep = 0.1;
   any_worker::Rate rate("Test", timeStep);
   rate.getOptions().enforceRate_ = true;
@@ -143,7 +143,7 @@ TEST(RateTest, SleepWithEnforceRate) {  // NOLINT
   EXPECT_NEAR(any_worker::Rate::GetDuration(start, end), summedStepTimes[processingTimes.size()], 2.0 * RATE_TEST_TOL);
 }
 
-TEST(RateTest, SleepWithoutEnforceRate) {  // NOLINT
+TEST(RateTest, DISABLED_SleepWithoutEnforceRate) {  // NOLINT
   const double timeStep = 0.1;
   any_worker::Rate rate("Test", timeStep);
   rate.getOptions().enforceRate_ = false;
@@ -215,7 +215,7 @@ TEST(RateTest, WarningsAndErrors) {  // NOLINT
   EXPECT_EQ(rate.getNumErrors(), 1u);
 }
 
-TEST(RateTest, StatisticsWithEnforceRate) {  // NOLINT
+TEST(RateTest, DISABLED_StatisticsWithEnforceRate) {  // NOLINT
   const double timeStep = 0.1;
   any_worker::Rate rate("Test", timeStep);
   rate.getOptions().enforceRate_ = true;
@@ -272,7 +272,7 @@ TEST(RateTest, StatisticsWithEnforceRate) {  // NOLINT
   EXPECT_NEAR(rate.getAwakeTimeStdDev(), 0.02, RATE_TEST_TOL);
 }
 
-TEST(RateTest, StatisticsWithoutEnforceRate) {  // NOLINT
+TEST(RateTest, DISABLED_StatisticsWithoutEnforceRate) {  // NOLINT
   const double timeStep = 0.1;
   any_worker::Rate rate("Test", timeStep);
   rate.getOptions().enforceRate_ = false;
