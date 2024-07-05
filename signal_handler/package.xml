@@ -2,7 +2,7 @@
 <package format="3">
 
   <name>signal_handler</name>
-  <version>0.5.20</version>
+  <version>0.5.21</version>
   <description>Contains a static signal handling helper class.</description>
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
   <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
