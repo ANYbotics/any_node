@@ -5,11 +5,7 @@
  */
 
 #include "any_worker/WorkerManager.hpp"
-#ifndef ROS2_BUILD
 #include "message_logger/message_logger.hpp"
-#else
-#include <rclcpp/logging.hpp>
-#endif
 
 namespace any_worker {
 
@@ -23,11 +19,7 @@ bool WorkerManager::addWorker(const WorkerOptions& options, const bool autostart
   std::lock_guard<std::mutex> lock(mutexWorkers_);
   auto insertedElement = workers_.emplace(options.name_, Worker(options));
   if (!insertedElement.second) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Failed to create worker [%s]", options.name_.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Failed to create worker [%s]", options.name_.c_str());
-#endif
     return false;
   }
   if (autostart) {
@@ -50,11 +42,7 @@ void WorkerManager::startWorker(const std::string& name, const int priority) {
   std::lock_guard<std::mutex> lock(mutexWorkers_);
   auto worker = workers_.find(name);
   if (worker == workers_.end()) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Cannot start worker [%s], worker not found", name.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Cannot start worker [%s], worker not found", name.c_str());
-#endif
     return;
   }
   worker->second.start(priority);
@@ -71,11 +59,7 @@ void WorkerManager::stopWorker(const std::string& name, const bool wait) {
   std::lock_guard<std::mutex> lock(mutexWorkers_);
   auto worker = workers_.find(name);
   if (worker == workers_.end()) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Cannot stop worker [%s], worker not found", name.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Cannot stop worker [%s], worker not found", name.c_str());
-#endif
     return;
   }
   worker->second.stop(wait);
@@ -97,11 +81,7 @@ void WorkerManager::cancelWorker(const std::string& name, const bool wait) {
   std::lock_guard<std::mutex> lock(mutexWorkers_);
   auto worker = workers_.find(name);
   if (worker == workers_.end()) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Cannot stop worker [%s], worker not found", name.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Cannot stop worker [%s], worker not found", name.c_str());
-#endif
     return;
   }
   worker->second.stop(wait);
@@ -124,11 +104,7 @@ void WorkerManager::setWorkerTimestep(const std::string& name, const double time
   std::lock_guard<std::mutex> lock(mutexWorkers_);
   auto worker = workers_.find(name);
   if (worker == workers_.end()) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Cannot change timestep of worker [%s], worker not found", name.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Cannot change timestep of worker [%s], worker not found", name.c_str());
-#endif
     return;
   }
   worker->second.setTimestep(timeStep);

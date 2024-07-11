@@ -94,11 +94,7 @@ class Nodewrap {
 
     spinner_->start();
     if (!impl_->init()) {
-#ifndef ROS2_BUILD
       MELO_ERROR("Failed to init Node %s!", ros::this_node::getName().c_str());
-#else
-      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "Failed to init Node %s!", ros::this_node::getName().c_str());
-#endif
       return false;
     }
 
@@ -140,11 +136,7 @@ class Nodewrap {
 
  public:  /// INTERNAL FUNCTIONS
   void signalHandler(const int signum) {
-#ifndef ROS2_BUILD
     MELO_DEBUG_STREAM("Signal: " << signum)
-#else
-    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("any_node"), "Signal: " << signum)
-#endif
     stop();
 
     if (signum == SIGSEGV) {
@@ -155,18 +147,10 @@ class Nodewrap {
 
   static void checkSteadyClock() {
     if (std::chrono::steady_clock::period::num != 1 || std::chrono::steady_clock::period::den != 1000000000) {
-#ifndef ROS2_BUILD
       MELO_ERROR("std::chrono::steady_clock does not have a nanosecond resolution!")
-#else
-      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "std::chrono::steady_clock does not have a nanosecond resolution!")
-#endif
     }
     if (std::chrono::system_clock::period::num != 1 || std::chrono::system_clock::period::den != 1000000000) {
-#ifndef ROS2_BUILD
       MELO_ERROR("std::chrono::system_clock does not have a nanosecond resolution!")
-#else
-      RCLCPP_ERROR(rclcpp::get_logger("any_node"), "std::chrono::system_clock does not have a nanosecond resolution!")
-#endif
     }
   }
 

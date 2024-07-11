@@ -40,11 +40,7 @@
  */
 
 // message logger
-#ifndef ROS2_BUILD
 #include <message_logger/message_logger.hpp>
-#else
-#include <rclcpp/logging.hpp>
-#endif
 
 // any worker
 #include "any_worker/Rate.hpp"
@@ -115,32 +111,18 @@ void Rate::sleep() {
       // Count and print the error.
       numErrors_++;
       if (GetDuration(lastErrorPrintTime_, sleepStartTime_) > 1.0) {
-#ifndef ROS2_BUILD
         MELO_ERROR_STREAM("Rate '" << options_.name_ << "': "
                                    << "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). "
                                    << "Number of errors: " << numErrors_ << ".");
-#else
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("any_worker"), "Rate '" << options_.name_ << "': "
-                                                                       << "Processing took too long (" << awakeTime_ << " s > "
-                                                                       << options_.timeStep_.load() << " s). "
-                                                                       << "Number of errors: " << numErrors_ << ".");
-#endif
         lastErrorPrintTime_ = sleepStartTime_;
       }
     } else if (awakeTime_ > options_.maxTimeStepFactorWarning_ * options_.timeStep_) {
       // Print and count the warning (only if no error).
       numWarnings_++;
       if (GetDuration(lastWarningPrintTime_, sleepStartTime_) > 1.0) {
-#ifndef ROS2_BUILD
         MELO_WARN_STREAM("Rate '" << options_.name_ << "': "
                                   << "Processing took too long (" << awakeTime_ << " s > " << options_.timeStep_.load() << " s). "
                                   << "Number of warnings: " << numWarnings_ << ".");
-#else
-        RCLCPP_WARN_STREAM(rclcpp::get_logger("any_worker"), "Rate '" << options_.name_ << "': "
-                                                                      << "Processing took too long (" << awakeTime_ << " s > "
-                                                                      << options_.timeStep_.load() << " s). "
-                                                                      << "Number of warnings: " << numWarnings_ << ".");
-#endif
         lastWarningPrintTime_ = sleepStartTime_;
       }
     }

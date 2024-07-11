@@ -91,9 +91,8 @@ install(TARGETS ${PROJECT_NAME}
 else() # ROS version 2
 
 
-
-
 find_package(ament_cmake REQUIRED)
+find_package(message_logger REQUIRED)
 find_package(rclcpp REQUIRED)
 
 ###################################
@@ -111,14 +110,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(${PROJECT_NAME} src/Rate.cpp src/Worker.cpp src/WorkerManager.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE include)
-ament_target_dependencies(${PROJECT_NAME} ament_cmake rclcpp)
+ament_target_dependencies(${PROJECT_NAME}
+  ament_cmake
+  message_logger
+  rclcpp
+)
 
 
 ##########
 ## Test ##
 ##########
 if(CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(test_${PROJECT_NAME} test/${PROJECT_NAME}_test.cpp
+  catkin_add_gtest(test_${PROJECT_NAME}
+    test/${PROJECT_NAME}_test.cpp
     test/RateTest.cpp)
 endif()
 
@@ -138,6 +142,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ament_export_dependencies(ament_cmake)
+ament_export_dependencies(message_logger)
 ament_export_dependencies(rclcpp)
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})

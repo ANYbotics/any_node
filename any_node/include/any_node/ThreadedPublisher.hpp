@@ -130,14 +130,8 @@ class ThreadedPublisher {
     {
       std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
       if (messageBuffer_.size() == maxMessageBufferSize_) {
-#ifndef ROS2_BUILD
         MELO_ERROR_STREAM("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
                           << publisher_.getTopic());
-#else
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("any_node"),
-                            "Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
-                                << publisher_.getTopic());
-#endif
         messageBuffer_.pop();
       }
       messageBuffer_.push(message);

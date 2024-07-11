@@ -46,11 +46,7 @@
 #include <ctime>
 
 #include "any_worker/Worker.hpp"
-#ifndef ROS2_BUILD
 #include "message_logger/message_logger.hpp"
-#else
-#include <rclcpp/logging.hpp>
-#endif
 
 namespace any_worker {
 
@@ -79,21 +75,12 @@ Worker::~Worker() {
 
 bool Worker::start(const int priority) {
   if (running_) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Worker [%s] cannot be started, already/still running.", options_.name_.c_str());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Worker [%s] cannot be started, already/still running.", options_.name_.c_str());
-#endif
     done_ = true;
     return false;
   }
   if (options_.timeStep_ < 0.0) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(), options_.timeStep_.load());
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Worker [%s] cannot be started, invalid timestep: %f", options_.name_.c_str(),
-                 options_.timeStep_.load());
-#endif
     done_ = true;
     return false;
   }
@@ -113,24 +100,14 @@ bool Worker::start(const int priority) {
 
   if (sched.sched_priority != 0) {
     if (pthread_setschedparam(thread_.native_handle(), SCHED_FIFO, &sched) != 0) {
-#ifndef ROS2_BUILD
       MELO_WARN("Failed to set thread priority for worker [%s]: %s", options_.name_.c_str(), strerror(errno));
-#else
-      RCLCPP_WARN(rclcpp::get_logger("any_worker"), "Failed to set thread priority for worker [%s]: %s", options_.name_.c_str(),
-                  strerror(errno));
-#endif
     }
   }
 
   // Set affinity if there is one
   if (options_.schedAffinity_ != -1) {
     if (options_.schedAffinity_ >= CPU_SETSIZE) {
-#ifndef ROS2_BUILD
       MELO_ERROR_STREAM("Selected affinity of " << options_.schedAffinity_ << "is too high. Max allowed is " << CPU_SETSIZE);
-#else
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger("any_worker"),
-                          "Selected affinity of " << options_.schedAffinity_ << "is too high. Max allowed is " << CPU_SETSIZE);
-#endif
     } else {
       // Use a CPU set as stated in the manpages
       cpu_set_t cpuset;
@@ -138,20 +115,12 @@ bool Worker::start(const int priority) {
       CPU_SET(options_.schedAffinity_, &cpuset);
       auto s = pthread_setaffinity_np(thread_.native_handle(), sizeof(cpuset), &cpuset);
       if (s != 0) {
-#ifndef ROS2_BUILD
         MELO_ERROR_STREAM("Failed to set thread affinity to " << options_.schedAffinity_);
-#else
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("any_worker"), "Failed to set thread affinity to " << options_.schedAffinity_);
-#endif
       }
     }
   }
 
-#ifndef ROS2_BUILD
   MELO_INFO("Worker [%s] started", options_.name_.c_str());
-#else
-  RCLCPP_INFO(rclcpp::get_logger("any_worker"), "Worker [%s] started", options_.name_.c_str());
-#endif
   return true;
 }
 
@@ -168,12 +137,7 @@ void Worker::stop(const bool wait) {
 
 void Worker::setTimestep(const double timeStep) {
   if (timeStep <= 0.0) {
-#ifndef ROS2_BUILD
     MELO_ERROR("Cannot change timestep of Worker [%s] to %f, invalid value.", options_.name_.c_str(), timeStep);
-#else
-    RCLCPP_ERROR(rclcpp::get_logger("any_worker"), "Cannot change timestep of Worker [%s] to %f, invalid value.", options_.name_.c_str(),
-                 timeStep);
-#endif
     return;
   }
   options_.timeStep_ = timeStep;
@@ -194,12 +158,7 @@ void Worker::run() {
     static timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     if (!options_.callback_(WorkerEvent(options_.timeStep_, now))) {
-#ifndef ROS2_BUILD
       MELO_WARN("Worker [%s] callback returned false. Calling failure reaction.", options_.name_.c_str());
-#else
-      RCLCPP_WARN(rclcpp::get_logger("any_worker"), "Worker [%s] callback returned false. Calling failure reaction.",
-                  options_.name_.c_str());
-#endif
       options_.callbackFailureReaction_();
     }
   } else {
@@ -209,12 +168,7 @@ void Worker::run() {
     // Run the callback repeatedly.
     do {
       if (!options_.callback_(WorkerEvent(options_.timeStep_, rate_.getSleepEndTime()))) {
-#ifndef ROS2_BUILD
         MELO_WARN("Worker [%s] callback returned false. Calling failure reaction.", options_.name_.c_str());
-#else
-        RCLCPP_WARN(rclcpp::get_logger("any_worker"), "Worker [%s] callback returned false. Calling failure reaction.",
-                    options_.name_.c_str());
-#endif
         options_.callbackFailureReaction_();
       }
 
@@ -223,11 +177,7 @@ void Worker::run() {
     } while (running_);
   }
 
-#ifndef ROS2_BUILD
   MELO_INFO("Worker [%s] terminated.", options_.name_.c_str());
-#else
-  RCLCPP_INFO(rclcpp::get_logger("any_worker"), "Worker [%s] terminated.", options_.name_.c_str());
-#endif
   done_ = true;
 }
 

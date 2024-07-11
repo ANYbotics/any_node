@@ -6,9 +6,7 @@
 
 #include <csignal>
 
-#ifndef ROS2_BUILD
 #include <message_logger/message_logger.hpp>
-#endif
 
 #include "any_node/Node.hpp"
 
@@ -26,12 +24,7 @@ bool setProcessPriority(int priority) {
   sched_param params{};
   params.sched_priority = priority;
   if (sched_setscheduler(getpid(), SCHED_FIFO, &params) != 0) {
-#ifndef ROS2_BUILD
     MELO_WARN("Failed to set process priority to %d: %s. Check /etc/security/limits.conf for the rights.", priority, std::strerror(errno));
-#else
-    RCLCPP_WARN(rclcpp::get_logger("any_node"), "Failed to set process priority to %d: %s. Check /etc/security/limits.conf for the rights.",
-                priority, std::strerror(errno));
-#endif
     return false;
   }
   return true;
