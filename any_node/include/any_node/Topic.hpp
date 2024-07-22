@@ -36,9 +36,25 @@ ros::Publisher advertise(ros::NodeHandle& nh, const std::string& name, const std
 #else  /* ROS2_BUILD */
 typename rclcpp::Publisher<msg>::SharedPtr advertise(rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
                                                      uint32_t queue_size, bool latch = false) {
-  auto topic = acl::config::getParameter<std::string>(*nh.get_node_parameters_interface(), "publishers." + name + ".topic");
-  auto queueSize = acl::config::getParameter<int>(*nh.get_node_parameters_interface(), "publishers." + name + ".queue_size");
-  return nh.create_publisher<msg>(topic, queueSize);
+
+  auto parameterInterface{nh.get_node_parameters_interface()};
+  acl::config::ParameterProperties properties{};
+  acl::config::declareParameter<std::string>(*parameterInterface, "publishers." + name + ".topic", properties, defaultTopic);
+  acl::config::declareParameter<int>(*parameterInterface, "publishers." + name + ".queue_size", properties);
+
+  auto topic{acl::config::getParameter<std::string>(*parameterInterface, "publishers." + name + ".topic")};
+  auto queueSize{acl::config::getParameter<int>(*parameterInterface, "publishers." + name + ".queue_size")};
+
+  // nh.create_publisher(topic, q_size) ctor. is equivalent to KeepLast(q_size).
+  auto qos_profile{rclcpp::QoS(rclcpp::KeepLast(queue_size))};
+  if (latch) {
+    // Latching behaviour needs TransientLocal. Unclear if Reliable also needs to be set
+    // https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html
+    qos_profile.durability(rclcpp::DurabilityPolicy::TransientLocal);
+    qos_profile.reliability(rclcpp::ReliabilityPolicy::Reliable);
+  }
+
+  return nh.create_publisher<msg>(topic, qos_profile);
 #endif /* ROS2_BUILD */
 }
 
@@ -71,8 +87,13 @@ typename rclcpp::Subscription<M>::SharedPtr subscribe(rclcpp::Node& nh, const st
                         param<int>(nh, "subscribers/" + name + "/queue_size", queue_size), fp, obj, transport_hints);
   }
 #else  /* ROS2_BUILD */
-  auto topic = acl::config::getParameter<std::string>(*nh.get_node_parameters_interface(), "subscribers." + name + ".topic");
-  auto queueSize = acl::config::getParameter<int>(*nh.get_node_parameters_interface(), "subscribers." + name + ".queue_size");
+  auto parameterInterface{nh.get_node_parameters_interface()};
+  acl::config::ParameterProperties properties{};
+  acl::config::declareParameter<std::string>(*parameterInterface, "subscribers." + name + ".topic", properties, defaultTopic);
+  acl::config::declareParameter<int>(*parameterInterface, "subscribers." + name + ".queue_size", properties);
+
+  auto topic = acl::config::getParameter<std::string>(*parameterInterface, "subscribers." + name + ".topic");
+  auto queueSize = acl::config::getParameter<int>(*parameterInterface, "subscribers." + name + ".queue_size");
   rclcpp::SubscriptionOptions options;
   options.callback_group = group;
   return nh.create_subscription(topic, queueSize, std::bind(fp, obj, std::placeholders::_1), options);
