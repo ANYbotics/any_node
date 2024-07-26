@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(any_worker)
 
-
-
 if("$ENV{ROS_VERSION}" STREQUAL "1")
-
-
 
 find_package(catkin REQUIRED COMPONENTS
   message_logger
@@ -86,79 +82,80 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-
-
 else() # ROS version 2
 
+###############
+## Configure ##
+###############
 
-find_package(ament_cmake REQUIRED)
-find_package(message_logger REQUIRED)
-find_package(rclcpp REQUIRED)
-
-###################################
-## catkin specific configuration ##
-###################################
-
-###########
-## Build ##
-###########
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
-
-add_library(${PROJECT_NAME} src/Rate.cpp src/Worker.cpp src/WorkerManager.cpp)
-target_include_directories(${PROJECT_NAME} PRIVATE include)
-ament_target_dependencies(${PROJECT_NAME}
-  ament_cmake
+set(PACKAGE_DEPENDENCIES
   message_logger
-  rclcpp
 )
 
+find_package(ament_cmake REQUIRED)
+foreach(PKG IN LISTS PACKAGE_DEPENDENCIES)
+  find_package(${PKG} REQUIRED)
+endforeach()
 
-##########
-## Test ##
-##########
-if(CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(test_${PROJECT_NAME}
-    test/${PROJECT_NAME}_test.cpp
-    test/RateTest.cpp)
-endif()
+###########
+## Build ##
+###########
 
-if(TARGET test_${PROJECT_NAME})
-
-  if(cmake_code_coverage_FOUND)
-    add_gtest_coverage()
-  endif(cmake_code_coverage_FOUND)
-endif()
-
+add_library(${PROJECT_NAME} SHARED
+  src/Rate.cpp
+  src/Worker.cpp
+  src/WorkerManager.cpp
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+ament_target_dependencies(${PROJECT_NAME}
+  ${PACKAGE_DEPENDENCIES}
+)
 
 #############
 ## Install ##
 #############
-install(DIRECTORY include/${PROJECT_NAME}/
+
+install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
-
-ament_export_dependencies(ament_cmake)
-ament_export_dependencies(message_logger)
-ament_export_dependencies(rclcpp)
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
-
-install(TARGETS DESTINATION lib/${PROJECT_NAME})
-
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
 )
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+ament_export_dependencies(${PACKAGE_DEPENDENCIES})
+
+##########
+## Test ##
+##########
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_${PROJECT_NAME}
+    test/${PROJECT_NAME}_test.cpp
+    test/RateTest.cpp
+  )
+  target_link_libraries(test_${PROJECT_NAME} ${PROJECT_NAME})
+
+  find_package(cmake_code_coverage QUIET)
+  if(cmake_code_coverage_FOUND)
+    add_gtest_coverage()
+  endif(cmake_code_coverage_FOUND)
+endif()
+
 
 ament_package()
 
