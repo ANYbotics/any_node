@@ -34,19 +34,17 @@ ros::Publisher advertise(ros::NodeHandle& nh, const std::string& name, const std
                            param<int>(nh, "publishers/" + name + "/queue_size", queue_size),
                            param<bool>(nh, "publishers/" + name + "/latch", latch));
 #else  /* ROS2_BUILD */
-typename rclcpp::Publisher<msg>::SharedPtr advertise(rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
-                                                     uint32_t queue_size, bool latch = false) {
+typename rclcpp::Publisher<msg>::SharedPtr advertise(rclcpp::Node& nh, const std::string& name,
+                                                     [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
+                                                     bool latch = false) {
 
   auto parameterInterface{nh.get_node_parameters_interface()};
-  acl::config::ParameterProperties properties{};
-  acl::config::declareParameter<std::string>(*parameterInterface, "publishers." + name + ".topic", properties, defaultTopic);
-  acl::config::declareParameter<int>(*parameterInterface, "publishers." + name + ".queue_size", properties);
 
   auto topic{acl::config::getParameter<std::string>(*parameterInterface, "publishers." + name + ".topic")};
   auto queueSize{acl::config::getParameter<int>(*parameterInterface, "publishers." + name + ".queue_size")};
 
   // nh.create_publisher(topic, q_size) ctor. is equivalent to KeepLast(q_size).
-  auto qos_profile{rclcpp::QoS(rclcpp::KeepLast(queue_size))};
+  auto qos_profile{rclcpp::QoS(rclcpp::KeepLast(queueSize))};
   if (latch) {
     // Latching behaviour needs TransientLocal. Unclear if Reliable also needs to be set
     // https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html
@@ -75,8 +73,9 @@ ros::Subscriber subscribe(ros::NodeHandle& nh, const std::string& name, const st
                           void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                           const ros::TransportHints& transport_hints = ros::TransportHints()) {
 #else  /* ROS2_BUILD */
-typename rclcpp::Subscription<M>::SharedPtr subscribe(rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
-                                                      uint32_t queue_size, void (T::*fp)(const std::shared_ptr<M const>&), T* obj,
+typename rclcpp::Subscription<M>::SharedPtr subscribe(rclcpp::Node& nh, const std::string& name,
+                                                      [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
+                                                      void (T::*fp)(const std::shared_ptr<M const>&), T* obj,
                                                       rclcpp::CallbackGroup::SharedPtr group = nullptr) {
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
@@ -88,9 +87,6 @@ typename rclcpp::Subscription<M>::SharedPtr subscribe(rclcpp::Node& nh, const st
   }
 #else  /* ROS2_BUILD */
   auto parameterInterface{nh.get_node_parameters_interface()};
-  acl::config::ParameterProperties properties{};
-  acl::config::declareParameter<std::string>(*parameterInterface, "subscribers." + name + ".topic", properties, defaultTopic);
-  acl::config::declareParameter<int>(*parameterInterface, "subscribers." + name + ".queue_size", properties);
 
   auto topic = acl::config::getParameter<std::string>(*parameterInterface, "subscribers." + name + ".topic");
   auto queueSize = acl::config::getParameter<int>(*parameterInterface, "subscribers." + name + ".queue_size");
@@ -107,17 +103,15 @@ ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, ros::NodeHandle
                                                 void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                                                 const ros::TransportHints& transport_hints = ros::TransportHints()) {
 #else  /* ROS2_BUILD */
-ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
-                                                uint32_t queue_size, void (T::*fp)(const std::shared_ptr<M const>&), T* obj) {
+ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, rclcpp::Node& nh, const std::string& name,
+                                                [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
+                                                void (T::*fp)(const std::shared_ptr<M const>&), T* obj) {
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
   if (nh.param<bool>("subscribers/" + name + "/deactivate", false)) {
 #else                                                                      /* ROS2_BUILD */
   rclcpp::node_interfaces::NodeParametersInterface& paramInterface = nh.get_node_parameters_interface();
-  const acl::config::ParameterProperties properties;
-  acl::config::declareParameter<bool>(paramInterface, "subscribers/" + name + "/deactivate", properties, false);
-  acl::config::declareParameter<std::string>(paramInterface, "subscribers/" + name + "/topic", properties, defaultTopic);
-  acl::config::declareParameter<int>(paramInterface, "subscribers/" + name + "/queue_size", properties, queue_size);
+
   if (acl::config::getParameter<bool>(paramInterface, "subscribers/" + name + "/deactivate")) {
 #endif                                                                     /* ROS2_BUILD */
     return ThrottledSubscriberPtr<M, T>(new ThrottledSubscriber<M, T>());  // return empty subscriber
