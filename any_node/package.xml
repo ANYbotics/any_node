@@ -2,7 +2,7 @@
 <package format="3">
 
   <name>any_node</name>
-  <version>0.6.17</version>
+  <version>0.6.18</version>
   <description>ROS node wrapper with some convenience functions using *any_worker*.</description>
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
   <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>

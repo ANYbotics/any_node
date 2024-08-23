@@ -3,7 +3,7 @@
 <package format="2">
 
   <name>param_io</name>
-  <version>0.5.21</version>
+  <version>0.5.22</version>
   <description>Parameter message conversions</description>
 
   <license>BSD</license>
