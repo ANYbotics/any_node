@@ -1,16 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <package format="3">
-
   <name>any_node</name>
   <version>0.6.18</version>
   <description>ROS node wrapper with some convenience functions using *any_worker*.</description>
+
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
   <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
   <maintainer email="msuetterlin@anybotics.com">Marco Sütterlin</maintainer>
   <license>BSD</license>
+
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
   <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+
 <!--   <build_depend condition="$ROS_VERSION == 1">cmake_clang_tools</build_depend> -->
+
   <depend>any_worker</depend>
   <depend condition="$ROS_VERSION == 1">message_logger</depend>
   <depend condition="$ROS_VERSION == 1">param_io</depend>
@@ -18,8 +21,10 @@
   <depend condition="$ROS_VERSION == 1">roscpp</depend>
   <depend>signal_handler</depend>
   <depend condition="$ROS_VERSION == 2">rclcpp</depend>
+
   <test_depend>gtest</test_depend>
 <!--   <test_depend condition="$ROS_VERSION == 1">cmake_code_coverage</test_depend> -->
+
   <export>
     <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
   </export>
