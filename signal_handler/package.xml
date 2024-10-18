@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <package format="3">
   <name>signal_handler</name>
-  <version>0.5.22</version>
+  <version>0.5.23</version>
   <description>Contains a static signal handling helper class.</description>
 
   <license>BSD</license>
