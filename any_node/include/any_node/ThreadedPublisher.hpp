@@ -20,9 +20,7 @@
 #include "rclcpp/rclcpp.hpp"
 #endif /* ROS2_BUILD */
 
-#ifndef ROS2_BUILD
 #include <message_logger/message_logger.hpp>
-#endif
 
 namespace any_node {
 
@@ -84,7 +82,11 @@ class ThreadedPublisher {
     }
 
     std::lock_guard<std::mutex> publisherLock(publisherMutex_);
+#ifndef ROS2_BUILD
     publisher_.shutdown();
+#else  /* ROS2_BUILD */
+    publisher_.reset();
+#endif /* ROS2_BUILD */
   }
 
   std::string getTopic() const {
@@ -120,7 +122,11 @@ class ThreadedPublisher {
       }
       {
         std::lock_guard<std::mutex> publisherLock(publisherMutex_);
+#ifndef ROS2_BUILD
         publisher_.publish(message);
+#else  /* ROS2_BUILD */
+        publisher_->publish(message);
+#endif /* ROS2_BUILD */
       }
     }
   }
@@ -130,8 +136,13 @@ class ThreadedPublisher {
     {
       std::lock_guard<std::mutex> messageBufferLock(messageBufferMutex_);
       if (messageBuffer_.size() == maxMessageBufferSize_) {
-        MELO_ERROR_STREAM("Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: "
-                          << publisher_.getTopic());
+#ifndef ROS2_BUILD
+        auto topicName = publisher_.getTopic();
+#else  /* ROS2_BUILD */
+        auto topicName = publisher_->get_topic_name();
+#endif /* ROS2_BUILD */
+        MELO_ERROR_STREAM(
+            "Threaded publisher: Message buffer reached max size, discarding oldest message without publishing. Topic: " << topicName);
         messageBuffer_.pop();
       }
       messageBuffer_.push(message);

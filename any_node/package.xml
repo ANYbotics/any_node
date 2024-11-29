@@ -15,7 +15,7 @@
 <!--   <build_depend condition="$ROS_VERSION == 1">cmake_clang_tools</build_depend> -->
 
   <depend>any_worker</depend>
-  <depend condition="$ROS_VERSION == 1">message_logger</depend>
+  <depend >message_logger</depend>
   <depend condition="$ROS_VERSION == 1">param_io</depend>
   <depend condition="$ROS_VERSION == 2">acl_config_cpp</depend>
   <depend condition="$ROS_VERSION == 1">roscpp</depend>

@@ -104,6 +104,7 @@ set(PACKAGE_DEPENDENCIES
   any_worker
   rclcpp
   signal_handler
+  message_logger
 )
 
 find_package(ament_cmake REQUIRED)

@@ -42,4 +42,6 @@
 #pragma once
 
 #include "any_node/Node.hpp"
+#ifndef ROS2_BUILD
 #include "any_node/Nodewrap.hpp"
+#endif /* ROS2_BUILD */
