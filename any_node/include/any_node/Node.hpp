@@ -115,8 +115,11 @@ class Node {
    */
 #ifndef ROS2_BUILD
   inline ros::NodeHandle& getNodeHandle() const { return *nh_; }
+  // An alias to symplify the ROS2 migration
+  inline ros::NodeHandle& getNode() const { return *nh_; }
 #else  /* ROS2_BUILD */
-  inline rclcpp::Node& getNodeHandle() const { return *nh_; }
+  inline rclcpp::Node::SharedPtr getNodeHandle() { return nh_; }
+  inline rclcpp::Node& getNode() { return *nh_; }
 #endif /* ROS2_BUILD */
 
   /*
