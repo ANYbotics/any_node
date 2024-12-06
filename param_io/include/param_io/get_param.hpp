@@ -240,7 +240,7 @@ T getMember(XmlRpc::XmlRpcValue parameter, const std::string& key) {
     }
     return static_cast<T>(parameter[key]);
   } catch (const XmlRpc::XmlRpcException& exception) {
-    ROS_ERROR_STREAM("Caught an XmlRpc exception while getting member '" << key << "'.");
+    ROS_ERROR_STREAM_THROTTLE(5.0, "Caught an XmlRpc exception while getting member '" << key << "'.");
     return T();
   }
 }
