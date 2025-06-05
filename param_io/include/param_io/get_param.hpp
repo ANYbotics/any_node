@@ -9,11 +9,11 @@
 #pragma once
 
 // ros
-#include <XmlRpc.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <ros/ros.h>
 #include <std_msgs/Header.h>
+#include <xmlrpcpp/XmlRpc.h>
 
 #include <Eigen/Dense>
 
