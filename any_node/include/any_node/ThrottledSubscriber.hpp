@@ -26,7 +26,11 @@ namespace any_node {
 template <typename MessageType, typename CallbackClass>
 class ThrottledSubscriber {
  public:
+#ifndef ROS2_BUILD
   ThrottledSubscriber() : subscriber_(), fp_(nullptr), obj_(nullptr), lastTime_(), timeStep_() {}
+#else /* ROS2_BUILD */
+  ThrottledSubscriber() : subscriber_(), fp_(nullptr), obj_(nullptr), lastTime_(), timeStep_(rclcpp::Duration::from_seconds(0)) {}
+#endif
 
 #ifndef ROS2_BUILD
   ThrottledSubscriber(const double timeStep, ros::NodeHandle& nh, const std::string& topic, uint32_t queue_size,
@@ -39,7 +43,7 @@ class ThrottledSubscriber {
 #ifndef ROS2_BUILD
       : fp_(fp), obj_(obj), lastTime_(ros::TIME_MIN), timeStep_(ros::Duration().fromSec(timeStep)) {
 #else  /* ROS2_BUILD */
-      : fp_(fp), obj_(obj), lastTime_(), timeStep_(rclcpp::Duration(std::chrono::seconds{timeStep})) {
+      : fp_(fp), obj_(obj), lastTime_(), timeStep_(rclcpp::Duration::from_seconds(timeStep)) {
 #endif /* ROS2_BUILD */
     subscriber_ =
 #ifndef ROS2_BUILD

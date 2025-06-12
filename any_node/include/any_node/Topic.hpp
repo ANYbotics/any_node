@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #ifndef ROS2_BUILD
@@ -109,21 +110,24 @@ ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, rclcpp::Node& n
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
   if (nh.param<bool>("subscribers/" + name + "/deactivate", false)) {
-#else                                                                      /* ROS2_BUILD */
-  rclcpp::node_interfaces::NodeParametersInterface& paramInterface = nh.get_node_parameters_interface();
+#else                                                      /* ROS2_BUILD */
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr paramInterface = nh.get_node_parameters_interface();
+  if (paramInterface == nullptr) {
+    return std::make_shared<ThrottledSubscriber<M, T>>();
+  }
 
-  if (acl::config::getParameter<bool>(paramInterface, "subscribers/" + name + "/deactivate")) {
-#endif                                                                     /* ROS2_BUILD */
-    return ThrottledSubscriberPtr<M, T>(new ThrottledSubscriber<M, T>());  // return empty subscriber
+  if (acl::config::getParameter<bool>(*paramInterface, "subscribers/" + name + "/deactivate")) {
+#endif                                                     /* ROS2_BUILD */
+    return std::make_shared<ThrottledSubscriber<M, T>>();  // return empty subscriber
   } else {
-    return ThrottledSubscriberPtr<M, T>(
 #ifndef ROS2_BUILD
-        new ThrottledSubscriber<M, T>(timeStep, nh, param<std::string>(nh, "subscribers/" + name + "/topic", defaultTopic),
-                                      param<int>(nh, "subscribers/" + name + "/queue_size", queue_size), fp, obj, transport_hints));
+    return std::make_shared<ThrottledSubscriber<M, T>>(timeStep, nh, param<std::string>(nh, "subscribers/" + name + "/topic", defaultTopic),
+                                                       param<int>(nh, "subscribers/" + name + "/queue_size", queue_size), fp, obj,
+                                                       transport_hints);
 #else  /* ROS2_BUILD */
-        new ThrottledSubscriber<M, T>(timeStep, nh,
-                                      acl::config::getParameter<std::string>(paramInterface, "subscribers." + name + ".topic"),
-                                      acl::config::getParameter<int>(paramInterface, "subscribers." + name + ".queue_size"), fp, obj));
+    return std::make_shared<ThrottledSubscriber<M, T>>(
+        timeStep, nh, acl::config::getParameter<std::string>(*paramInterface, "subscribers." + name + ".topic"),
+        acl::config::getParameter<int>(*paramInterface, "subscribers." + name + ".queue_size"), fp, obj);
 #endif /* ROS2_BUILD */
   }
 }
