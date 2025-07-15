@@ -16,10 +16,10 @@
 #include <ros/service_client.h>
 #include <ros/service_server.h>
 #include <ros/subscriber.h>
-#else
+#else /* ROS2_BUILD */
 #include <acl_config/acl_config.hpp>
 #include <rclcpp/rclcpp.hpp>
-#endif
+#endif /* ROS2_BUILD */
 
 #include "any_node/Param.hpp"
 #include "any_node/ThreadedPublisher.hpp"
@@ -35,9 +35,9 @@ ros::Publisher advertise(ros::NodeHandle& nh, const std::string& name, const std
                            param<int>(nh, "publishers/" + name + "/queue_size", queue_size),
                            param<bool>(nh, "publishers/" + name + "/latch", latch));
 #else  /* ROS2_BUILD */
-typename rclcpp::Publisher<msg>::SharedPtr advertise(rclcpp::Node& nh, const std::string& name,
-                                                     [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
-                                                     bool latch = false) {
+[[deprecated("Use the acl_node_helpers instead.")]] typename rclcpp::Publisher<msg>::SharedPtr advertise(
+    rclcpp::Node& nh, const std::string& name, [[deprecated]] const std::string& /* defaultTopic */,
+    [[deprecated]] uint32_t /* queue_size */, bool latch = false) {
 
   auto parameterInterface{nh.get_node_parameters_interface()};
 
@@ -61,7 +61,8 @@ template <typename msg>
 #ifndef ROS2_BUILD
 ThreadedPublisherPtr<msg> threadedAdvertise(ros::NodeHandle& nh, const std::string& name, const std::string& defaultTopic,
 #else  /* ROS2_BUILD */
-ThreadedPublisherPtr<msg> threadedAdvertise(rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
+[[deprecated("Use the acl_node_helpers instead.")]] ThreadedPublisherPtr<msg> threadedAdvertise(
+    rclcpp::Node& nh, const std::string& name, const std::string& defaultTopic,
 #endif /* ROS2_BUILD */
                                             uint32_t queue_size, bool latch = false, unsigned int maxMessageBufferSize = 10) {
   return ThreadedPublisherPtr<msg>(
@@ -74,10 +75,10 @@ ros::Subscriber subscribe(ros::NodeHandle& nh, const std::string& name, const st
                           void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                           const ros::TransportHints& transport_hints = ros::TransportHints()) {
 #else  /* ROS2_BUILD */
-typename rclcpp::Subscription<M>::SharedPtr subscribe(rclcpp::Node& nh, const std::string& name,
-                                                      [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
-                                                      void (T::*fp)(const std::shared_ptr<M const>&), T* obj,
-                                                      rclcpp::CallbackGroup::SharedPtr group = nullptr) {
+[[deprecated("Use the acl_node_helpers instead.")]] typename rclcpp::Subscription<M>::SharedPtr subscribe(
+    rclcpp::Node& nh, const std::string& name, [[deprecated]] const std::string& /* defaultTopic */,
+    [[deprecated]] uint32_t /* queue_size */, void (T::*fp)(const std::shared_ptr<M const>&), T* obj,
+    rclcpp::CallbackGroup::SharedPtr group = nullptr) {
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
   if (nh.param<bool>("subscribers/" + name + "/deactivate", false)) {
@@ -104,9 +105,9 @@ ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, ros::NodeHandle
                                                 void (T::*fp)(const boost::shared_ptr<M const>&), T* obj,
                                                 const ros::TransportHints& transport_hints = ros::TransportHints()) {
 #else  /* ROS2_BUILD */
-ThrottledSubscriberPtr<M, T> throttledSubscribe(double timeStep, rclcpp::Node& nh, const std::string& name,
-                                                [[deprecated]] const std::string& defaultTopic, [[deprecated]] uint32_t queue_size,
-                                                void (T::*fp)(const std::shared_ptr<M const>&), T* obj) {
+[[deprecated("Use the acl_node_helpers instead.")]] ThrottledSubscriberPtr<M, T> throttledSubscribe(
+    double timeStep, rclcpp::Node& nh, const std::string& name, [[deprecated]] const std::string& /* defaultTopic */,
+    [[deprecated]] uint32_t /* queue_size */, void (T::*fp)(const std::shared_ptr<M const>&), T* obj) {
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
   if (nh.param<bool>("subscribers/" + name + "/deactivate", false)) {
@@ -140,12 +141,13 @@ ros::ServiceServer advertiseService(ros::NodeHandle& nh, const std::string& name
 }
 #else  /* ROS2_BUILD */
 template <class T, class Service>
-auto advertiseService(rclcpp::Node& nh, const std::string& name, const std::string& defaultService,
-                      void (T::*srv_func)(const std::shared_ptr<typename Service::Request>, std::shared_ptr<typename Service::Response>),
-                      T* obj, rclcpp::CallbackGroup::SharedPtr group = nullptr) {
+[[deprecated("Use the acl_node_helpers instead.")]] auto advertiseService(
+    rclcpp::Node& nh, const std::string& name, const std::string& /* defaultService */,
+    void (T::*srv_func)(const std::shared_ptr<typename Service::Request>, std::shared_ptr<typename Service::Response>), T* obj,
+    rclcpp::CallbackGroup::SharedPtr group = nullptr) {
   auto service = acl::config::getParameter<std::string>(*nh.get_node_parameters_interface(), "servers." + name + ".service");
   using namespace std::placeholders;
-  return nh.create_service<Service>(service, std::bind(srv_func, obj, _1, _2), rmw_qos_profile_services_default, group);
+  return nh.create_service<Service>(service, std::bind(srv_func, obj, _1, _2), rclcpp::ServicesQoS(), group);
 }
 #endif /* ROS2_BUILD */
 
@@ -165,15 +167,16 @@ template <class Service>
 ros::ServiceClient serviceClient(ros::NodeHandle& nh, const std::string& name, const std::string& defaultService,
                                  const ros::M_string& header_values = ros::M_string()) {
 #else  /* ROS2_BUILD */
-auto serviceClient(rclcpp::Node& nh, const std::string& name, const std::string& defaultService,
-                   rclcpp::CallbackGroup::SharedPtr group = nullptr) {
+[[deprecated("Use the acl_node_helpers instead.")]] auto serviceClient(rclcpp::Node& nh, const std::string& name,
+                                                                       const std::string& /* defaultService */,
+                                                                       rclcpp::CallbackGroup::SharedPtr group = nullptr) {
 #endif /* ROS2_BUILD */
 #ifndef ROS2_BUILD
   return nh.serviceClient<Service>(param<std::string>(nh, "clients/" + name + "/service", defaultService),
                                    param<bool>(nh, "clients/" + name + "/persistent", false), header_values);
 #else  /* ROS2_BUILD */
   auto service = acl::config::getParameter<std::string>(*nh.get_node_parameters_interface(), "clients." + name + ".service");
-  return nh.create_client<Service>(service, rmw_qos_profile_services_default, group);
+  return nh.create_client<Service>(service, rclcpp::ServicesQoS(), group);
 #endif /* ROS2_BUILD */
 }
 
