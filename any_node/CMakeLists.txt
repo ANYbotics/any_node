@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(any_node)
 
 if("$ENV{ROS_VERSION}" STREQUAL "1")
+  # gersemi: off
 
 find_package(catkin REQUIRED
   COMPONENTS
@@ -89,6 +90,7 @@ if(CATKIN_ENABLE_TESTING)
   endif()
 endif()
 
+  # gersemi: on
 else() # ROS version 2
 
 ###############
@@ -156,11 +158,6 @@ if(BUILD_TESTING)
   ament_add_gtest(test_${PROJECT_NAME}
     test/EmptyTests.cpp
   )
-
-  find_package(cmake_code_coverage QUIET)
-  if(cmake_code_coverage_FOUND)
-    add_gtest_coverage()
-  endif(cmake_code_coverage_FOUND)
 endif()
 
 ament_package()
