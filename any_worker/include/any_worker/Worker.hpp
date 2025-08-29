@@ -42,12 +42,10 @@
 #pragma once
 
 #include <atomic>
-#include <functional>
 #include <string>
 #include <thread>
 
 #include "any_worker/Rate.hpp"
-#include "any_worker/WorkerEvent.hpp"
 #include "any_worker/WorkerOptions.hpp"
 
 namespace any_worker {

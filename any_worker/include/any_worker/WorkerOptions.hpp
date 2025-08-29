@@ -41,13 +41,20 @@
 
 #pragma once
 
-#include <atomic>
+#include <functional>
 #include <string>
 
 #include "any_worker/RateOptions.hpp"
 #include "any_worker/WorkerEvent.hpp"
 
 namespace any_worker {
+
+/*!
+ * Nice levels are multiplicative, with a 10% CPU time slice for a nice-level of 1, which is
+ * achieved through a multiplier of 1.25. https://www.man7.org/linux/man-pages/man7/sched.7.html
+ * The default niceness on Linux is 0.
+ */
+enum class WorkerNiceness : int { HIGH = -10, DEFAULT = 0 };
 
 using WorkerCallback = std::function<bool(const WorkerEvent&)>;
 using WorkerCallbackFailureReaction = std::function<void(void)>;
@@ -61,8 +68,18 @@ struct WorkerOptions : public RateOptions {
         callback_(std::move(callback)),
         callbackFailureReaction_([]() {}),
         defaultPriority_(priority),
+        defaultNiceness_(WorkerNiceness::DEFAULT),
         destructWhenDone_(false),
         schedAffinity_(schedAffinity) {}
+
+  WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback, const WorkerNiceness niceness)
+      : RateOptions(name, timestep),
+        callback_(std::move(callback)),
+        callbackFailureReaction_([]() {}),
+        defaultPriority_(0),
+        defaultNiceness_(niceness),
+        destructWhenDone_(false),
+        schedAffinity_(-1) {}
 
   WorkerOptions(const std::string& name, const double timestep, WorkerCallback callback,
                 WorkerCallbackFailureReaction callbackFailureReaction, const int priority = 0, const int schedAffinity = -1)
@@ -70,6 +87,7 @@ struct WorkerOptions : public RateOptions {
         callback_(std::move(callback)),
         callbackFailureReaction_(std::move(callbackFailureReaction)),
         defaultPriority_(priority),
+        defaultNiceness_(WorkerNiceness::DEFAULT),
         destructWhenDone_(false),
         schedAffinity_(schedAffinity) {}
 
@@ -80,6 +98,7 @@ struct WorkerOptions : public RateOptions {
         callback_(std::move(other.callback_)),
         callbackFailureReaction_(std::move(other.callbackFailureReaction_)),
         defaultPriority_(other.defaultPriority_),
+        defaultNiceness_(other.defaultNiceness_),
         destructWhenDone_(other.destructWhenDone_),
         schedAffinity_(other.schedAffinity_) {}
 
@@ -94,9 +113,16 @@ struct WorkerOptions : public RateOptions {
   WorkerCallbackFailureReaction callbackFailureReaction_;
 
   /*!
-   * priority of the underlying thread, integer between 0 and 99 with 0 beeing the lowest priority.
+   * Static scheduling priority of the underlying thread. Static priority 0 implies default
+   * time-share scheduling, whereas 1 (low) to 99 (high) are required for real-time policies.
    */
   int defaultPriority_{0};
+
+  /*!
+   * Niceness of the underlying thread for default non-rt scheduling. Time-share scheduling
+   * requires a static scheduling priority of 0.
+   */
+  WorkerNiceness defaultNiceness_{WorkerNiceness::DEFAULT};
 
   /*!
    * if set to true and timestep=0 (run callback only once), the worker will be destructed by the WorkerManager

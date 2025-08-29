@@ -39,14 +39,13 @@
  * @date	July, 2016
  */
 
-#include <limits>
+#include "any_worker/Worker.hpp"
 
 #include <pthread.h>
-#include <cstring>  // strerror(..)
+#include <sys/resource.h>  // setpriority
+#include <cstring>         // strerror(..)
 #include <ctime>
-
-#include "any_worker/Worker.hpp"
-#include "message_logger/message_logger.hpp"
+#include <message_logger/message_logger.hpp>
 
 namespace any_worker {
 
@@ -97,7 +96,7 @@ bool Worker::start(const int priority) {
   } else if (options_.defaultPriority_ != 0) {
     sched.sched_priority = options_.defaultPriority_;
   }
-
+  // Set real-time scheduling priority and policy
   if (sched.sched_priority != 0) {
     if (pthread_setschedparam(thread_.native_handle(), SCHED_FIFO, &sched) != 0) {
       MELO_WARN("Failed to set thread priority for worker [%s]: %s", options_.name_.c_str(), strerror(errno));
@@ -153,6 +152,18 @@ void Worker::setEnforceRate(const bool enforceRate) {
 }
 
 void Worker::run() {
+  // Adjust thread scheduling priortiy under default scheduling policy
+  if (options_.defaultPriority_ == 0 && options_.defaultNiceness_ != WorkerNiceness::DEFAULT) {
+    // Note: To adjust the scheduling priority under linux either the unique TID is required or to use 0
+    // as indicator for the calling process. There is no direct conversion from std::thread::native_handle()
+    // to a TID as the latter is system-specifc identifier. Therefore, to explicitly use the correct kernel thread ID,
+    // the thread priority is adjusted within the thread execution context.
+    // TODO(lneuner): To be evaluted wether this is required for single callback execution.
+    if (setpriority(PRIO_PROCESS, 0 /*calling_tid*/, static_cast<int>(options_.defaultNiceness_)) != 0) {
+      MELO_WARN("Failed to set thread niceness for worker [%s]: %s", options_.name_.c_str(), strerror(errno));
+    }
+  }
+
   if (std::isinf(options_.timeStep_)) {
     // Run the callback once.
     static timespec now;
