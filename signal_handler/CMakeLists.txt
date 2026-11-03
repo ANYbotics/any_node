@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.28)
 project(signal_handler)
 
 if("$ENV{ROS_VERSION}" STREQUAL "1")

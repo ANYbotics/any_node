@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.28)
 project(any_node)
 
 if("$ENV{ROS_VERSION}" STREQUAL "1")
