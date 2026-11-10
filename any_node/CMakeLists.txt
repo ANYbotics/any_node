@@ -42,7 +42,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
 add_library(${PROJECT_NAME}
   src/Node.cpp
 )
@@ -70,7 +69,6 @@ if(cmake_clang_tools_FOUND)
   add_default_clang_tooling()
 endif(cmake_clang_tools_FOUND)
 
-
 if(CATKIN_ENABLE_TESTING)
   catkin_add_gtest(test_${PROJECT_NAME}
     test/EmptyTests.cpp
@@ -97,7 +95,9 @@ else() # ROS version 2
 ## Configure ##
 ###############
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

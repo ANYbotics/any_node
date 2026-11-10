@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_logger
 )
 
-
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -28,7 +27,6 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
-
 
 add_library(${PROJECT_NAME}
   src/Rate.cpp
@@ -68,7 +66,6 @@ if(cmake_clang_tools_FOUND)
   add_default_clang_tooling()
 endif(cmake_clang_tools_FOUND)
 
-
 #############
 ## Install ##
 #############
@@ -88,7 +85,9 @@ else() # ROS version 2
 ## Configure ##
 ###############
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -155,7 +154,6 @@ if(BUILD_TESTING)
     add_gtest_coverage()
   endif(cmake_code_coverage_FOUND)
 endif()
-
 
 ament_package()
 

@@ -27,7 +27,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
 add_library(
   ${PROJECT_NAME}
   src/SignalHandler.cpp
@@ -60,7 +59,6 @@ if(CATKIN_ENABLE_TESTING)
   endif()
 endif()
 
-
 #############
 ## Install ##
 #############
@@ -80,7 +78,9 @@ else() # ROS version 2
 ## Configure ##
 ###############
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
