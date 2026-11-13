@@ -5,8 +5,7 @@
   <description>ROS node wrapper with some convenience functions using *any_worker*.</description>
 
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
-  <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
-  <maintainer email="msuetterlin@anybotics.com">Marco Sütterlin</maintainer>
+  <maintainer email="support@anybotics.com">ANYbotics</maintainer>
   <license>BSD</license>
 
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>

@@ -5,8 +5,7 @@
   <description>High resolution version of the ROS worker.</description>
 
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
-  <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
-  <maintainer email="msuetterlin@anybotics.com">Marco Sütterlin</maintainer>
+  <maintainer email="support@anybotics.com">ANYbotics</maintainer>
   <license>BSD</license>
   <url>https://github.com/anybotics/any_node</url>
 

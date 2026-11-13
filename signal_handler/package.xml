@@ -6,8 +6,7 @@
 
   <license>BSD</license>
   <author email="pleemann@anybotics.com">Philipp Leemann</author>
-  <maintainer email="pleemann@anybotics.com">Philipp Leemann</maintainer>
-  <maintainer email="rdiethelm@anybotics.com">Remo Diethelm</maintainer>
+  <maintainer email="support@anybotics.com">ANYbotics</maintainer>
   <url>https://github.com/anybotics/any_node</url>
 
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
